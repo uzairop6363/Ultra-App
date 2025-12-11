@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#292d3e">
-    <title>Ultra Earn - Tactile</title>
+    <meta name="theme-color" content="#000000">
+    <title>Ultra Earn - Liquid</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -16,259 +16,300 @@
 
     <style>
         body {
-            background-color: #292d3e;
-            color: #d6dbe4;
-            font-family: 'Nunito', sans-serif;
+            font-family: 'Sora', sans-serif;
+            background-color: #000000;
+            color: #ffffff;
             min-height: 100vh;
             padding-bottom: 100px;
             -webkit-tap-highlight-color: transparent;
             overflow-x: hidden;
         }
 
-        /* --- NEUMORPHISM CORE CSS --- */
-        
-        /* 1. Ubhra hua Card (Flat/Convex) */
-        .neu-flat {
-            background: #292d3e;
-            border-radius: 20px;
-            box-shadow: 8px 8px 16px #1f222f, -8px -8px 16px #33384d;
-            border: 1px solid rgba(255,255,255,0.05);
+        /* 1. Liquid Background Animation */
+        .liquid-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background: #000;
+            overflow: hidden;
+        }
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 10s infinite alternate;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #6366f1; animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #ec4899; animation-delay: -5s; }
+        .blob-3 { top: 40%; left: 40%; width: 40vw; height: 40vw; background: #06b6d4; animation-delay: -2s; opacity: 0.4; }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(20px, 40px) scale(1.1); }
         }
 
-        /* 2. Daba hua Element (Pressed/Concave) */
-        .neu-pressed {
-            background: #292d3e;
-            border-radius: 15px;
-            box-shadow: inset 5px 5px 10px #1f222f, inset -5px -5px 10px #33384d;
-            border: 1px solid rgba(255,255,255,0.02);
+        /* 2. Holographic Glass Cards */
+        .holo-card {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 32px;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
         }
 
-        /* 3. Button with Animation */
-        .neu-btn {
-            background: #292d3e;
-            color: #00e5ff;
-            font-weight: 800;
-            border-radius: 15px;
-            box-shadow: 6px 6px 12px #1f222f, -6px -6px 12px #33384d;
-            transition: all 0.2s ease;
-            border: none;
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
-        .neu-btn:active {
-            box-shadow: inset 4px 4px 8px #1f222f, inset -4px -4px 8px #33384d;
-            transform: scale(0.98);
-            color: #00b8cc;
-        }
-        
-        /* Special Primary Button */
-        .neu-btn-primary {
-            background: #292d3e;
-            color: #292d3e; /* Text hidden, icon visible logic if needed, but here we use text */
-            color: #00e5ff;
-            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+        /* 3. Gradient Text */
+        .grad-text {
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        /* Inputs */
-        .neu-input {
-            width: 100%;
-            background: #292d3e;
-            border: none;
-            border-radius: 15px;
-            padding: 16px;
-            color: #fff;
-            box-shadow: inset 5px 5px 10px #1f222f, inset -5px -5px 10px #33384d;
+        /* 4. Liquid Inputs */
+        .liquid-input {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
             transition: 0.3s;
-            outline: none;
         }
-        .neu-input:focus {
-            box-shadow: inset 2px 2px 5px #1f222f, inset -2px -2px 5px #33384d, 0 0 5px rgba(0, 229, 255, 0.3);
+        .liquid-input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #818cf8;
+            outline: none;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
         }
 
-        /* Tab Animation */
-        .tab-content { display: none; animation: softFade 0.4s ease; }
-        .active-tab { display: block; }
-        @keyframes softFade { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* 5. Glowing Button */
+        .glow-btn {
+            background: linear-gradient(90deg, #6366f1, #ec4899);
+            color: white; border: none;
+            position: relative; overflow: hidden;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            transition: 0.3s;
+        }
+        .glow-btn:active { transform: scale(0.96); box-shadow: 0 0 10px rgba(99, 102, 241, 0.2); }
 
         /* Loader */
-        #loader { display: none; position: fixed; inset: 0; background: #292d3e; z-index: 100; justify-content: center; align-items: center; }
-        .neu-spinner { width: 50px; height: 50px; border-radius: 50%; background: #292d3e; box-shadow: 5px 5px 10px #1f222f, -5px -5px 10px #33384d; position: relative; animation: spin 1s linear infinite; }
-        .neu-spinner::after { content: ''; position: absolute; top: 5px; left: 5px; right: 5px; bottom: 5px; border-radius: 50%; border: 3px solid transparent; border-top-color: #00e5ff; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
+        #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 100; justify-content: center; align-items: center; }
+        
+        /* Tab Animation */
+        .tab-content { display: none; animation: slideUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
+        .active-tab { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div id="loader"><div class="neu-spinner"></div></div>
+    <div class="liquid-bg">
+        <div class="blob blob-1 rounded-full"></div>
+        <div class="blob blob-2 rounded-full"></div>
+        <div class="blob blob-3 rounded-full"></div>
+    </div>
 
-    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-8 overflow-y-auto bg-[#292d3e]">
-        <div class="neu-flat p-8 w-full max-w-sm mx-auto text-center">
-            <div class="w-20 h-20 mx-auto neu-flat flex items-center justify-center rounded-full mb-6 text-[#00e5ff]">
-                <i class="fa-solid fa-fingerprint text-4xl"></i>
-            </div>
-            <h1 class="text-3xl font-extrabold mb-2 text-white">Ultra Earn</h1>
-            <p class="text-xs text-gray-400 mb-8 uppercase tracking-widest">Secure Access</p>
-
-            <div id="loginForm" class="space-y-6">
-                <input type="email" id="loginEmail" placeholder="Email Address" class="neu-input">
-                <input type="password" id="loginPass" placeholder="Password" class="neu-input">
-                <button onclick="login()" class="neu-btn w-full py-4 text-lg">UNLOCK</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-500 mt-6 cursor-pointer hover:text-[#00e5ff]">Create New ID</p>
-            </div>
-
-            <div id="registerForm" class="hidden space-y-6">
-                <div id="autoRefBadge" class="hidden neu-pressed p-3 text-xs text-[#00e5ff]">
-                    Referrer: <b id="inviterId">...</b>
-                </div>
-                <input type="text" id="regName" placeholder="Full Name" class="neu-input">
-                <input type="email" id="regEmail" placeholder="Email Address" class="neu-input">
-                <input type="password" id="regPass" placeholder="Set Password" class="neu-input">
-                <button onclick="register()" class="neu-btn w-full py-4 text-lg text-[#ff0099]">REGISTER</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-500 mt-6 cursor-pointer hover:text-[#00e5ff]">Back to Login</p>
-            </div>
-            <p id="authMsg" class="text-red-400 text-xs mt-4"></p>
+    <div id="loader">
+        <div class="animate-pulse flex flex-col items-center">
+            <div class="w-16 h-16 bg-gradient-to-tr from-indigo-500 to-pink-500 rounded-full blur-xl mb-4"></div>
+            <p class="text-xs tracking-[0.3em] uppercase text-indigo-300">Loading System</p>
         </div>
     </div>
 
-    <div id="mainApp" style="display:none;" class="max-w-md mx-auto">
+    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto bg-black/80 backdrop-blur-xl">
+        <div class="w-full max-w-sm mx-auto">
+            <div class="mb-12">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-pink-500 flex items-center justify-center mb-6 shadow-2xl shadow-indigo-500/30">
+                    <i class="fa-solid fa-layer-group text-3xl text-white"></i>
+                </div>
+                <h1 class="text-5xl font-bold mb-2 text-white">Ultra.</h1>
+                <p class="text-gray-400 text-lg">Digital Asset Platform</p>
+            </div>
+
+            <div id="loginForm" class="space-y-5">
+                <input type="email" id="loginEmail" placeholder="Email" class="liquid-input w-full p-5 rounded-2xl text-lg">
+                <input type="password" id="loginPass" placeholder="Password" class="liquid-input w-full p-5 rounded-2xl text-lg">
+                <button onclick="login()" class="glow-btn w-full py-5 rounded-2xl font-bold text-lg tracking-wide">
+                    Sign In
+                </button>
+                <p onclick="toggleAuth()" class="text-center text-gray-500 mt-6 cursor-pointer hover:text-white transition">Create an account</p>
+            </div>
+
+            <div id="registerForm" class="hidden space-y-5">
+                <div id="autoRefBadge" class="hidden holo-card p-3 flex items-center justify-center gap-2">
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span class="text-sm text-gray-300">Invited by: <b id="inviterId" class="text-white">...</b></span>
+                </div>
+                <input type="text" id="regName" placeholder="Username" class="liquid-input w-full p-5 rounded-2xl text-lg">
+                <input type="email" id="regEmail" placeholder="Email" class="liquid-input w-full p-5 rounded-2xl text-lg">
+                <input type="password" id="regPass" placeholder="Password" class="liquid-input w-full p-5 rounded-2xl text-lg">
+                <button onclick="register()" class="glow-btn w-full py-5 rounded-2xl font-bold text-lg tracking-wide">
+                    Start Earning
+                </button>
+                <p onclick="toggleAuth()" class="text-center text-gray-500 mt-6 cursor-pointer hover:text-white transition">Back to Login</p>
+            </div>
+            <p id="authMsg" class="text-center text-red-400 text-sm mt-4 font-bold"></p>
+        </div>
+    </div>
+
+    <div id="mainApp" style="display:none;" class="max-w-md mx-auto px-4">
         
-        <div class="flex justify-between items-center p-6">
-            <div class="neu-btn w-12 h-12 rounded-full text-gray-400">
-                <i class="fa-solid fa-bars"></i>
+        <div class="flex justify-between items-center py-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-white/10 border border-white/10 flex items-center justify-center overflow-hidden">
+                    <img src="https://api.dicebear.com/7.x/micah/svg?seed=user" alt="avatar" class="w-full h-full">
+                </div>
+                <div>
+                    <p class="text-xs text-gray-400 uppercase tracking-wider">Welcome</p>
+                    <h2 class="text-xl font-bold text-white" id="userNameDisplay">User</h2>
+                </div>
             </div>
-            <div class="text-center">
-                <h2 class="text-lg font-bold text-white" id="userNameDisplay">User</h2>
-                <p class="text-[10px] text-gray-500 tracking-widest uppercase">Dashboard</p>
-            </div>
-            <button onclick="logout()" class="neu-btn w-12 h-12 rounded-full text-red-400">
+            <button onclick="logout()" class="w-12 h-12 rounded-full bg-white/5 hover:bg-red-500/20 flex items-center justify-center text-gray-400 hover:text-red-400 transition border border-white/5">
                 <i class="fa-solid fa-power-off"></i>
             </button>
         </div>
 
-        <div id="tab-home" class="tab-content px-6 pt-4">
-            <div class="neu-flat p-8 mb-8 text-center relative overflow-hidden">
-                <div class="absolute top-[-50px] right-[-50px] w-32 h-32 rounded-full bg-gradient-to-br from-transparent to-[#ffffff05]"></div>
+        <div id="tab-home" class="tab-content">
+            <div class="holo-card p-8 mb-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-500/20 rounded-full blur-3xl"></div>
                 
-                <p class="text-gray-400 text-xs font-bold mb-4 uppercase tracking-widest">Total Balance</p>
-                
-                <div class="neu-pressed w-48 h-48 mx-auto rounded-full flex flex-col items-center justify-center mb-6 border-[3px] border-[#292d3e]">
-                    <span class="text-gray-500 text-lg">Rs.</span>
-                    <span id="bigBalance" class="text-4xl font-extrabold text-[#00e5ff] drop-shadow-md">0</span>
+                <div class="flex justify-between items-start mb-10">
+                    <div>
+                        <p class="text-gray-400 text-sm font-medium mb-1">Total Balance</p>
+                        <h1 class="text-4xl font-bold text-white tracking-tight">
+                            Rs. <span id="bigBalance">0</span>
+                        </h1>
+                    </div>
+                    <div class="bg-white/10 p-3 rounded-2xl backdrop-blur-md border border-white/10">
+                        <i class="fa-solid fa-wallet text-indigo-400 text-xl"></i>
+                    </div>
                 </div>
-
+                
                 <div class="flex gap-4">
-                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="neu-btn flex-1 py-3 text-sm text-green-400">
-                        <i class="fa-solid fa-plus"></i> Add
+                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="flex-1 bg-white text-black py-4 rounded-2xl font-bold text-sm hover:bg-gray-200 transition">
+                        Deposit
                     </button>
-                    <button class="neu-btn flex-1 py-3 text-sm text-red-400">
-                        <i class="fa-solid fa-minus"></i> Withdraw
+                    <button class="flex-1 bg-white/5 text-white py-4 rounded-2xl font-bold text-sm border border-white/10 hover:bg-white/10 transition">
+                        Withdraw
                     </button>
                 </div>
             </div>
 
-            <div class="flex gap-4 mb-8">
-                <div class="neu-flat flex-1 p-4 flex flex-col items-center justify-center">
-                    <span class="text-xs text-gray-500 mb-1">Plan</span>
-                    <b id="planDisplay" class="text-[#ff0099]">Free</b>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="holo-card p-5">
+                    <div class="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center mb-3 text-pink-400">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                    <p class="text-gray-500 text-xs mb-1">Active Plan</p>
+                    <p id="planDisplay" class="text-lg font-bold">Free</p>
                 </div>
-                <div class="neu-flat flex-1 p-4 flex flex-col items-center justify-center">
-                    <span class="text-xs text-gray-500 mb-1">Profit</span>
-                    <b id="commissionDisplay" class="text-[#00e5ff]">0%</b>
+                <div class="holo-card p-5">
+                    <div class="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center mb-3 text-cyan-400">
+                        <i class="fa-solid fa-percent"></i>
+                    </div>
+                    <p class="text-gray-500 text-xs mb-1">Commission</p>
+                    <p id="commissionDisplay" class="text-lg font-bold">0%</p>
                 </div>
             </div>
         </div>
 
-        <div id="tab-plans" class="tab-content px-6 pt-2">
-            <h2 class="text-xl font-bold mb-6 pl-2 text-gray-300">Available Plans</h2>
+        <div id="tab-plans" class="tab-content pt-2">
+            <h2 class="text-2xl font-bold mb-6 pl-2">Upgrade</h2>
             
-            <div class="space-y-6">
-                <div class="neu-flat p-6 relative">
+            <div class="space-y-5">
+                <div class="holo-card p-6 border-l-2 border-indigo-500">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-gray-300">Starter</h3>
-                        <div class="neu-pressed px-4 py-1 rounded-full text-xs font-bold text-[#00e5ff]">500 PKR</div>
+                        <h3 class="text-xl font-bold text-indigo-400">Starter</h3>
+                        <span class="text-lg font-bold">500</span>
                     </div>
-                    <ul class="text-sm text-gray-500 space-y-2 mb-6 pl-2">
-                        <li>• 30% Commission</li>
-                        <li>• Standard Support</li>
-                    </ul>
-                    <button onclick="buyPlan(500, 'Starter', 30)" class="neu-btn w-full py-3 text-sm">ACTIVATE</button>
+                    <div class="flex items-center gap-4 mb-6 text-sm text-gray-400">
+                        <span class="bg-white/5 px-3 py-1 rounded-full">30% Return</span>
+                        <span class="bg-white/5 px-3 py-1 rounded-full">Basic</span>
+                    </div>
+                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full py-4 rounded-2xl border border-indigo-500/30 text-indigo-400 font-bold hover:bg-indigo-500 hover:text-white transition">Select Plan</button>
                 </div>
 
-                <div class="neu-flat p-6 relative">
-                    <div class="absolute -top-3 -right-3 bg-[#ff0099] w-8 h-8 rounded-full flex items-center justify-center text-white text-xs shadow-lg font-bold">★</div>
+                <div class="holo-card p-6 border-l-2 border-pink-500 relative">
+                    <div class="absolute top-4 right-4 text-xs font-bold text-pink-500 bg-pink-500/10 px-2 py-1 rounded">HOT</div>
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-[#ff0099]">Pro</h3>
-                        <div class="neu-pressed px-4 py-1 rounded-full text-xs font-bold text-[#ff0099]">2000 PKR</div>
+                        <h3 class="text-xl font-bold text-pink-400">Pro</h3>
+                        <span class="text-lg font-bold">2000</span>
                     </div>
-                    <ul class="text-sm text-gray-500 space-y-2 mb-6 pl-2">
-                        <li>• 50% Commission</li>
-                        <li>• Fast Withdrawals</li>
-                    </ul>
-                    <button onclick="buyPlan(2000, 'Pro', 50)" class="neu-btn w-full py-3 text-sm text-[#ff0099]">ACTIVATE</button>
+                    <div class="flex items-center gap-4 mb-6 text-sm text-gray-400">
+                        <span class="bg-white/5 px-3 py-1 rounded-full">50% Return</span>
+                        <span class="bg-white/5 px-3 py-1 rounded-full">Priority</span>
+                    </div>
+                    <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-pink-600 text-white font-bold shadow-lg">Select Plan</button>
                 </div>
 
-                <div class="neu-flat p-6 relative">
+                <div class="holo-card p-6 border-l-2 border-yellow-500">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-yellow-500">VIP</h3>
-                        <div class="neu-pressed px-4 py-1 rounded-full text-xs font-bold text-yellow-500">5000 PKR</div>
+                        <h3 class="text-xl font-bold text-yellow-400">VIP</h3>
+                        <span class="text-lg font-bold">5000</span>
                     </div>
-                    <ul class="text-sm text-gray-500 space-y-2 mb-6 pl-2">
-                        <li>• 60% Commission</li>
-                        <li>• Manager Access</li>
-                    </ul>
-                    <button onclick="buyPlan(5000, 'VIP', 60)" class="neu-btn w-full py-3 text-sm text-yellow-500">ACTIVATE</button>
+                    <div class="flex items-center gap-4 mb-6 text-sm text-gray-400">
+                        <span class="bg-white/5 px-3 py-1 rounded-full">60% Return</span>
+                        <span class="bg-white/5 px-3 py-1 rounded-full">Manager</span>
+                    </div>
+                    <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full py-4 rounded-2xl border border-yellow-500/30 text-yellow-400 font-bold hover:bg-yellow-500 hover:text-black transition">Select Plan</button>
                 </div>
             </div>
         </div>
 
-        <div id="tab-team" class="tab-content px-6 pt-10 text-center">
-            <div class="neu-pressed w-32 h-32 mx-auto rounded-full flex items-center justify-center mb-8 border border-gray-700">
-                <i class="fa-solid fa-users-line text-5xl text-[#00e5ff]"></i>
+        <div id="tab-team" class="tab-content pt-8 text-center">
+            <div class="w-24 h-24 mx-auto bg-gradient-to-tr from-indigo-500 to-pink-500 rounded-full flex items-center justify-center mb-6 animate-bounce shadow-2xl shadow-pink-500/30">
+                <i class="fa-solid fa-gift text-4xl text-white"></i>
             </div>
             
-            <h2 class="text-2xl font-bold text-white mb-2">Referral System</h2>
-            <p class="text-xs text-gray-500 mb-8 px-6">Share your link to build your team and earn passive rewards.</p>
+            <h2 class="text-3xl font-bold mb-3">Refer & Earn</h2>
+            <p class="text-gray-400 text-sm mb-10 px-8 leading-relaxed">Share your unique liquid link. Track your network growth in real-time.</p>
             
-            <div class="neu-pressed p-4 mb-8 flex items-center justify-between rounded-xl">
-                <p id="myLinkDisplay" class="text-xs text-gray-400 truncate select-all">Loading...</p>
-                <i class="fa-solid fa-copy text-[#00e5ff] cursor-pointer"></i>
+            <div class="holo-card p-5 mb-6 flex items-center justify-between gap-3">
+                <code id="myLinkDisplay" class="text-sm text-indigo-300 truncate select-all">Loading link...</code>
+                <i class="fa-regular fa-copy text-gray-500"></i>
             </div>
             
-            <button onclick="shareLink()" class="neu-btn w-full py-4 text-green-400 text-lg">
-                <i class="fa-brands fa-whatsapp"></i> Share Link
+            <button onclick="shareLink()" class="glow-btn w-full py-5 rounded-2xl font-bold flex items-center justify-center gap-3 text-lg">
+                <i class="fa-brands fa-whatsapp text-2xl"></i> Share Link
             </button>
         </div>
 
     </div>
 
-    <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-[#292d3e]/90 flex items-end sm:items-center justify-center p-4 backdrop-blur-sm">
-        <div class="neu-flat w-full max-w-sm p-6 relative">
-            <button onclick="document.getElementById('depositModal').style.display='none'" class="absolute top-4 right-4 text-gray-500 hover:text-white">✕</button>
-            <h3 class="text-xl font-bold mb-6 text-[#00e5ff]">Deposit</h3>
+    <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/90 backdrop-blur-xl flex items-end sm:items-center justify-center p-4">
+        <div class="holo-card w-full max-w-sm p-8 bg-[#0a0a0a] relative">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-2xl font-bold">Add Funds</h3>
+                <button onclick="document.getElementById('depositModal').style.display='none'" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:bg-white/10">✕</button>
+            </div>
             
-            <div class="neu-pressed p-4 rounded-xl mb-6 text-center">
-                <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Account Number</p>
-                <p class="text-xl font-bold text-white tracking-widest">0348-8347820</p>
-                <p class="text-[10px] text-[#ff0099] mt-1">C9 UZAIR</p>
+            <div class="bg-indigo-500/10 p-5 rounded-2xl mb-8 border border-indigo-500/20">
+                <p class="text-xs text-indigo-400 uppercase tracking-widest mb-2">Target Account</p>
+                <div class="flex justify-between items-center">
+                    <b class="text-2xl text-white font-mono tracking-wider">0348-8347820</b>
+                </div>
+                <p class="text-xs text-gray-500 mt-2">Title: C9 UZAIR</p>
             </div>
 
-            <div class="space-y-4">
-                <input type="number" id="depAmt" placeholder="Amount (e.g 500)" class="neu-input">
-                <input type="text" id="trxID" placeholder="TRX ID" class="neu-input">
-                <button onclick="submitDeposit()" class="neu-btn w-full py-4 text-white mt-2">Submit Request</button>
+            <div class="space-y-5">
+                <input type="number" id="depAmt" placeholder="Amount (PKR)" class="liquid-input w-full p-5 rounded-2xl">
+                <input type="text" id="trxID" placeholder="Transaction ID" class="liquid-input w-full p-5 rounded-2xl">
+                <button onclick="submitDeposit()" class="glow-btn w-full py-5 rounded-2xl font-bold mt-2">Verify Transaction</button>
             </div>
         </div>
     </div>
 
-    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
-        <div class="neu-flat rounded-full flex gap-4 p-2 px-4">
-            <div onclick="switchTab('home')" class="nav-btn w-12 h-12 rounded-full flex items-center justify-center cursor-pointer text-gray-500 transition hover:text-[#00e5ff]">
-                <i class="fa-solid fa-house text-xl"></i>
+    <div class="fixed bottom-0 left-0 w-full z-40 bg-black/80 backdrop-blur-xl border-t border-white/5 pb-6 pt-4">
+        <div class="flex justify-around items-center max-w-md mx-auto">
+            <div onclick="switchTab('home')" class="nav-btn group cursor-pointer flex flex-col items-center gap-1 transition text-white">
+                <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center group-hover:bg-indigo-500 group-hover:shadow-[0_0_15px_rgba(99,102,241,0.5)] transition duration-300">
+                    <i class="fa-solid fa-house text-lg"></i>
+                </div>
             </div>
-            <div onclick="switchTab('plans')" class="nav-btn w-12 h-12 rounded-full flex items-center justify-center cursor-pointer text-gray-500 transition hover:text-[#ff0099]">
-                <i class="fa-solid fa-layer-group text-xl"></i>
+            <div onclick="switchTab('plans')" class="nav-btn group cursor-pointer flex flex-col items-center gap-1 transition text-gray-500">
+                <div class="w-12 h-12 rounded-2xl bg-transparent flex items-center justify-center group-hover:bg-white/10 transition duration-300">
+                    <i class="fa-solid fa-layer-group text-lg"></i>
+                </div>
             </div>
-            <div onclick="switchTab('team')" class="nav-btn w-12 h-12 rounded-full flex items-center justify-center cursor-pointer text-gray-500 transition hover:text-yellow-500">
-                <i class="fa-solid fa-users text-xl"></i>
+            <div onclick="switchTab('team')" class="nav-btn group cursor-pointer flex flex-col items-center gap-1 transition text-gray-500">
+                <div class="w-12 h-12 rounded-2xl bg-transparent flex items-center justify-center group-hover:bg-white/10 transition duration-300">
+                    <i class="fa-solid fa-users text-lg"></i>
+                </div>
             </div>
         </div>
     </div>
@@ -361,19 +402,22 @@
 
         function shareLink() { 
             const link = document.getElementById('myLinkDisplay').innerText;
-            window.open("https://wa.me/?text=" + encodeURIComponent("🚀 Join Ultra Earn!\n\n👇 Click here:\n" + link), '_blank'); 
+            window.open("https://wa.me/?text=" + encodeURIComponent("🚀 Join Ultra:\n" + link), '_blank'); 
         }
         
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
             document.getElementById('tab-' + tab).classList.add('active-tab');
-            document.querySelectorAll('.nav-btn').forEach(b => { 
-                b.classList.remove('text-[#00e5ff]', 'neu-pressed');
-                b.classList.add('text-gray-500');
+            document.querySelectorAll('.nav-btn div').forEach(b => { 
+                b.classList.remove('bg-white/10', 'bg-indigo-500', 'shadow-[0_0_15px_rgba(99,102,241,0.5)]'); 
+                b.classList.add('bg-transparent');
             });
-            const activeBtn = event.currentTarget;
-            activeBtn.classList.add('text-[#00e5ff]', 'neu-pressed'); 
-            activeBtn.classList.remove('text-gray-500');
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.replace('text-white', 'text-gray-500'));
+            
+            const activeDiv = event.currentTarget.querySelector('div');
+            activeDiv.classList.remove('bg-transparent');
+            activeDiv.classList.add('bg-indigo-500', 'shadow-[0_0_15px_rgba(99,102,241,0.5)]');
+            event.currentTarget.classList.replace('text-gray-500', 'text-white');
         }
     </script>
 </body>
