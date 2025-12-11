@@ -94,32 +94,20 @@
 
         <div id="tab-plans" class="tab-content pb-20">
             <h2 class="text-2xl font-bold mb-6 px-1">Packages</h2>
-            
             <div class="glass p-5 mb-4 border border-blue-500/30 relative">
                 <div class="flex justify-between font-bold mb-2 text-blue-400"><h3>Starter</h3><span>500 PKR</span></div>
-                <ul class="text-xs text-gray-400 mb-4 space-y-1">
-                    <li>• 30% Direct Commission</li>
-                    <li>• Standard Support</li>
-                </ul>
+                <ul class="text-xs text-gray-400 mb-4 space-y-1"><li>• 30% Direct Commission</li><li>• Standard Support</li></ul>
                 <button onclick="buyPlan(500, 'Starter', 30)" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-bold shadow-lg">Buy Now</button>
             </div>
-
             <div class="glass p-5 mb-4 border border-purple-500/30 bg-purple-900/10">
                 <div class="absolute top-0 right-0 bg-purple-600 text-[10px] px-2 py-1 rounded-bl-lg font-bold">POPULAR</div>
                 <div class="flex justify-between font-bold mb-2 text-purple-400"><h3>Pro</h3><span>2000 PKR</span></div>
-                <ul class="text-xs text-gray-400 mb-4 space-y-1">
-                    <li>• 50% Direct Commission</li>
-                    <li>• Fast Withdrawal</li>
-                </ul>
+                <ul class="text-xs text-gray-400 mb-4 space-y-1"><li>• 50% Direct Commission</li><li>• Fast Withdrawal</li></ul>
                 <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full bg-purple-600 hover:bg-purple-700 py-3 rounded-xl font-bold shadow-lg">Buy Now</button>
             </div>
-            
              <div class="glass p-5 mb-4 border border-yellow-500/30 bg-yellow-900/10">
                 <div class="flex justify-between font-bold mb-2 text-yellow-400"><h3>VIP</h3><span>5000 PKR</span></div>
-                <ul class="text-xs text-gray-400 mb-4 space-y-1">
-                    <li>• 60% Direct Commission</li>
-                    <li>• VIP Manager</li>
-                </ul>
+                <ul class="text-xs text-gray-400 mb-4 space-y-1"><li>• 60% Direct Commission</li><li>• VIP Manager</li></ul>
                 <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full bg-yellow-600 hover:bg-yellow-700 py-3 rounded-xl font-bold text-black shadow-lg">Buy Now</button>
             </div>
         </div>
@@ -127,12 +115,10 @@
         <div id="tab-team" class="tab-content pb-20 text-center">
             <h2 class="text-2xl font-bold mb-2">Refer & Earn</h2>
             <p class="text-xs text-gray-400 mb-6 px-8">Share your unique link. Friends will be automatically added to your team.</p>
-            
             <div class="glass p-4 mb-4 break-all border border-dashed border-gray-600 mx-2">
                 <p class="text-[10px] text-gray-500 uppercase mb-1">Your Magic Link</p>
                 <p id="myLinkDisplay" class="text-xs text-blue-300 select-all font-mono">Generating...</p>
             </div>
-            
             <button onclick="shareLink()" class="w-full bg-[#25D366] hover:bg-[#128C7E] text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg transition active:scale-95">
                 <i class="fa-brands fa-whatsapp text-xl"></i> Share on WhatsApp
             </button>
@@ -143,38 +129,25 @@
         <div class="glass w-full max-w-sm p-6 bg-[#1e293b] relative border border-gray-700">
             <button onclick="document.getElementById('depositModal').style.display='none'" class="absolute top-4 right-4 text-gray-500 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
             <h3 class="text-xl font-bold mb-4 text-green-400">Deposit Funds</h3>
-            
             <div class="bg-gray-800 p-4 rounded-xl mb-4">
                 <p class="text-gray-400 text-xs mb-1">EasyPaisa / JazzCash</p>
-                <div class="flex justify-between items-center">
-                    <b class="text-white text-lg tracking-wider">0348-8347820</b>
-                    <i class="fa-regular fa-copy text-gray-500"></i>
-                </div>
+                <div class="flex justify-between items-center"><b class="text-white text-lg tracking-wider">0348-8347820</b><i class="fa-regular fa-copy text-gray-500"></i></div>
                 <p class="text-[10px] text-gray-500 mt-1">Title: C9 UZAIR</p>
             </div>
-
-            <input type="number" id="depAmt" placeholder="Amount (e.g 500)" class="w-full bg-gray-900 p-4 rounded-xl mb-3 text-white border border-gray-700 outline-none focus:border-green-500">
-            <input type="text" id="trxID" placeholder="TRX ID (e.g 8273...)" class="w-full bg-gray-900 p-4 rounded-xl mb-4 text-white border border-gray-700 outline-none focus:border-green-500">
+            <input type="number" id="depAmt" placeholder="Amount" class="w-full bg-gray-900 p-4 rounded-xl mb-3 text-white border border-gray-700 outline-none focus:border-green-500">
+            <input type="text" id="trxID" placeholder="TRX ID" class="w-full bg-gray-900 p-4 rounded-xl mb-4 text-white border border-gray-700 outline-none focus:border-green-500">
             <button onclick="submitDeposit()" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl font-bold shadow-lg">Submit Request</button>
         </div>
     </div>
 
     <div class="fixed bottom-0 left-0 w-full bg-[#0f172a]/95 backdrop-blur border-t border-gray-800 flex justify-around py-4 z-40 pb-6">
-        <div onclick="switchTab('home')" class="nav-btn text-blue-500 cursor-pointer text-center w-full transition transform active:scale-90">
-            <i class="fa-solid fa-house text-xl mb-1"></i><p class="text-[10px]">Home</p>
-        </div>
-        <div onclick="switchTab('plans')" class="nav-btn text-gray-500 cursor-pointer text-center w-full transition transform active:scale-90">
-            <i class="fa-solid fa-layer-group text-xl mb-1"></i><p class="text-[10px]">Plans</p>
-        </div>
-        <div onclick="switchTab('team')" class="nav-btn text-gray-500 cursor-pointer text-center w-full transition transform active:scale-90">
-            <i class="fa-solid fa-users text-xl mb-1"></i><p class="text-[10px]">Team</p>
-        </div>
+        <div onclick="switchTab('home')" class="nav-btn text-blue-500 cursor-pointer text-center w-full transition transform active:scale-90"><i class="fa-solid fa-house text-xl mb-1"></i><p class="text-[10px]">Home</p></div>
+        <div onclick="switchTab('plans')" class="nav-btn text-gray-500 cursor-pointer text-center w-full transition transform active:scale-90"><i class="fa-solid fa-layer-group text-xl mb-1"></i><p class="text-[10px]">Plans</p></div>
+        <div onclick="switchTab('team')" class="nav-btn text-gray-500 cursor-pointer text-center w-full transition transform active:scale-90"><i class="fa-solid fa-users text-xl mb-1"></i><p class="text-[10px]">Team</p></div>
     </div>
 
     <script>
-        // ===========================================
-        //  YOUR REAL FIREBASE CONFIGURATION (DONE)
-        // ===========================================
+        // --- YOUR REAL FIREBASE CONFIGURATION ---
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -184,47 +157,31 @@
             appId: "1:185942357584:web:1052b94cfecc6576944355"
         };
 
-        // Initialize Firebase
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.database();
-        
         let currentUser, myData, detectedReferral = "Admin";
 
-        // 1. AUTO LINK DETECT
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('ref')) {
                 detectedReferral = urlParams.get('ref');
                 document.getElementById('autoRefBadge').style.display = 'block';
                 document.getElementById('inviterId').innerText = detectedReferral;
-                toggleAuth(); // Show Register if ref found
+                toggleAuth();
             }
             setTimeout(() => document.getElementById('installPopup').style.display = 'flex', 4000);
         };
 
-        // 2. AUTHENTICATION
         function register() {
             const email = document.getElementById('regEmail').value, pass = document.getElementById('regPass').value, name = document.getElementById('regName').value;
             if(pass.length < 6) return alert("Password must be 6+ chars");
-            
             showLoader(true);
-            const myNewCode = "U-" + Math.floor(10000 + Math.random() * 90000); // Unique ID
-
+            const myNewCode = "U-" + Math.floor(10000 + Math.random() * 90000);
             auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
                 db.ref('users/' + cred.user.uid).set({
-                    name: name,
-                    email: email,
-                    myCode: myNewCode,
-                    invitedBy: detectedReferral,
-                    balance: 0,
-                    plan: "Free",
-                    commissionRate: 0
-                }).then(() => {
-                    showLoader(false);
-                    // Remove ?ref= from URL for clean look
-                    window.location.href = window.location.origin + window.location.pathname;
-                });
+                    name: name, email: email, myCode: myNewCode, invitedBy: detectedReferral, balance: 0, plan: "Free", commissionRate: 0
+                }).then(() => { showLoader(false); window.location.href = window.location.origin + window.location.pathname; });
             }).catch(e => { showLoader(false); document.getElementById('authMsg').innerText = e.message; });
         }
 
@@ -238,15 +195,10 @@
         function logout() { auth.signOut(); location.reload(); }
         function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
 
-        // 3. MAIN LOGIC
         auth.onAuthStateChanged(user => {
             showLoader(false);
             if(user) {
-                currentUser = user; 
-                document.getElementById('authScreen').style.display = 'none'; 
-                document.getElementById('mainApp').style.display = 'block';
-                
-                // Realtime Listener
+                currentUser = user; document.getElementById('authScreen').style.display = 'none'; document.getElementById('mainApp').style.display = 'block';
                 db.ref('users/' + user.uid).on('value', snap => {
                     myData = snap.val();
                     if(myData) {
@@ -254,34 +206,19 @@
                         document.getElementById('bigBalance').innerText = myData.balance;
                         document.getElementById('planDisplay').innerText = myData.plan;
                         document.getElementById('commissionDisplay').innerText = myData.commissionRate + "%";
-                        
                         const link = window.location.origin + window.location.pathname + "?ref=" + myData.myCode;
                         document.getElementById('myLinkDisplay').innerText = link;
                         document.getElementById('myLinkDisplay').setAttribute('data-link', link);
                     }
                 });
-            } else { 
-                document.getElementById('authScreen').style.display = 'flex'; 
-                document.getElementById('mainApp').style.display = 'none'; 
-            }
+            } else { document.getElementById('authScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; }
         });
 
-        // 4. DEPOSIT & PLANS
         function submitDeposit() {
             const amt = document.getElementById('depAmt').value, trx = document.getElementById('trxID').value;
             if(!amt || !trx) return alert("Please fill all details");
-            
-            db.ref('deposits').push({
-                uid: currentUser.uid,
-                email: myData.email,
-                amount: amt,
-                trx: trx,
-                invitedBy: myData.invitedBy,
-                status: "Pending",
-                timestamp: Date.now()
-            });
-            alert("Request Sent! Admin will approve shortly.");
-            document.getElementById('depositModal').style.display='none';
+            db.ref('deposits').push({ uid: currentUser.uid, email: myData.email, amount: amt, trx: trx, invitedBy: myData.invitedBy, status: "Pending", timestamp: Date.now() });
+            alert("Request Sent! Admin will approve shortly."); document.getElementById('depositModal').style.display='none';
         }
 
         function buyPlan(price, name, rate) {
@@ -290,10 +227,9 @@
                     db.ref('users/' + currentUser.uid).update({ balance: myData.balance - price, plan: name, commissionRate: rate });
                     alert("Plan Activated!");
                 }
-            } else { alert("Insufficient Balance! Please deposit first."); document.getElementById('depositModal').style.display='flex'; }
+            } else { alert("Insufficient Balance!"); document.getElementById('depositModal').style.display='flex'; }
         }
 
-        // 5. UTILS
         function shareLink() { 
             const link = document.getElementById('myLinkDisplay').getAttribute('data-link');
             window.open("https://wa.me/?text=" + encodeURIComponent("🚀 Join Ultra Earn and start earning!\n\n👇 Click here:\n" + link), '_blank'); 
