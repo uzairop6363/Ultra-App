@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
-    <title>Ultra Earn - GOD MODE</title>
+    <title>Ultra Earn - METAVERSE</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Exo+2:wght@300;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -18,292 +18,318 @@
         body {
             background-color: #000;
             color: #fff;
-            font-family: 'Exo 2', sans-serif;
+            font-family: 'Rajdhani', sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
-            padding-bottom: 100px;
+            padding-bottom: 110px;
             -webkit-tap-highlight-color: transparent;
         }
 
-        h1, h2, h3, .god-font { font-family: 'Syncopate', sans-serif; letter-spacing: 1px; }
-
-        /* 1. THE GOD BACKGROUND (Red, Blue, Orange, White Mixture) */
-        .god-bg {
+        /* 1. THE MATRIX RAIN BACKGROUND */
+        .meta-bg {
             position: fixed; inset: 0; z-index: -2;
-            background: #000;
+            background: #030014;
+            background-image: 
+                linear-gradient(rgba(18, 16, 20, 0) 50%, rgba(0, 255, 255, 0.05) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.03), rgba(0, 0, 255, 0.03));
+            background-size: 100% 4px, 6px 100%;
+            animation: scan 10s linear infinite;
         }
-        .god-bg::before {
-            content: ''; position: absolute; inset: -50%;
-            background: conic-gradient(
-                from 0deg,
-                #ff0000, #0000ff, #ffa500, #ffffff, 
-                #ff0000, #0000ff, #ffa500, #ffffff
-            );
-            filter: blur(80px);
-            opacity: 0.4;
-            animation: slowSpin 20s linear infinite;
-        }
-        @keyframes slowSpin { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
+        @keyframes scan { from {background-position: 0 0;} to {background-position: 0 100%;} }
 
-        /* 2. THE GRANDFATHER BORDER LOGIC (Magic) */
-        .gf-card {
-            position: relative;
-            background: rgba(10, 10, 10, 0.9);
-            border-radius: 20px;
-            z-index: 1;
-            overflow: hidden;
+        /* Glowing Orbs */
+        .orb {
+            position: fixed; border-radius: 50%; filter: blur(80px); opacity: 0.6; z-index: -1;
+            animation: floatOrb 10s infinite alternate;
         }
-        /* Moving Border Layer */
-        .gf-card::before {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: conic-gradient(transparent, transparent, transparent, var(--color1), var(--color2), var(--color1));
-            animation: rotate 4s linear infinite;
-            z-index: -2;
-        }
-        /* Inner Black Layer to make text readable */
-        .gf-card::after {
-            content: ''; position: absolute; inset: 2px;
-            background: rgba(5, 5, 5, 0.95);
-            border-radius: 18px;
-            z-index: -1;
-        }
-        
-        @keyframes rotate { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
+        .orb-1 { top: -10%; left: -10%; width: 300px; height: 300px; background: #7000ff; }
+        .orb-2 { bottom: 20%; right: -10%; width: 250px; height: 250px; background: #00f3ff; animation-delay: -5s; }
+        @keyframes floatOrb { 0% {transform: translate(0,0);} 100% {transform: translate(30px, 50px);} }
 
-        /* Custom Colors for Specific Boxes */
-        .tier-border { --color1: #00ff00; --color2: #a200ff; } /* Green & Purple */
-        .profit-border { --color1: #00ffff; --color2: #ff00de; } /* Cyan & Pink */
-        .gold-border { --color1: #ffd700; --color2: #ff8c00; } /* Gold & Orange */
-        .starter-border { --color1: #007bff; --color2: #ffffff; } /* Blue & White */
-        .vip-border { --color1: #ff0000; --color2: #ffff00; } /* Red & Yellow */
-        .balance-border { --color1: #ffffff; --color2: #00ffea; } /* White & Cyan */
-
-        /* 3. NEON BUTTONS */
-        .god-btn {
-            background: linear-gradient(90deg, #ff0055, #ff00aa);
-            color: white; border: none; font-weight: 800;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.5);
-            transition: 0.3s; position: relative; overflow: hidden;
+        /* 2. GLITCH TEXT EFFECT */
+        .glitch {
+            position: relative; font-family: 'Orbitron', sans-serif; font-weight: 900;
+            text-shadow: 2px 2px 0px #ff00ff, -2px -2px 0px #00ffff;
+            animation: glitch-anim 2s infinite linear alternate-reverse;
         }
-        .god-btn:active { transform: scale(0.95); box-shadow: 0 0 50px rgba(255, 0, 85, 1); }
+        @keyframes glitch-anim {
+            0% {text-shadow: 2px 2px 0px #ff00ff, -2px -2px 0px #00ffff;}
+            20% {text-shadow: -2px -2px 0px #ff00ff, 2px 2px 0px #00ffff;}
+            40% {text-shadow: 2px -2px 0px #ff00ff, -2px 2px 0px #00ffff;}
+            100% {text-shadow: 2px 2px 0px #ff00ff, -2px -2px 0px #00ffff;}
+        }
 
-        /* 4. LIQUID INPUTS */
-        .god-input {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white; font-family: 'Exo 2', sans-serif;
+        /* 3. ULTIMATE HOLOGRAPHIC CARD */
+        .meta-card {
+            background: rgba(18, 18, 25, 0.6);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            position: relative; overflow: hidden;
+            box-shadow: 0 20px 50px -10px rgba(0,0,0,0.8);
             transition: 0.3s;
         }
-        .god-input:focus {
-            border-color: #00ffff;
-            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-            outline: none; background: rgba(0,0,0,0.8);
+        /* The Moving Neon Border */
+        .meta-card::before {
+            content: ''; position: absolute; inset: 0; padding: 2px; border-radius: 24px;
+            background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            background-size: 200% auto; animation: rgbFlow 3s linear infinite;
+        }
+        @keyframes rgbFlow { to {background-position: 200% center;} }
+
+        /* 4. PLASMA BUTTONS */
+        .plasma-btn {
+            background: #000; color: #fff; border: 1px solid rgba(255,255,255,0.2);
+            position: relative; overflow: hidden; font-family: 'Orbitron', sans-serif;
+            transition: 0.3s; box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+        }
+        .plasma-btn::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(0, 243, 255, 0.4), transparent);
+            transform: translateY(100%); transition: 0.3s;
+        }
+        .plasma-btn:active::after { transform: translateY(0); }
+        .plasma-btn:active { transform: scale(0.95); box-shadow: 0 0 30px rgba(0, 243, 255, 0.6); border-color: #00f3ff; }
+
+        /* 5. INPUT FIELDS FROM 3030 */
+        .meta-input {
+            background: rgba(0,0,0,0.5);
+            border-bottom: 2px solid #333;
+            color: #00f3ff; font-family: 'Orbitron', sans-serif; letter-spacing: 1px;
+            transition: 0.4s;
+        }
+        .meta-input:focus {
+            background: rgba(0, 243, 255, 0.05);
+            border-color: #00f3ff; outline: none;
+            box-shadow: 0 10px 20px -10px rgba(0, 243, 255, 0.2);
         }
 
-        /* Tab Animation */
-        .tab-content { display: none; animation: blastIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        /* 6. TAB ANIMATION (Teleport) */
+        .tab-content { display: none; animation: teleport 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); }
         .active-tab { display: block; }
-        @keyframes blastIn { from { opacity: 0; transform: scale(0.5); filter: blur(10px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
+        @keyframes teleport { 
+            0% { transform: scale(0.8); opacity: 0; filter: blur(10px); } 
+            100% { transform: scale(1); opacity: 1; filter: blur(0); } 
+        }
 
-        /* Loader */
-        #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 100; justify-content: center; align-items: center; }
-        .pulse-ring { width: 80px; height: 80px; border-radius: 50%; border: 4px solid #fff; animation: ring 1.5s infinite; }
-        @keyframes ring { 0% {transform: scale(0.5); opacity: 1;} 100% {transform: scale(1.5); opacity: 0;} }
+        /* 7. LOADING REACTOR */
+        #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 999; justify-content: center; align-items: center; }
+        .reactor { width: 100px; height: 100px; border-radius: 50%; border: 2px solid #333; position: relative; animation: spin 4s linear infinite; }
+        .reactor::before { content: ''; position: absolute; inset: 10px; border-radius: 50%; border: 4px solid transparent; border-top-color: #00f3ff; border-bottom-color: #ff00ff; animation: spin 2s linear infinite reverse; }
+        .reactor::after { content: ''; position: absolute; inset: 30px; border-radius: 50%; background: radial-gradient(circle, #fff, #00f3ff); box-shadow: 0 0 30px #00f3ff; animation: pulse 1s infinite alternate; }
+        @keyframes spin { to {transform: rotate(360deg);} }
+        @keyframes pulse { from {opacity: 0.5; transform: scale(0.8);} to {opacity: 1; transform: scale(1.1);} }
     </style>
 </head>
 <body>
 
-    <div class="god-bg"></div>
+    <div class="meta-bg"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
 
-    <div id="loader"><div class="pulse-ring"></div><p class="absolute mt-24 font-bold text-white tracking-widest text-xs">LOADING GRANDFATHER...</p></div>
+    <div id="loader"><div class="reactor"></div><p class="absolute mt-32 text-xs text-white tracking-[0.5em] animate-pulse">SYSTEM LOADING</p></div>
 
-    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto bg-black/80 backdrop-blur-md">
-        <div class="gf-card balance-border p-8 w-full max-w-sm mx-auto text-center">
-            <h1 class="text-4xl mb-2 font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 god-font">ULTRA</h1>
-            <p class="text-white text-xs tracking-[0.5em] mb-10 uppercase">God Mode Access</p>
+    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto bg-black/90 backdrop-blur-md">
+        <div class="meta-card p-8 w-full max-w-sm mx-auto text-center border-t-4 border-t-cyan-500">
+            <h1 class="text-5xl mb-2 text-white glitch" data-text="ULTRA">ULTRA</h1>
+            <p class="text-cyan-400 text-xs tracking-[0.4em] mb-10 uppercase border-b border-cyan-900 pb-4 inline-block">Metaverse Access</p>
 
             <div id="loginForm" class="space-y-6">
-                <input type="email" id="loginEmail" placeholder="USER IDENTITY" class="god-input w-full p-4 rounded-lg text-center">
-                <input type="password" id="loginPass" placeholder="SECURITY KEY" class="god-input w-full p-4 rounded-lg text-center">
-                <button onclick="login()" class="god-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase">
-                    Authenticate
+                <input type="email" id="loginEmail" placeholder="USER ID" class="meta-input w-full p-4 text-center">
+                <input type="password" id="loginPass" placeholder="PASSKEY" class="meta-input w-full p-4 text-center">
+                <button onclick="login()" class="plasma-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase font-bold text-cyan-300 border-cyan-500">
+                    <i class="fa-solid fa-fingerprint mr-2"></i> DECRYPT
                 </button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-4 cursor-pointer hover:text-white border-b border-gray-600 inline-block">INITIATE NEW PROTOCOL</p>
+                <div class="mt-6 flex justify-center">
+                    <button onclick="toggleAuth()" class="text-xs text-gray-500 hover:text-white transition uppercase tracking-widest border-b border-transparent hover:border-white">New Identity</button>
+                </div>
             </div>
 
             <div id="registerForm" class="hidden space-y-6">
-                <div id="autoRefBadge" class="hidden border border-white/50 p-2 text-white text-xs uppercase tracking-widest rounded mb-4">
-                    Linked: <span id="inviterId" class="text-yellow-400">...</span>
+                <div id="autoRefBadge" class="hidden bg-cyan-900/20 border border-cyan-500 p-2 text-cyan-400 text-xs uppercase tracking-widest rounded mb-4">
+                    UPLINK: <span id="inviterId" class="text-white">...</span>
                 </div>
-                <input type="text" id="regName" placeholder="CODENAME" class="god-input w-full p-4 rounded-lg text-center">
-                <input type="email" id="regEmail" placeholder="EMAIL" class="god-input w-full p-4 rounded-lg text-center">
-                <input type="password" id="regPass" placeholder="PASSWORD" class="god-input w-full p-4 rounded-lg text-center">
-                <button onclick="register()" class="god-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase bg-gradient-to-r from-blue-600 to-cyan-500">
-                    Establish Link
+                <input type="text" id="regName" placeholder="AVATAR NAME" class="meta-input w-full p-4 text-center">
+                <input type="email" id="regEmail" placeholder="EMAIL" class="meta-input w-full p-4 text-center">
+                <input type="password" id="regPass" placeholder="SET PASSKEY" class="meta-input w-full p-4 text-center">
+                <button onclick="register()" class="plasma-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase font-bold text-pink-300 border-pink-500">
+                    INITIALIZE
                 </button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-4 cursor-pointer hover:text-white">RETURN TO LOGIN</p>
+                <div class="mt-6 flex justify-center">
+                    <button onclick="toggleAuth()" class="text-xs text-gray-500 hover:text-white transition uppercase tracking-widest">Abort / Login</button>
+                </div>
             </div>
-            <p id="authMsg" class="text-red-500 text-xs mt-4 font-bold uppercase"></p>
+            <p id="authMsg" class="text-red-500 text-xs mt-4 font-bold uppercase tracking-widest"></p>
         </div>
     </div>
 
     <div id="mainApp" style="display:none;" class="max-w-md mx-auto">
         
-        <div class="flex justify-between items-center p-6">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_0_20px_white]">
-                    <i class="fa-solid fa-crown text-black text-xl"></i>
+        <div class="flex justify-between items-center p-6 pb-2">
+            <div class="flex items-center gap-4">
+                <div class="relative">
+                    <div class="w-12 h-12 rounded-lg bg-gray-900 border border-cyan-500 flex items-center justify-center overflow-hidden">
+                        <img src="https://api.dicebear.com/7.x/bottts/svg?seed=ultra" alt="bot" class="w-10 h-10">
+                    </div>
+                    <div class="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full shadow-[0_0_10px_#00ff00]"></div>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold text-white god-font" id="userNameDisplay">BOSS</h2>
-                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">System Online</p>
+                    <h2 class="text-xl font-bold text-white tracking-wider" style="font-family: 'Orbitron', sans-serif;" id="userNameDisplay">PLAYER 1</h2>
+                    <p class="text-[10px] text-cyan-500 uppercase tracking-widest">Connected</p>
                 </div>
             </div>
-            <button onclick="logout()" class="text-white hover:text-red-500 transition duration-300">
-                <i class="fa-solid fa-power-off text-2xl drop-shadow-[0_0_10px_white]"></i>
+            <button onclick="logout()" class="w-10 h-10 rounded-lg border border-red-900 bg-red-900/20 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition shadow-[0_0_15px_red]">
+                <i class="fa-solid fa-power-off"></i>
             </button>
         </div>
 
-        <div id="tab-home" class="tab-content px-4 pt-4">
-            <div class="gf-card balance-border p-8 mb-8 text-center relative">
-                <p class="text-gray-400 text-xs tracking-[0.4em] uppercase mb-4">Total Assets</p>
-                <h1 class="text-5xl font-black mb-8 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
-                    <span class="text-2xl text-gray-500">Rs.</span><span id="bigBalance">0</span>
-                </h1>
-                
-                <div class="flex gap-4 justify-center">
-                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="bg-white text-black px-8 py-3 rounded-full font-bold uppercase hover:scale-105 transition shadow-[0_0_20px_white]">
-                        Deposit
-                    </button>
-                    <button class="bg-transparent border border-white text-white px-8 py-3 rounded-full font-bold uppercase hover:bg-white/10 transition">
-                        Withdraw
-                    </button>
+        <div id="tab-home" class="tab-content px-4 pt-6">
+            <div class="meta-card p-8 mb-8 text-center relative group">
+                <div class="absolute inset-0 bg-gradient-to-b from-cyan-900/10 to-transparent"></div>
+                <div class="relative z-10">
+                    <p class="text-gray-400 text-xs tracking-[0.5em] uppercase mb-4 animate-pulse">Available Credits</p>
+                    <h1 class="text-6xl font-black mb-8 text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
+                        <span id="bigBalance" class="glitch" style="font-family: 'Orbitron'">0</span>
+                        <span class="text-lg text-cyan-500 align-top">PKR</span>
+                    </h1>
+                    
+                    <div class="flex gap-4">
+                        <button onclick="document.getElementById('depositModal').style.display='flex'" class="flex-1 bg-white text-black py-3 rounded font-bold uppercase tracking-widest hover:scale-105 transition shadow-[0_0_20px_white]">
+                            <i class="fa-solid fa-bolt mr-1"></i> Add
+                        </button>
+                        <button class="flex-1 bg-transparent border border-white text-white py-3 rounded font-bold uppercase tracking-widest hover:bg-white hover:text-black transition">
+                            Cashout
+                        </button>
+                    </div>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-8">
-                <div class="gf-card tier-border p-5 text-center">
+                <div class="meta-card p-4 flex flex-col items-center justify-center hover:bg-white/5 transition">
                     <i class="fa-solid fa-layer-group text-purple-400 text-2xl mb-2 drop-shadow-[0_0_10px_purple]"></i>
-                    <p class="text-gray-400 text-[10px] uppercase">Current Tier</p>
-                    <p id="planDisplay" class="text-xl font-bold text-green-400 god-font">FREE</p>
+                    <p class="text-gray-500 text-[10px] uppercase tracking-widest">Protocol</p>
+                    <p id="planDisplay" class="text-lg font-bold text-white font-mono">GUEST</p>
                 </div>
-                <div class="gf-card profit-border p-5 text-center">
-                    <i class="fa-solid fa-chart-line text-cyan-400 text-2xl mb-2 drop-shadow-[0_0_10px_cyan]"></i>
-                    <p class="text-gray-400 text-[10px] uppercase">Profit Share</p>
-                    <p id="commissionDisplay" class="text-xl font-bold text-pink-500 god-font">0%</p>
+                <div class="meta-card p-4 flex flex-col items-center justify-center hover:bg-white/5 transition">
+                    <i class="fa-solid fa-chart-line text-green-400 text-2xl mb-2 drop-shadow-[0_0_10px_green]"></i>
+                    <p class="text-gray-500 text-[10px] uppercase tracking-widest">Rate</p>
+                    <p id="commissionDisplay" class="text-lg font-bold text-white font-mono">0%</p>
                 </div>
             </div>
 
-            <div onclick="switchTab('team')" class="gf-card gold-border p-5 flex items-center justify-between cursor-pointer group">
-                <div class="flex items-center gap-4">
-                    <div class="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center text-yellow-400 text-2xl">
-                        <i class="fa-solid fa-users"></i>
+            <div onclick="switchTab('team')" class="meta-card p-5 cursor-pointer relative overflow-hidden group">
+                <div class="absolute inset-0 bg-gradient-to-r from-pink-600/20 to-purple-600/20 group-hover:opacity-100 opacity-50 transition"></div>
+                <div class="flex items-center justify-between relative z-10">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-full border border-pink-500 flex items-center justify-center shadow-[0_0_15px_hotpink]">
+                            <i class="fa-solid fa-users text-pink-400"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-white tracking-wider font-[Orbitron]">SQUAD</h3>
+                            <p class="text-[10px] text-gray-300">Earn Infinite Royalty</p>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-bold text-white god-font group-hover:text-yellow-400 transition">REFERRAL</h3>
-                        <p class="text-[10px] text-gray-400">Earn Infinite Passive Income</p>
-                    </div>
+                    <i class="fa-solid fa-chevron-right text-white"></i>
                 </div>
-                <i class="fa-solid fa-chevron-right text-white"></i>
             </div>
         </div>
 
-        <div id="tab-plans" class="tab-content px-4 pt-4">
-            <h2 class="text-2xl font-bold mb-6 text-white god-font text-center">SELECT TIER</h2>
+        <div id="tab-plans" class="tab-content px-4 pt-6">
+            <h2 class="text-2xl font-bold mb-6 text-white text-center tracking-[0.2em]" style="font-family: 'Orbitron'">MARKET</h2>
             
             <div class="space-y-6">
-                <div class="gf-card starter-border p-6">
+                <div class="meta-card p-6 border-l-4 border-cyan-500 bg-cyan-900/10">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-2xl font-bold text-blue-400 god-font">STARTER</h3>
+                        <h3 class="text-2xl font-bold text-cyan-400 font-[Orbitron]">CYBER</h3>
                         <span class="text-xl font-bold text-white">500</span>
                     </div>
-                    <ul class="text-xs text-gray-400 space-y-2 mb-6 uppercase tracking-widest">
-                        <li><i class="fa-solid fa-bolt text-blue-500 mr-2"></i> 30% ROI</li>
-                        <li><i class="fa-solid fa-shield text-blue-500 mr-2"></i> Basic Access</li>
+                    <ul class="text-xs text-cyan-200 space-y-2 mb-6 uppercase tracking-widest">
+                        <li><i class="fa-solid fa-check mr-2"></i> 30% Output</li>
+                        <li><i class="fa-solid fa-check mr-2"></i> Basic Node</li>
                     </ul>
-                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full border border-blue-500 text-blue-400 py-3 rounded font-bold uppercase hover:bg-blue-500 hover:text-white transition shadow-[0_0_15px_blue]">Purchase</button>
+                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full border border-cyan-500 text-cyan-400 py-3 rounded font-bold uppercase hover:bg-cyan-500 hover:text-black transition shadow-[0_0_15px_cyan]">Acquire</button>
                 </div>
 
-                <div class="gf-card gold-border p-6">
+                <div class="meta-card p-6 border-l-4 border-purple-500 bg-purple-900/10">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-2xl font-bold text-yellow-400 god-font">GOLD PRO</h3>
+                        <h3 class="text-2xl font-bold text-purple-400 font-[Orbitron]">NEON</h3>
                         <span class="text-xl font-bold text-white">2000</span>
                     </div>
-                    <ul class="text-xs text-gray-400 space-y-2 mb-6 uppercase tracking-widest">
-                        <li><i class="fa-solid fa-star text-yellow-500 mr-2"></i> 50% ROI</li>
-                        <li><i class="fa-solid fa-rocket text-yellow-500 mr-2"></i> High Priority</li>
+                    <ul class="text-xs text-purple-200 space-y-2 mb-6 uppercase tracking-widest">
+                        <li><i class="fa-solid fa-star mr-2"></i> 50% Output</li>
+                        <li><i class="fa-solid fa-star mr-2"></i> Fast Lane</li>
                     </ul>
-                    <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-black py-3 rounded font-bold uppercase hover:scale-105 transition shadow-[0_0_20px_orange]">Purchase</button>
+                    <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full bg-purple-600 text-white py-3 rounded font-bold uppercase hover:bg-purple-500 transition shadow-[0_0_20px_purple]">Acquire</button>
                 </div>
 
-                <div class="gf-card vip-border p-6">
+                <div class="meta-card p-6 border-l-4 border-yellow-400 bg-yellow-900/10 relative overflow-hidden">
+                    <div class="absolute -right-4 -top-4 w-20 h-20 bg-yellow-500 blur-3xl opacity-20"></div>
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-2xl font-bold text-red-500 god-font">VIP GOD</h3>
+                        <h3 class="text-2xl font-bold text-yellow-400 font-[Orbitron]">GOLD</h3>
                         <span class="text-xl font-bold text-white">5000</span>
                     </div>
-                    <ul class="text-xs text-gray-400 space-y-2 mb-6 uppercase tracking-widest">
-                        <li><i class="fa-solid fa-fire text-red-500 mr-2"></i> 60% MAX ROI</li>
-                        <li><i class="fa-solid fa-crown text-red-500 mr-2"></i> Direct Admin Line</li>
+                    <ul class="text-xs text-yellow-200 space-y-2 mb-6 uppercase tracking-widest">
+                        <li><i class="fa-solid fa-crown mr-2"></i> 60% MAX Output</li>
+                        <li><i class="fa-solid fa-crown mr-2"></i> God Mode</li>
                     </ul>
-                    <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full border border-red-500 text-red-500 py-3 rounded font-bold uppercase hover:bg-red-500 hover:text-white transition shadow-[0_0_15px_red]">Purchase</button>
+                    <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-400 text-black py-3 rounded font-bold uppercase hover:scale-105 transition shadow-[0_0_25px_gold]">Acquire</button>
                 </div>
             </div>
         </div>
 
-        <div id="tab-team" class="tab-content px-4 pt-10 text-center">
-            <div class="w-32 h-32 mx-auto rounded-full bg-black border-2 border-white flex items-center justify-center mb-8 shadow-[0_0_30px_white] animate-pulse">
-                <i class="fa-solid fa-network-wired text-5xl text-white"></i>
+        <div id="tab-team" class="tab-content px-4 pt-12 text-center">
+            <div class="w-32 h-32 mx-auto rounded-full bg-black border border-white flex items-center justify-center mb-8 shadow-[0_0_40px_white] animate-pulse">
+                <i class="fa-solid fa-globe text-6xl text-white"></i>
             </div>
             
-            <h2 class="text-3xl font-bold text-white mb-2 god-font">NETWORK</h2>
-            <p class="text-gray-400 text-xs mb-10 px-8 uppercase tracking-widest">Distribute your frequency. Dominate the market.</p>
+            <h2 class="text-3xl font-bold text-white mb-2 font-[Orbitron]">GLOBAL LINK</h2>
+            <p class="text-gray-400 text-xs mb-10 px-8 uppercase tracking-widest">Distribute your access code.</p>
             
-            <div class="gf-card balance-border p-4 mb-8 flex items-center justify-between rounded">
-                <code id="myLinkDisplay" class="text-xs text-cyan-400 truncate select-all">GENERATING...</code>
+            <div class="meta-card p-4 mb-8 flex items-center justify-between rounded bg-white/5 border-white/20">
+                <code id="myLinkDisplay" class="text-xs text-cyan-400 truncate select-all font-mono">LOADING DATA...</code>
                 <i class="fa-solid fa-copy text-white hover:text-cyan-400 cursor-pointer"></i>
             </div>
             
-            <button onclick="shareLink()" class="god-btn w-full py-4 rounded-lg font-bold flex items-center justify-center gap-3 text-lg">
-                <i class="fa-brands fa-whatsapp text-2xl"></i> BROADCAST LINK
+            <button onclick="shareLink()" class="plasma-btn w-full py-4 rounded-lg font-bold flex items-center justify-center gap-3 text-lg border-green-500 text-green-400 shadow-[0_0_15px_green]">
+                <i class="fa-brands fa-whatsapp text-2xl"></i> TRANSMIT
             </button>
         </div>
 
     </div>
 
     <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-        <div class="gf-card profit-border w-full max-w-sm p-8">
+        <div class="meta-card w-full max-w-sm p-8 bg-[#050505]">
             <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-bold text-white god-font">INJECT</h3>
+                <h3 class="text-2xl font-bold text-white font-[Orbitron]">INJECT</h3>
                 <button onclick="document.getElementById('depositModal').style.display='none'" class="text-gray-500 hover:text-white text-2xl">✕</button>
             </div>
             
-            <div class="border border-white/20 p-4 rounded mb-6 text-center">
-                <p class="text-[10px] text-gray-500 uppercase tracking-[0.2em] mb-2">Destination Node</p>
-                <p class="text-2xl text-white font-mono tracking-widest">0348-8347820</p>
-                <p class="text-[10px] text-pink-500 mt-1 uppercase">C9 UZAIR (EP/JC)</p>
+            <div class="border border-white/20 p-4 rounded mb-6 text-center bg-white/5">
+                <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em] mb-2">Target Node</p>
+                <p class="text-3xl text-white font-mono tracking-widest text-shadow-neon">0348-8347820</p>
+                <p class="text-[10px] text-pink-500 mt-2 uppercase">C9 UZAIR (EP/JC)</p>
             </div>
 
             <div class="space-y-6">
-                <input type="number" id="depAmt" placeholder="QUANTITY (PKR)" class="god-input w-full p-4 rounded text-center">
-                <input type="text" id="trxID" placeholder="HASH ID (TRX)" class="god-input w-full p-4 rounded text-center">
-                <button onclick="submitDeposit()" class="god-btn w-full py-4 rounded font-bold tracking-widest">EXECUTE</button>
+                <input type="number" id="depAmt" placeholder="QUANTITY (PKR)" class="meta-input w-full p-4 rounded text-center">
+                <input type="text" id="trxID" placeholder="HASH ID (TRX)" class="meta-input w-full p-4 rounded text-center">
+                <button onclick="submitDeposit()" class="plasma-btn w-full py-4 rounded font-bold tracking-widest border-white text-white">EXECUTE</button>
             </div>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full z-40 bg-black/90 backdrop-blur-md border-t border-white/10 pb-6 pt-4">
-        <div class="flex justify-around max-w-md mx-auto">
-            <div onclick="switchTab('home')" class="nav-btn group cursor-pointer flex flex-col items-center">
-                <i class="fa-solid fa-house text-xl mb-1 text-white drop-shadow-[0_0_10px_white] transition group-hover:scale-125"></i>
-                <span class="text-[8px] uppercase tracking-widest text-white">Base</span>
+    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
+        <div class="meta-card flex gap-4 p-3 px-6 rounded-full bg-black/80 border-white/20">
+            <div onclick="switchTab('home')" class="nav-btn w-12 h-12 rounded-full flex items-center justify-center cursor-pointer text-cyan-400 bg-cyan-900/30 shadow-[0_0_15px_cyan] transition transform hover:-translate-y-2">
+                <i class="fa-solid fa-house text-lg"></i>
             </div>
-            <div onclick="switchTab('plans')" class="nav-btn group cursor-pointer flex flex-col items-center">
-                <i class="fa-solid fa-cube text-xl mb-1 text-gray-500 transition group-hover:text-yellow-400 group-hover:drop-shadow-[0_0_10px_yellow]"></i>
-                <span class="text-[8px] uppercase tracking-widest text-gray-500 group-hover:text-white">Tiers</span>
+            <div onclick="switchTab('plans')" class="nav-btn w-12 h-12 rounded-full flex items-center justify-center cursor-pointer text-gray-500 hover:text-purple-400 hover:bg-purple-900/30 hover:shadow-[0_0_15px_purple] transition transform hover:-translate-y-2">
+                <i class="fa-solid fa-layer-group text-lg"></i>
             </div>
-            <div onclick="switchTab('team')" class="nav-btn group cursor-pointer flex flex-col items-center">
-                <i class="fa-solid fa-users text-xl mb-1 text-gray-500 transition group-hover:text-cyan-400 group-hover:drop-shadow-[0_0_10px_cyan]"></i>
-                <span class="text-[8px] uppercase tracking-widest text-gray-500 group-hover:text-white">Clan</span>
+            <div onclick="switchTab('team')" class="nav-btn w-12 h-12 rounded-full flex items-center justify-center cursor-pointer text-gray-500 hover:text-pink-400 hover:bg-pink-900/30 hover:shadow-[0_0_15px_pink] transition transform hover:-translate-y-2">
+                <i class="fa-solid fa-users text-lg"></i>
             </div>
         </div>
     </div>
@@ -402,18 +428,13 @@
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
             document.getElementById('tab-' + tab).classList.add('active-tab');
-            document.querySelectorAll('.nav-btn i').forEach(b => { 
-                b.classList.remove('text-white', 'drop-shadow-[0_0_10px_white]'); b.classList.add('text-gray-500');
+            document.querySelectorAll('.nav-btn').forEach(b => { 
+                b.classList.remove('text-cyan-400', 'bg-cyan-900/30', 'shadow-[0_0_15px_cyan]');
+                b.classList.add('text-gray-500');
             });
-            document.querySelectorAll('.nav-btn span').forEach(b => { 
-                b.classList.remove('text-white'); b.classList.add('text-gray-500');
-            });
-            
             const activeBtn = event.currentTarget;
-            activeBtn.querySelector('i').classList.add('text-white', 'drop-shadow-[0_0_10px_white]');
-            activeBtn.querySelector('i').classList.remove('text-gray-500');
-            activeBtn.querySelector('span').classList.add('text-white');
-            activeBtn.querySelector('span').classList.remove('text-gray-500');
+            activeBtn.classList.add('text-cyan-400', 'bg-cyan-900/30', 'shadow-[0_0_15px_cyan]');
+            activeBtn.classList.remove('text-gray-500');
         }
     </script>
 </body>
