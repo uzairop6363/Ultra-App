@@ -3,29 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ultra Admin</title>
+    <title>ULTRA ADMIN - GOD MODE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
-<body class="bg-gray-900 text-white p-6 font-sans">
+<body class="bg-gray-900 text-white p-4 font-mono">
+
     <div id="loginOverlay" class="fixed inset-0 bg-black z-50 flex flex-col justify-center items-center">
-        <h1 class="text-3xl font-bold text-red-500 mb-2">RESTRICTED AREA</h1>
-        <div class="w-64">
-            <input type="text" id="u" placeholder="Admin User" class="w-full bg-gray-800 p-3 rounded mb-2 text-white border border-gray-700">
-            <input type="password" id="p" placeholder="Password" class="w-full bg-gray-800 p-3 rounded mb-4 text-white border border-gray-700">
-            <button onclick="check()" class="w-full bg-red-600 hover:bg-red-700 py-3 rounded font-bold">Login</button>
+        <h1 class="text-4xl font-bold text-red-600 mb-4 tracking-widest">MASTER CONTROL</h1>
+        <div class="w-72 space-y-4">
+            <input type="text" id="u" placeholder="Admin ID" class="w-full bg-gray-800 p-3 text-white border border-gray-600">
+            <input type="password" id="p" placeholder="Passkey" class="w-full bg-gray-800 p-3 text-white border border-gray-600">
+            <button onclick="check()" class="w-full bg-red-700 hover:bg-red-600 py-3 font-bold uppercase">Authenticate</button>
         </div>
     </div>
+
     <div id="panel" style="display:none;">
-        <div class="flex justify-between items-center mb-6"><h1 class="text-2xl font-bold text-blue-400">Admin Dashboard</h1><button onclick="location.reload()" class="text-xs text-gray-500 border border-gray-600 px-3 py-1 rounded">Logout</button></div>
-        <h2 class="text-lg font-bold mb-3 border-b border-gray-700 pb-2 text-yellow-400">Pending Deposits</h2>
-        <div id="deposits" class="grid gap-3 mb-8"><p class="text-gray-500 text-sm">Loading requests...</p></div>
-        <h2 class="text-lg font-bold mb-3 border-b border-gray-700 pb-2 text-green-400">All Users</h2>
-        <div id="users" class="grid gap-2"><p class="text-gray-500 text-sm">Loading users...</p></div>
+        <div class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
+            <h1 class="text-2xl font-bold text-blue-400">ADMIN DASHBOARD</h1>
+            <button onclick="location.reload()" class="bg-gray-700 px-4 py-1 text-sm rounded">LOGOUT</button>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8">
+            <div>
+                <h2 class="text-xl font-bold text-yellow-400 mb-4 border-b border-yellow-400 pb-2">PENDING DEPOSITS</h2>
+                <div id="deposits" class="space-y-3">Loading...</div>
+            </div>
+
+            <div>
+                <h2 class="text-xl font-bold text-pink-500 mb-4 border-b border-pink-500 pb-2">WITHDRAW REQUESTS</h2>
+                <div id="withdrawals" class="space-y-3">Loading...</div>
+            </div>
+        </div>
+
+        <div class="mt-12">
+            <h2 class="text-xl font-bold text-green-400 mb-4 border-b border-green-400 pb-2">ALL USERS</h2>
+            <div id="users" class="grid gap-2">Loading...</div>
+        </div>
     </div>
+
     <script>
-        // --- YOUR REAL CONFIGURATION ---
+        // --- PASTE FIREBASE CONFIG HERE ---
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -40,46 +59,104 @@
 
         function check() {
             if(document.getElementById('u').value === "uzairop6363" && document.getElementById('p').value === "uzairseema+-123") {
-                document.getElementById('loginOverlay').style.display = 'none'; document.getElementById('panel').style.display = 'block'; loadData();
-            } else { alert("Invalid Credentials!"); }
+                document.getElementById('loginOverlay').style.display = 'none';
+                document.getElementById('panel').style.display = 'block';
+                loadData();
+            } else { alert("ACCESS DENIED"); }
         }
 
         function loadData() {
+            // 1. Deposits
             db.ref('deposits').on('value', snap => {
                 const div = document.getElementById('deposits'); div.innerHTML = "";
-                let hasPending = false;
                 snap.forEach(child => {
                     const d = child.val();
                     if(d.status === "Pending") {
-                        hasPending = true;
                         div.innerHTML += `
-                        <div class="bg-gray-800 p-4 rounded-lg border border-yellow-500/50 flex justify-between items-center">
-                            <div><p class="font-bold text-white">${d.amount} PKR</p><p class="text-xs text-gray-400">${d.email}</p><p class="text-[10px] text-gray-500 font-mono">TRX: ${d.trx} | Inviter: ${d.invitedBy}</p></div>
-                            <div class="flex gap-2"><button onclick="approve('${child.key}', '${d.uid}', ${d.amount}, '${d.invitedBy}')" class="bg-green-600 px-3 py-1 rounded text-xs font-bold">Approve</button><button onclick="reject('${child.key}')" class="bg-red-600 px-3 py-1 rounded text-xs">X</button></div>
+                        <div class="bg-gray-800 p-4 border border-yellow-600 rounded">
+                            <p class="text-white font-bold text-lg">${d.amount} PKR</p>
+                            <p class="text-xs text-gray-400">${d.email}</p>
+                            <p class="text-xs text-yellow-500 font-mono">TRX: ${d.trx}</p>
+                            <div class="mt-2 flex gap-2">
+                                <button onclick="approveDep('${child.key}', '${d.uid}', ${d.amount}, '${d.invitedBy}')" class="bg-green-600 px-3 py-1 text-xs font-bold rounded">APPROVE</button>
+                                <button onclick="rejectDep('${child.key}')" class="bg-red-600 px-3 py-1 text-xs rounded">REJECT</button>
+                            </div>
                         </div>`;
                     }
                 });
-                if(!hasPending) div.innerHTML = '<p class="text-gray-500 text-sm">No new requests.</p>';
             });
+
+            // 2. Withdrawals
+            db.ref('withdrawals').on('value', snap => {
+                const div = document.getElementById('withdrawals'); div.innerHTML = "";
+                snap.forEach(child => {
+                    const w = child.val();
+                    if(w.status === "Pending") {
+                        div.innerHTML += `
+                        <div class="bg-gray-800 p-4 border border-pink-600 rounded">
+                            <p class="text-white font-bold text-lg">${w.amount} PKR</p>
+                            <p class="text-xs text-gray-400">${w.email}</p>
+                            <div class="bg-black/30 p-2 my-2 text-xs">
+                                <p>Method: ${w.method}</p>
+                                <p>Name: ${w.accName}</p>
+                                <p class="text-pink-400 font-mono">No: ${w.accNum}</p>
+                            </div>
+                            <button onclick="markPaid('${child.key}')" class="w-full bg-green-600 py-1 text-xs font-bold rounded">MARK AS PAID</button>
+                        </div>`;
+                    }
+                });
+            });
+
+            // 3. Users
             db.ref('users').on('value', snap => {
                 const div = document.getElementById('users'); div.innerHTML = "";
                 snap.forEach(child => {
                     const u = child.val();
-                    div.innerHTML += `<div class="bg-gray-800 p-3 rounded flex justify-between items-center text-sm"><span>${u.email.split('@')[0]}</span><div class="flex gap-3"><span class="text-blue-400 font-bold">${u.balance}</span><button onclick="editBal('${child.key}', ${u.balance})" class="text-xs border border-gray-600 px-2 rounded">Edit</button></div></div>`;
+                    div.innerHTML += `
+                    <div class="bg-gray-800 p-2 flex justify-between items-center text-sm border-b border-gray-700">
+                        <span>${u.email}</span>
+                        <div class="flex items-center gap-2">
+                            <b class="text-blue-400">${u.balance}</b>
+                            <button onclick="editBal('${child.key}', ${u.balance})" class="text-[10px] border px-1">EDIT</button>
+                        </div>
+                    </div>`;
                 });
             });
         }
 
-        function approve(key, uid, amt, ref) {
-            if(!confirm("Approve Deposit?")) return;
+        // --- ACTIONS ---
+        function approveDep(key, uid, amt, ref) {
+            if(!confirm("Confirm Deposit?")) return;
             db.ref('deposits/'+key).update({status: "Approved"});
-            db.ref('users/'+uid+'/balance').once('value', s => { let current = s.val() || 0; db.ref('users/'+uid).update({balance: current + parseInt(amt)}); });
+            db.ref('users/'+uid+'/balance').once('value', s => {
+                let curr = s.val() || 0;
+                db.ref('users/'+uid).update({balance: curr + parseInt(amt)});
+            });
             if(ref && ref !== "Admin") {
-                db.ref('users').orderByChild('myCode').equalTo(ref).once('value', s => { s.forEach(inviter => { let rate = inviter.val().commissionRate || 0; if(rate > 0) { let comm = (parseInt(amt) * rate) / 100; let newBal = (inviter.val().balance || 0) + comm; db.ref('users/'+inviter.key).update({balance: newBal}); alert("Commission sent to " + ref); } }); });
+                db.ref('users').orderByChild('myCode').equalTo(ref).once('value', s => {
+                    s.forEach(inviter => {
+                        let rate = inviter.val().commissionRate || 0;
+                        if(rate > 0) {
+                            let comm = (parseInt(amt) * rate) / 100;
+                            db.ref('users/'+inviter.key).update({balance: inviter.val().balance + comm});
+                        }
+                    });
+                });
             }
         }
-        function reject(key) { if(confirm("Reject?")) db.ref('deposits/'+key).update({status: "Rejected"}); }
-        function editBal(uid, old) { let n = prompt("New Balance:", old); if(n) db.ref('users/'+uid).update({balance: parseInt(n)}); }
+
+        function rejectDep(key) { if(confirm("Reject?")) db.ref('deposits/'+key).update({status: "Rejected"}); }
+
+        function markPaid(key) {
+            if(confirm("Have you sent the money? Mark as Paid?")) {
+                db.ref('withdrawals/'+key).update({status: "Paid"});
+            }
+        }
+
+        function editBal(uid, old) {
+            let n = prompt("New Balance:", old);
+            if(n) db.ref('users/'+uid).update({balance: parseInt(n)});
+        }
     </script>
 </body>
 </html>
