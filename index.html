@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
-    <title>Ultra Earn - Billionaire</title>
+    <title>Ultra Earn - GOD MODE</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Montserrat:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Exo+2:wght@300;600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -17,138 +17,131 @@
     <style>
         body {
             background-color: #000;
-            color: white;
-            font-family: 'Montserrat', sans-serif;
+            color: #fff;
+            font-family: 'Exo 2', sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
-            -webkit-tap-highlight-color: transparent;
             padding-bottom: 100px;
+            -webkit-tap-highlight-color: transparent;
         }
 
-        h1, h2, h3, .sci-font { font-family: 'Orbitron', sans-serif; letter-spacing: 2px; }
+        h1, h2, h3, .god-font { font-family: 'Syncopate', sans-serif; letter-spacing: 1px; }
 
-        /* 1. GOLD & DIAMOND RAIN BACKGROUND */
-        .stars {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2;
-            background: black;
-            background-image: 
-                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
-                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
-                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
-            background-size: 550px 550px, 350px 350px, 250px 250px;
-            background-position: 0 0, 40px 60px, 130px 270px;
-            animation: starMove 100s linear infinite;
+        /* 1. THE GOD BACKGROUND (Red, Blue, Orange, White Mixture) */
+        .god-bg {
+            position: fixed; inset: 0; z-index: -2;
+            background: #000;
         }
-        @keyframes starMove { from {transform: translateY(0);} to {transform: translateY(-2000px);} }
-
-        /* 2. LIQUID GOLD TEXT */
-        .gold-liquid {
-            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            background-size: 200% auto;
-            color: #000;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: shine 3s linear infinite;
-            font-weight: 900;
+        .god-bg::before {
+            content: ''; position: absolute; inset: -50%;
+            background: conic-gradient(
+                from 0deg,
+                #ff0000, #0000ff, #ffa500, #ffffff, 
+                #ff0000, #0000ff, #ffa500, #ffffff
+            );
+            filter: blur(80px);
+            opacity: 0.4;
+            animation: slowSpin 20s linear infinite;
         }
-        @keyframes shine { to { background-position: 200% center; } }
+        @keyframes slowSpin { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
 
-        /* 3. RGB HOLOGRAPHIC CARD */
-        .holo-card {
-            background: rgba(10, 10, 10, 0.8);
-            border-radius: 20px;
+        /* 2. THE GRANDFATHER BORDER LOGIC (Magic) */
+        .gf-card {
             position: relative;
+            background: rgba(10, 10, 10, 0.9);
+            border-radius: 20px;
             z-index: 1;
-            backdrop-filter: blur(20px);
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
+            overflow: hidden;
         }
-        /* Moving RGB Border */
-        .holo-card::before {
-            content: ''; position: absolute; inset: -2px; z-index: -1;
-            background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-            background-size: 400%; border-radius: 22px;
-            animation: steam 20s linear infinite;
-            filter: blur(5px); opacity: 0.7;
+        /* Moving Border Layer */
+        .gf-card::before {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent, transparent, transparent, var(--color1), var(--color2), var(--color1));
+            animation: rotate 4s linear infinite;
+            z-index: -2;
         }
-        @keyframes steam { 0% {background-position: 0 0;} 50% {background-position: 400% 0;} 100% {background-position: 0 0;} }
+        /* Inner Black Layer to make text readable */
+        .gf-card::after {
+            content: ''; position: absolute; inset: 2px;
+            background: rgba(5, 5, 5, 0.95);
+            border-radius: 18px;
+            z-index: -1;
+        }
+        
+        @keyframes rotate { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
 
-        /* 4. NEON INPUTS */
-        .neon-input {
-            background: rgba(0,0,0,0.6);
-            border: 1px solid #333;
-            color: #0ff;
-            font-family: 'Orbitron', sans-serif;
+        /* Custom Colors for Specific Boxes */
+        .tier-border { --color1: #00ff00; --color2: #a200ff; } /* Green & Purple */
+        .profit-border { --color1: #00ffff; --color2: #ff00de; } /* Cyan & Pink */
+        .gold-border { --color1: #ffd700; --color2: #ff8c00; } /* Gold & Orange */
+        .starter-border { --color1: #007bff; --color2: #ffffff; } /* Blue & White */
+        .vip-border { --color1: #ff0000; --color2: #ffff00; } /* Red & Yellow */
+        .balance-border { --color1: #ffffff; --color2: #00ffea; } /* White & Cyan */
+
+        /* 3. NEON BUTTONS */
+        .god-btn {
+            background: linear-gradient(90deg, #ff0055, #ff00aa);
+            color: white; border: none; font-weight: 800;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.5);
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .god-btn:active { transform: scale(0.95); box-shadow: 0 0 50px rgba(255, 0, 85, 1); }
+
+        /* 4. LIQUID INPUTS */
+        .god-input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white; font-family: 'Exo 2', sans-serif;
             transition: 0.3s;
-            box-shadow: inset 0 0 10px rgba(0,0,0,0.8);
         }
-        .neon-input:focus {
-            border-color: #0ff;
-            box-shadow: 0 0 15px #0ff, inset 0 0 10px rgba(0,0,0,0.8);
-            outline: none;
+        .god-input:focus {
+            border-color: #00ffff;
+            box-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+            outline: none; background: rgba(0,0,0,0.8);
         }
-
-        /* 5. SUPER BUTTON */
-        .super-btn {
-            background: linear-gradient(180deg, #ff00de, #a200ff);
-            border: none; color: white;
-            position: relative; overflow: hidden;
-            z-index: 1;
-            box-shadow: 0 0 20px rgba(162, 0, 255, 0.5);
-            transition: 0.2s;
-        }
-        .super-btn::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
-            transition: 0.5s; z-index: -1;
-        }
-        .super-btn:hover::before { left: 100%; }
-        .super-btn:active { transform: scale(0.95); box-shadow: 0 0 5px rgba(162, 0, 255, 0.8); }
 
         /* Tab Animation */
-        .tab-content { display: none; animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .tab-content { display: none; animation: blastIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .active-tab { display: block; }
-        @keyframes zoomIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        @keyframes blastIn { from { opacity: 0; transform: scale(0.5); filter: blur(10px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
 
         /* Loader */
-        #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 999; justify-content: center; align-items: center; }
-        .hexagon { width: 60px; height: 34px; background-color: #0ff; position: relative; animation: rotate 2s linear infinite; }
-        .hexagon:before, .hexagon:after { content: ""; position: absolute; width: 0; border-left: 30px solid transparent; border-right: 30px solid transparent; }
-        .hexagon:before { bottom: 100%; border-bottom: 17px solid #0ff; }
-        .hexagon:after { top: 100%; width: 0; border-top: 17px solid #0ff; }
-        @keyframes rotate { 0% { transform: rotate(0deg); filter: hue-rotate(0deg); } 100% { transform: rotate(360deg); filter: hue-rotate(360deg); } }
+        #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 100; justify-content: center; align-items: center; }
+        .pulse-ring { width: 80px; height: 80px; border-radius: 50%; border: 4px solid #fff; animation: ring 1.5s infinite; }
+        @keyframes ring { 0% {transform: scale(0.5); opacity: 1;} 100% {transform: scale(1.5); opacity: 0;} }
     </style>
 </head>
 <body>
 
-    <div class="stars"></div>
+    <div class="god-bg"></div>
 
-    <div id="loader"><div class="hexagon"></div><p class="mt-8 text-[#0ff] font-bold tracking-widest text-xs animate-pulse">INITIALIZING...</p></div>
+    <div id="loader"><div class="pulse-ring"></div><p class="absolute mt-24 font-bold text-white tracking-widest text-xs">LOADING GRANDFATHER...</p></div>
 
-    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto bg-black/90 backdrop-blur-sm">
-        <div class="holo-card p-8 w-full max-w-sm mx-auto text-center">
-            <h1 class="text-5xl mb-2 gold-liquid">ULTRA</h1>
-            <p class="text-cyan-400 text-xs tracking-[0.5em] mb-10 uppercase">Billionaire Club</p>
+    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto bg-black/80 backdrop-blur-md">
+        <div class="gf-card balance-border p-8 w-full max-w-sm mx-auto text-center">
+            <h1 class="text-4xl mb-2 font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 god-font">ULTRA</h1>
+            <p class="text-white text-xs tracking-[0.5em] mb-10 uppercase">God Mode Access</p>
 
             <div id="loginForm" class="space-y-6">
-                <input type="email" id="loginEmail" placeholder="USER ID" class="neon-input w-full p-4 rounded-lg text-center">
-                <input type="password" id="loginPass" placeholder="ACCESS KEY" class="neon-input w-full p-4 rounded-lg text-center">
-                <button onclick="login()" class="super-btn w-full py-4 rounded-lg font-bold text-lg tracking-widest">
-                    ENTER VAULT
+                <input type="email" id="loginEmail" placeholder="USER IDENTITY" class="god-input w-full p-4 rounded-lg text-center">
+                <input type="password" id="loginPass" placeholder="SECURITY KEY" class="god-input w-full p-4 rounded-lg text-center">
+                <button onclick="login()" class="god-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase">
+                    Authenticate
                 </button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-500 mt-4 cursor-pointer hover:text-[#0ff] transition border-b border-transparent hover:border-[#0ff] inline-block">APPLY FOR MEMBERSHIP</p>
+                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-4 cursor-pointer hover:text-white border-b border-gray-600 inline-block">INITIATE NEW PROTOCOL</p>
             </div>
 
             <div id="registerForm" class="hidden space-y-6">
-                <div id="autoRefBadge" class="hidden border border-[#0ff] p-2 text-[#0ff] text-xs uppercase tracking-widest rounded mb-4 shadow-[0_0_10px_#0ff]">
-                    Ref: <span id="inviterId" class="text-white">...</span>
+                <div id="autoRefBadge" class="hidden border border-white/50 p-2 text-white text-xs uppercase tracking-widest rounded mb-4">
+                    Linked: <span id="inviterId" class="text-yellow-400">...</span>
                 </div>
-                <input type="text" id="regName" placeholder="CODENAME" class="neon-input w-full p-4 rounded-lg text-center">
-                <input type="email" id="regEmail" placeholder="EMAIL" class="neon-input w-full p-4 rounded-lg text-center">
-                <input type="password" id="regPass" placeholder="SET KEY" class="neon-input w-full p-4 rounded-lg text-center">
-                <button onclick="register()" class="super-btn w-full py-4 rounded-lg font-bold text-lg tracking-widest bg-gradient-to-r from-cyan-500 to-blue-500">
-                    JOIN NETWORK
+                <input type="text" id="regName" placeholder="CODENAME" class="god-input w-full p-4 rounded-lg text-center">
+                <input type="email" id="regEmail" placeholder="EMAIL" class="god-input w-full p-4 rounded-lg text-center">
+                <input type="password" id="regPass" placeholder="PASSWORD" class="god-input w-full p-4 rounded-lg text-center">
+                <button onclick="register()" class="god-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase bg-gradient-to-r from-blue-600 to-cyan-500">
+                    Establish Link
                 </button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-500 mt-4 cursor-pointer hover:text-[#0ff]">ACCESS EXISTING ACCOUNT</p>
+                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-4 cursor-pointer hover:text-white">RETURN TO LOGIN</p>
             </div>
             <p id="authMsg" class="text-red-500 text-xs mt-4 font-bold uppercase"></p>
         </div>
@@ -158,163 +151,159 @@
         
         <div class="flex justify-between items-center p-6">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 border-2 border-[#0ff] rounded-full flex items-center justify-center shadow-[0_0_10px_#0ff]">
-                    <i class="fa-solid fa-user-astronaut text-[#0ff]"></i>
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_0_20px_white]">
+                    <i class="fa-solid fa-crown text-black text-xl"></i>
                 </div>
                 <div>
-                    <h2 class="text-lg font-bold text-white sci-font" id="userNameDisplay">COMMANDER</h2>
-                    <div class="h-1 w-full bg-gradient-to-r from-[#0ff] to-transparent"></div>
+                    <h2 class="text-lg font-bold text-white god-font" id="userNameDisplay">BOSS</h2>
+                    <p class="text-[10px] text-gray-400 uppercase tracking-widest">System Online</p>
                 </div>
             </div>
-            <button onclick="logout()" class="text-red-500 hover:text-red-400 text-2xl transition transform hover:rotate-90">
-                <i class="fa-solid fa-power-off"></i>
+            <button onclick="logout()" class="text-white hover:text-red-500 transition duration-300">
+                <i class="fa-solid fa-power-off text-2xl drop-shadow-[0_0_10px_white]"></i>
             </button>
         </div>
 
         <div id="tab-home" class="tab-content px-4 pt-4">
-            <div class="holo-card p-1 mb-8">
-                <div class="bg-black/80 rounded-[18px] p-6 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
-                    <div class="relative z-10 text-center">
-                        <p class="text-gray-400 text-xs tracking-[0.3em] uppercase mb-2">Total Net Worth</p>
-                        <h1 class="text-5xl font-black mb-6 gold-liquid drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]">
-                            <span class="text-2xl text-white mr-1">Rs.</span><span id="bigBalance">0</span>
-                        </h1>
-                        
-                        <div class="flex gap-4 justify-center">
-                            <button onclick="document.getElementById('depositModal').style.display='flex'" class="border border-[#0ff] text-[#0ff] px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-[#0ff] hover:text-black transition shadow-[0_0_15px_#0ff]">
-                                <i class="fa-solid fa-plus mr-1"></i> Add
-                            </button>
-                            <button class="border border-[#ff00de] text-[#ff00de] px-6 py-2 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-[#ff00de] hover:text-black transition shadow-[0_0_15px_#ff00de]">
-                                Withdraw
-                            </button>
-                        </div>
-                    </div>
+            <div class="gf-card balance-border p-8 mb-8 text-center relative">
+                <p class="text-gray-400 text-xs tracking-[0.4em] uppercase mb-4">Total Assets</p>
+                <h1 class="text-5xl font-black mb-8 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]">
+                    <span class="text-2xl text-gray-500">Rs.</span><span id="bigBalance">0</span>
+                </h1>
+                
+                <div class="flex gap-4 justify-center">
+                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="bg-white text-black px-8 py-3 rounded-full font-bold uppercase hover:scale-105 transition shadow-[0_0_20px_white]">
+                        Deposit
+                    </button>
+                    <button class="bg-transparent border border-white text-white px-8 py-3 rounded-full font-bold uppercase hover:bg-white/10 transition">
+                        Withdraw
+                    </button>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4 mb-8">
-                <div class="bg-[#111] border border-gray-800 p-4 rounded-xl relative overflow-hidden">
-                    <div class="absolute -right-2 -bottom-2 text-6xl text-gray-800 opacity-20"><i class="fa-solid fa-rocket"></i></div>
-                    <p class="text-[10px] text-gray-500 uppercase">Current Tier</p>
-                    <p id="planDisplay" class="text-xl font-bold text-[#0ff] sci-font">FREE</p>
+                <div class="gf-card tier-border p-5 text-center">
+                    <i class="fa-solid fa-layer-group text-purple-400 text-2xl mb-2 drop-shadow-[0_0_10px_purple]"></i>
+                    <p class="text-gray-400 text-[10px] uppercase">Current Tier</p>
+                    <p id="planDisplay" class="text-xl font-bold text-green-400 god-font">FREE</p>
                 </div>
-                <div class="bg-[#111] border border-gray-800 p-4 rounded-xl relative overflow-hidden">
-                    <div class="absolute -right-2 -bottom-2 text-6xl text-gray-800 opacity-20"><i class="fa-solid fa-percent"></i></div>
-                    <p class="text-[10px] text-gray-500 uppercase">Profit Share</p>
-                    <p id="commissionDisplay" class="text-xl font-bold text-[#ff00de] sci-font">0%</p>
+                <div class="gf-card profit-border p-5 text-center">
+                    <i class="fa-solid fa-chart-line text-cyan-400 text-2xl mb-2 drop-shadow-[0_0_10px_cyan]"></i>
+                    <p class="text-gray-400 text-[10px] uppercase">Profit Share</p>
+                    <p id="commissionDisplay" class="text-xl font-bold text-pink-500 god-font">0%</p>
                 </div>
             </div>
 
-            <div onclick="switchTab('team')" class="relative p-6 rounded-xl overflow-hidden cursor-pointer group">
-                <div class="absolute inset-0 bg-gradient-to-r from-blue-900 to-purple-900"></div>
-                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diamond-upholstery.png')] opacity-10"></div>
-                <div class="relative z-10 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-xl font-bold text-white sci-font">INVITE AGENTS</h3>
-                        <p class="text-xs text-blue-200">Expand your empire & earn royalty.</p>
+            <div onclick="switchTab('team')" class="gf-card gold-border p-5 flex items-center justify-between cursor-pointer group">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center text-yellow-400 text-2xl">
+                        <i class="fa-solid fa-users"></i>
                     </div>
-                    <i class="fa-solid fa-chevron-right text-white group-hover:translate-x-2 transition"></i>
+                    <div>
+                        <h3 class="text-lg font-bold text-white god-font group-hover:text-yellow-400 transition">REFERRAL</h3>
+                        <p class="text-[10px] text-gray-400">Earn Infinite Passive Income</p>
+                    </div>
                 </div>
+                <i class="fa-solid fa-chevron-right text-white"></i>
             </div>
         </div>
 
         <div id="tab-plans" class="tab-content px-4 pt-4">
-            <h2 class="text-2xl font-bold mb-6 text-white sci-font text-center"><span class="text-[#0ff]">///</span> MARKETPLACE</h2>
+            <h2 class="text-2xl font-bold mb-6 text-white god-font text-center">SELECT TIER</h2>
             
             <div class="space-y-6">
-                <div class="bg-[#0a0a0a] border border-[#333] p-6 rounded-xl hover:border-[#0ff] transition duration-300 group">
+                <div class="gf-card starter-border p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-2xl font-bold text-white sci-font group-hover:text-[#0ff]">STARTER</h3>
-                        <span class="text-xl font-bold text-gray-400">500</span>
+                        <h3 class="text-2xl font-bold text-blue-400 god-font">STARTER</h3>
+                        <span class="text-xl font-bold text-white">500</span>
                     </div>
-                    <div class="w-full bg-gray-800 h-[1px] mb-4"></div>
                     <ul class="text-xs text-gray-400 space-y-2 mb-6 uppercase tracking-widest">
-                        <li><i class="fa-solid fa-check text-[#0ff] mr-2"></i> 30% ROI</li>
-                        <li><i class="fa-solid fa-check text-[#0ff] mr-2"></i> Level 1 Access</li>
+                        <li><i class="fa-solid fa-bolt text-blue-500 mr-2"></i> 30% ROI</li>
+                        <li><i class="fa-solid fa-shield text-blue-500 mr-2"></i> Basic Access</li>
                     </ul>
-                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full border border-[#0ff] text-[#0ff] py-3 rounded font-bold uppercase hover:bg-[#0ff] hover:text-black transition shadow-[0_0_10px_#0ff]">Purchase</button>
+                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full border border-blue-500 text-blue-400 py-3 rounded font-bold uppercase hover:bg-blue-500 hover:text-white transition shadow-[0_0_15px_blue]">Purchase</button>
                 </div>
 
-                <div class="holo-card p-6 rounded-xl">
+                <div class="gf-card gold-border p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-2xl font-bold gold-liquid sci-font">GOLD PRO</h3>
+                        <h3 class="text-2xl font-bold text-yellow-400 god-font">GOLD PRO</h3>
                         <span class="text-xl font-bold text-white">2000</span>
                     </div>
-                    <div class="w-full bg-gradient-to-r from-transparent via-[#bf953f] to-transparent h-[2px] mb-4"></div>
-                    <ul class="text-xs text-gray-300 space-y-2 mb-6 uppercase tracking-widest">
-                        <li><i class="fa-solid fa-star text-yellow-400 mr-2"></i> 50% ROI</li>
-                        <li><i class="fa-solid fa-star text-yellow-400 mr-2"></i> Priority Support</li>
+                    <ul class="text-xs text-gray-400 space-y-2 mb-6 uppercase tracking-widest">
+                        <li><i class="fa-solid fa-star text-yellow-500 mr-2"></i> 50% ROI</li>
+                        <li><i class="fa-solid fa-rocket text-yellow-500 mr-2"></i> High Priority</li>
                     </ul>
-                    <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full bg-gradient-to-r from-[#bf953f] to-[#aa771c] text-black py-3 rounded font-bold uppercase hover:scale-105 transition shadow-[0_0_20px_#bf953f]">Purchase</button>
+                    <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-black py-3 rounded font-bold uppercase hover:scale-105 transition shadow-[0_0_20px_orange]">Purchase</button>
                 </div>
 
-                <div class="bg-[#0a0a0a] border border-[#333] p-6 rounded-xl hover:border-[#ff00de] transition duration-300 group">
+                <div class="gf-card vip-border p-6">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-2xl font-bold text-white sci-font group-hover:text-[#ff00de]">VIP</h3>
-                        <span class="text-xl font-bold text-gray-400">5000</span>
+                        <h3 class="text-2xl font-bold text-red-500 god-font">VIP GOD</h3>
+                        <span class="text-xl font-bold text-white">5000</span>
                     </div>
-                    <div class="w-full bg-gray-800 h-[1px] mb-4"></div>
                     <ul class="text-xs text-gray-400 space-y-2 mb-6 uppercase tracking-widest">
-                        <li><i class="fa-solid fa-check text-[#ff00de] mr-2"></i> 60% MAX ROI</li>
-                        <li><i class="fa-solid fa-check text-[#ff00de] mr-2"></i> Manager Access</li>
+                        <li><i class="fa-solid fa-fire text-red-500 mr-2"></i> 60% MAX ROI</li>
+                        <li><i class="fa-solid fa-crown text-red-500 mr-2"></i> Direct Admin Line</li>
                     </ul>
-                    <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full border border-[#ff00de] text-[#ff00de] py-3 rounded font-bold uppercase hover:bg-[#ff00de] hover:text-black transition shadow-[0_0_10px_#ff00de]">Purchase</button>
+                    <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full border border-red-500 text-red-500 py-3 rounded font-bold uppercase hover:bg-red-500 hover:text-white transition shadow-[0_0_15px_red]">Purchase</button>
                 </div>
             </div>
         </div>
 
         <div id="tab-team" class="tab-content px-4 pt-10 text-center">
-            <i class="fa-solid fa-earth-americas text-6xl text-[#0ff] mb-6 animate-pulse drop-shadow-[0_0_15px_#0ff]"></i>
-            <h2 class="text-3xl font-bold text-white mb-2 sci-font">GLOBAL NETWORK</h2>
-            <p class="text-gray-500 text-xs mb-10 px-8 uppercase tracking-widest">Share your frequency code. Earn credits instantly.</p>
-            
-            <div class="border border-[#333] bg-black p-4 mb-8 flex items-center justify-between rounded hover:border-[#0ff] transition">
-                <code id="myLinkDisplay" class="text-xs text-[#0ff] truncate select-all">INITIALIZING...</code>
-                <i class="fa-solid fa-copy text-gray-500"></i>
+            <div class="w-32 h-32 mx-auto rounded-full bg-black border-2 border-white flex items-center justify-center mb-8 shadow-[0_0_30px_white] animate-pulse">
+                <i class="fa-solid fa-network-wired text-5xl text-white"></i>
             </div>
             
-            <button onclick="shareLink()" class="super-btn w-full py-4 rounded-lg font-bold flex items-center justify-center gap-3 text-lg">
-                <i class="fa-brands fa-whatsapp"></i> BROADCAST
+            <h2 class="text-3xl font-bold text-white mb-2 god-font">NETWORK</h2>
+            <p class="text-gray-400 text-xs mb-10 px-8 uppercase tracking-widest">Distribute your frequency. Dominate the market.</p>
+            
+            <div class="gf-card balance-border p-4 mb-8 flex items-center justify-between rounded">
+                <code id="myLinkDisplay" class="text-xs text-cyan-400 truncate select-all">GENERATING...</code>
+                <i class="fa-solid fa-copy text-white hover:text-cyan-400 cursor-pointer"></i>
+            </div>
+            
+            <button onclick="shareLink()" class="god-btn w-full py-4 rounded-lg font-bold flex items-center justify-center gap-3 text-lg">
+                <i class="fa-brands fa-whatsapp text-2xl"></i> BROADCAST LINK
             </button>
         </div>
 
     </div>
 
     <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-        <div class="holo-card w-full max-w-sm p-8 bg-black">
+        <div class="gf-card profit-border w-full max-w-sm p-8">
             <div class="flex justify-between items-center mb-8">
-                <h3 class="text-2xl font-bold text-[#0ff] sci-font">TRANSFER</h3>
-                <button onclick="document.getElementById('depositModal').style.display='none'" class="text-gray-500 hover:text-white">✕</button>
+                <h3 class="text-2xl font-bold text-white god-font">INJECT</h3>
+                <button onclick="document.getElementById('depositModal').style.display='none'" class="text-gray-500 hover:text-white text-2xl">✕</button>
             </div>
             
-            <div class="border border-[#333] p-4 rounded mb-6 text-center">
-                <p class="text-[10px] text-gray-500 uppercase tracking-[0.2em] mb-2">Destination</p>
+            <div class="border border-white/20 p-4 rounded mb-6 text-center">
+                <p class="text-[10px] text-gray-500 uppercase tracking-[0.2em] mb-2">Destination Node</p>
                 <p class="text-2xl text-white font-mono tracking-widest">0348-8347820</p>
-                <p class="text-[10px] text-[#ff00de] mt-1 uppercase">Easypaisa / Jazzcash</p>
+                <p class="text-[10px] text-pink-500 mt-1 uppercase">C9 UZAIR (EP/JC)</p>
             </div>
 
             <div class="space-y-6">
-                <input type="number" id="depAmt" placeholder="AMOUNT" class="neon-input w-full p-4 rounded text-center">
-                <input type="text" id="trxID" placeholder="TRANSACTION HASH" class="neon-input w-full p-4 rounded text-center">
-                <button onclick="submitDeposit()" class="super-btn w-full py-4 rounded font-bold tracking-widest">VERIFY</button>
+                <input type="number" id="depAmt" placeholder="QUANTITY (PKR)" class="god-input w-full p-4 rounded text-center">
+                <input type="text" id="trxID" placeholder="HASH ID (TRX)" class="god-input w-full p-4 rounded text-center">
+                <button onclick="submitDeposit()" class="god-btn w-full py-4 rounded font-bold tracking-widest">EXECUTE</button>
             </div>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full z-40 bg-black/80 backdrop-blur-md border-t border-[#333] pb-6 pt-4">
+    <div class="fixed bottom-0 left-0 w-full z-40 bg-black/90 backdrop-blur-md border-t border-white/10 pb-6 pt-4">
         <div class="flex justify-around max-w-md mx-auto">
             <div onclick="switchTab('home')" class="nav-btn group cursor-pointer flex flex-col items-center">
-                <i class="fa-solid fa-house text-xl mb-1 text-[#0ff] drop-shadow-[0_0_5px_#0ff] transition group-hover:scale-110"></i>
-                <span class="text-[8px] uppercase tracking-widest text-[#0ff]">Base</span>
+                <i class="fa-solid fa-house text-xl mb-1 text-white drop-shadow-[0_0_10px_white] transition group-hover:scale-125"></i>
+                <span class="text-[8px] uppercase tracking-widest text-white">Base</span>
             </div>
             <div onclick="switchTab('plans')" class="nav-btn group cursor-pointer flex flex-col items-center">
-                <i class="fa-solid fa-cube text-xl mb-1 text-gray-500 transition group-hover:text-white"></i>
-                <span class="text-[8px] uppercase tracking-widest text-gray-500 group-hover:text-white">Assets</span>
+                <i class="fa-solid fa-cube text-xl mb-1 text-gray-500 transition group-hover:text-yellow-400 group-hover:drop-shadow-[0_0_10px_yellow]"></i>
+                <span class="text-[8px] uppercase tracking-widest text-gray-500 group-hover:text-white">Tiers</span>
             </div>
             <div onclick="switchTab('team')" class="nav-btn group cursor-pointer flex flex-col items-center">
-                <i class="fa-solid fa-users text-xl mb-1 text-gray-500 transition group-hover:text-white"></i>
-                <span class="text-[8px] uppercase tracking-widest text-gray-500 group-hover:text-white">Network</span>
+                <i class="fa-solid fa-users text-xl mb-1 text-gray-500 transition group-hover:text-cyan-400 group-hover:drop-shadow-[0_0_10px_cyan]"></i>
+                <span class="text-[8px] uppercase tracking-widest text-gray-500 group-hover:text-white">Clan</span>
             </div>
         </div>
     </div>
@@ -414,16 +403,16 @@
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
             document.getElementById('tab-' + tab).classList.add('active-tab');
             document.querySelectorAll('.nav-btn i').forEach(b => { 
-                b.classList.remove('text-[#0ff]', 'drop-shadow-[0_0_5px_#0ff]'); b.classList.add('text-gray-500');
+                b.classList.remove('text-white', 'drop-shadow-[0_0_10px_white]'); b.classList.add('text-gray-500');
             });
             document.querySelectorAll('.nav-btn span').forEach(b => { 
-                b.classList.remove('text-[#0ff]'); b.classList.add('text-gray-500');
+                b.classList.remove('text-white'); b.classList.add('text-gray-500');
             });
             
             const activeBtn = event.currentTarget;
-            activeBtn.querySelector('i').classList.add('text-[#0ff]', 'drop-shadow-[0_0_5px_#0ff]');
+            activeBtn.querySelector('i').classList.add('text-white', 'drop-shadow-[0_0_10px_white]');
             activeBtn.querySelector('i').classList.remove('text-gray-500');
-            activeBtn.querySelector('span').classList.add('text-[#0ff]');
+            activeBtn.querySelector('span').classList.add('text-white');
             activeBtn.querySelector('span').classList.remove('text-gray-500');
         }
     </script>
