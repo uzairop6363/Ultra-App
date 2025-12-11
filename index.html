@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#4c1d95">
-    <title>Ultra Earn - Glass</title>
+    <meta name="theme-color" content="#0b0f19">
+    <title>Ultra Earn - Cyberpunk</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -15,256 +15,266 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
     <style>
+        /* --- ANIMATIONS & THEME SETUP --- */
         body {
-            font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 50%, #831843 100%);
-            background-attachment: fixed;
-            color: white;
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #0b0f19;
+            color: #e2e8f0;
             min-height: 100vh;
+            overflow-x: hidden;
+            padding-bottom: 100px;
             -webkit-tap-highlight-color: transparent;
-            padding-bottom: 90px;
         }
 
-        /* Glassmorphism Magic */
-        .glass {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        /* 1. Living Background Animation */
+        .animated-bg {
+            position: fixed; inset: 0; z-index: -2;
+            background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
         }
+        @keyframes gradientBG { 0% {background-position: 0% 50%;} 50% {background-position: 100% 50%;} 100% {background-position: 0% 50%;} }
 
-        .glass-dark {
-            background: rgba(0, 0, 0, 0.3);
+        /* 2. Cyber Cards with Neon Glow Pulse */
+        .cyber-card {
+            background: rgba(13, 17, 32, 0.8);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 243, 255, 0.2);
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative; overflow: hidden;
+        }
+        .cyber-card::before { /* Scanline effect */
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: repeating-linear-gradient(transparent 0%, rgba(0, 243, 255, 0.05) 50%, transparent 100%);
+            background-size: 100% 4px; pointer-events: none;
+        }
+        .cyber-card:hover {
+            border-color: rgba(0, 243, 255, 0.6);
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.3);
+            transform: translateY(-3px);
         }
 
-        /* ATM Card Gradient */
-        .credit-card {
-            background: linear-gradient(109.6deg, rgba(255, 0, 219, 1) 11.2%, rgba(255, 112, 112, 1) 91.1%);
-            box-shadow: 0 20px 40px -10px rgba(255, 0, 219, 0.5);
+        /* 3. Floating Animation for Balance Card */
+        .float-animate { animation: floater 4s ease-in-out infinite; }
+        @keyframes floater { 0% {transform: translateY(0px);} 50% {transform: translateY(-10px);} 100% {transform: translateY(0px);} }
+
+        /* 4. Neon Buttons */
+        .neon-btn-blue {
+            background: linear-gradient(90deg, #00c6ff, #0072ff);
+            box-shadow: 0 0 15px rgba(0, 198, 255, 0.5);
+            transition: 0.3s; border: none;
         }
+        .neon-btn-blue:active { transform: scale(0.95); box-shadow: 0 0 5px rgba(0, 198, 255, 0.8); }
+        
+        .neon-btn-pink {
+            background: linear-gradient(90deg, #ff00cc, #333399);
+            box-shadow: 0 0 15px rgba(255, 0, 204, 0.5);
+            transition: 0.3s; border: none;
+        }
+        .neon-btn-pink:active { transform: scale(0.95); }
+
+        /* 5. Tab Slide Up Animation */
+        .tab-content { display: none; animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+        .active-tab { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Inputs */
-        .glass-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid transparent;
-            color: white;
-            transition: 0.3s;
+        .cyber-input {
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(0, 243, 255, 0.3);
+            color: #00f3ff; transition: 0.3s;
         }
-        .glass-input:focus {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255,255,255,0.5);
-            outline: none;
-        }
-        .glass-input::placeholder { color: rgba(255,255,255,0.6); }
+        .cyber-input:focus { border-color: #00f3ff; box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); outline: none; }
+        .cyber-input::placeholder { color: rgba(0, 243, 255, 0.4); }
 
-        /* Animations */
-        .tab-content { display: none; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .active-tab { display: block; }
-        @keyframes popIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-        
-        #loader { display: none; position: fixed; inset: 0; background: rgba(19, 7, 46, 0.9); z-index: 999; justify-content: center; align-items: center; backdrop-filter: blur(10px); }
+        /* Loader */
+        #loader { display: none; position: fixed; inset: 0; background: #0b0f19; z-index: 999; justify-content: center; align-items: center; }
+        .cyber-spinner { width: 50px; height: 50px; border: 4px solid rgba(0, 243, 255, 0.2); border-top: 4px solid #00f3ff; border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <div id="loader">
-        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-pink-500"></div>
-    </div>
+    <div class="animated-bg"></div>
 
-    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto" style="background: linear-gradient(135deg, #2e1065 0%, #db2777 100%);">
-        
-        <div class="glass p-8 rounded-3xl w-full max-w-sm mx-auto shadow-2xl">
-            <div class="text-center mb-8">
-                <h1 class="text-4xl font-extrabold mb-1 tracking-tighter">ULTRA</h1>
-                <p class="text-sm font-light tracking-[5px] uppercase text-pink-200">Finance</p>
-            </div>
+    <div id="loader"><div class="cyber-spinner"></div></div>
 
-            <div id="loginForm" class="space-y-4">
-                <input type="email" id="loginEmail" placeholder="Email" class="glass-input w-full p-4 rounded-2xl">
-                <input type="password" id="loginPass" placeholder="Password" class="glass-input w-full p-4 rounded-2xl">
-                <button onclick="login()" class="w-full bg-white text-purple-900 font-bold py-4 rounded-2xl hover:bg-purple-100 transition shadow-lg transform active:scale-95">
-                    LOGIN
-                </button>
-                <p onclick="toggleAuth()" class="text-center text-xs mt-4 opacity-70 cursor-pointer hover:opacity-100">Create an account</p>
-            </div>
-
-            <div id="registerForm" class="hidden space-y-4">
-                <div id="autoRefBadge" class="hidden bg-white/20 p-2 rounded-xl text-center text-xs border border-white/30">
-                    Invited by: <b id="inviterId">...</b>
-                </div>
-                <input type="text" id="regName" placeholder="Full Name" class="glass-input w-full p-4 rounded-2xl">
-                <input type="email" id="regEmail" placeholder="Email" class="glass-input w-full p-4 rounded-2xl">
-                <input type="password" id="regPass" placeholder="Password" class="glass-input w-full p-4 rounded-2xl">
-                <button onclick="register()" class="w-full bg-pink-500 text-white font-bold py-4 rounded-2xl hover:bg-pink-400 transition shadow-lg transform active:scale-95">
-                    REGISTER
-                </button>
-                <p onclick="toggleAuth()" class="text-center text-xs mt-4 opacity-70 cursor-pointer hover:opacity-100">Back to Login</p>
-            </div>
-            <p id="authMsg" class="text-center text-red-300 text-xs mt-4 font-bold"></p>
-        </div>
-    </div>
-
-    <div id="mainApp" style="display:none;" class="max-w-md mx-auto">
-        
-        <div class="flex justify-between items-center p-6">
-            <div>
-                <p class="text-xs opacity-70">Hello,</p>
-                <h2 class="text-xl font-bold" id="userNameDisplay">User</h2>
-            </div>
-            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-pink-500 to-purple-500 p-[2px]">
-                <div class="w-full h-full rounded-full bg-purple-900 flex items-center justify-center text-xs" onclick="logout()">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                </div>
-            </div>
+    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-8 overflow-y-auto bg-[#0b0f19]">
+        <div class="text-center mb-12 relative">
+            <div class="absolute -top-20 -left-20 w-40 h-40 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
+            <div class="absolute -bottom-20 -right-20 w-40 h-40 bg-pink-500/20 rounded-full blur-3xl animate-pulse" style="animation-delay: 1s;"></div>
+            <h1 class="text-5xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-600" style="text-shadow: 0 0 20px rgba(0,243,255,0.5);">CYBER EARN</h1>
+            <p class="text-cyan-300/60 text-sm tracking-[0.3em] uppercase mt-2">Future Finance</p>
         </div>
 
-        <div id="tab-home" class="tab-content px-4">
-            <div class="credit-card rounded-3xl p-6 mb-8 text-white relative overflow-hidden transform transition hover:scale-[1.02]">
-                <div class="flex justify-between items-start mb-8">
-                    <i class="fa-solid fa-wifi text-2xl opacity-70 rotate-90"></i>
-                    <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold backdrop-blur-md">PKR Wallet</span>
-                </div>
-                <p class="text-xs opacity-80 mb-1">Current Balance</p>
-                <h1 class="text-4xl font-bold mb-4 tracking-tight" id="bigBalance">0</h1>
-                <div class="flex gap-4">
-                    <p class="text-xs opacity-70 tracking-widest">**** **** 9283</p>
-                </div>
-            </div>
+        <div id="loginForm" class="space-y-6 relative z-10">
+            <input type="email" id="loginEmail" placeholder="ENTER EMAIL ID" class="cyber-input w-full p-4 text-lg font-semibold tracking-wider rounded-sm skew-x-[-10deg]">
+            <input type="password" id="loginPass" placeholder="ACCESS CODE" class="cyber-input w-full p-4 text-lg font-semibold tracking-wider rounded-sm skew-x-[-10deg]">
+            <button onclick="login()" class="w-full neon-btn-blue py-4 text-lg font-bold tracking-widest rounded-sm skew-x-[-10deg] hover:skew-x-0">
+                INITIALIZE LOGIN
+            </button>
+            <p onclick="toggleAuth()" class="text-center text-cyan-400/70 text-sm cursor-pointer hover:text-cyan-300 mt-6">>> CREATE NEW ID <<</p>
+        </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <button onclick="document.getElementById('depositModal').style.display='flex'" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-white/20 transition active:scale-95">
-                    <div class="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center text-green-400"><i class="fa-solid fa-arrow-down"></i></div>
-                    <span class="text-sm font-bold">Deposit</span>
-                </button>
-                <button onclick="alert('Withdrawals open 9am-6pm')" class="glass p-4 rounded-2xl flex flex-col items-center justify-center gap-2 hover:bg-white/20 transition active:scale-95">
-                    <div class="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center text-red-400"><i class="fa-solid fa-arrow-up"></i></div>
-                    <span class="text-sm font-bold">Withdraw</span>
-                </button>
+        <div id="registerForm" class="hidden space-y-6 relative z-10">
+            <div id="autoRefBadge" class="hidden cyber-card p-3 text-center text-xs text-cyan-300 border-cyan-500/50">
+                LINKED TO: <b id="inviterId" class="text-white">...</b>
             </div>
+            <input type="text" id="regName" placeholder="OPERATOR NAME" class="cyber-input w-full p-4 font-semibold tracking-wider rounded-sm skew-x-[-10deg]">
+            <input type="email" id="regEmail" placeholder="EMAIL ID" class="cyber-input w-full p-4 font-semibold tracking-wider rounded-sm skew-x-[-10deg]">
+            <input type="password" id="regPass" placeholder="SET ACCESS CODE" class="cyber-input w-full p-4 font-semibold tracking-wider rounded-sm skew-x-[-10deg]">
+            <button onclick="register()" class="w-full neon-btn-pink py-4 text-lg font-bold tracking-widest rounded-sm skew-x-[-10deg] hover:skew-x-0">
+                REGISTER UNIT
+            </button>
+            <p onclick="toggleAuth()" class="text-center text-cyan-400/70 text-sm cursor-pointer hover:text-cyan-300 mt-6">>> BACK TO LOGIN <<</p>
+        </div>
+        <p id="authMsg" class="text-center text-red-400 text-xs mt-4 font-bold relative z-10"></p>
+    </div>
 
-            <div class="glass rounded-2xl p-4 flex justify-between items-center mb-6">
+    <div id="mainApp" style="display:none;" class="max-w-lg mx-auto">
+        
+        <div class="flex justify-between items-center p-6 border-b border-cyan-900/30">
+            <div class="flex items-center gap-3">
+                <div class="w-12 h-12 cyber-card flex items-center justify-center rounded-md">
+                    <i class="fa-solid fa-robot text-2xl text-cyan-400"></i>
+                </div>
                 <div>
-                    <p class="text-xs opacity-50 mb-1">Active Plan</p>
-                    <p class="font-bold text-pink-400" id="planDisplay">Free</p>
-                </div>
-                <div class="h-8 w-[1px] bg-white/10"></div>
-                <div class="text-right">
-                    <p class="text-xs opacity-50 mb-1">Commission</p>
-                    <p class="font-bold text-blue-400" id="commissionDisplay">0%</p>
+                    <p class="text-[10px] text-cyan-300/60 uppercase tracking-widest">Operator</p>
+                    <h2 class="text-xl font-bold tracking-wider text-white" id="userNameDisplay">User</h2>
                 </div>
             </div>
+            <button onclick="logout()" class="cyber-card w-10 h-10 flex items-center justify-center text-red-400 hover:text-red-300 rounded-md">
+                <i class="fa-solid fa-power-off"></i>
+            </button>
         </div>
 
-        <div id="tab-plans" class="tab-content px-4">
-            <h2 class="text-2xl font-bold mb-6">Upgrade Tier</h2>
-            
-            <div class="space-y-4">
-                <div class="glass p-5 rounded-3xl relative overflow-hidden group">
-                    <div class="absolute inset-0 bg-gradient-to-r from-blue-600/20 to-transparent opacity-0 group-hover:opacity-100 transition"></div>
-                    <div class="flex justify-between items-end mb-4 relative z-10">
-                        <div>
-                            <h3 class="font-bold text-xl">Starter</h3>
-                            <p class="text-xs opacity-60">Beginner Friendly</p>
-                        </div>
-                        <span class="text-2xl font-bold text-blue-300">500</span>
-                    </div>
-                    <div class="bg-black/20 p-3 rounded-xl mb-4 text-xs flex justify-between">
-                        <span>Commission</span>
-                        <span class="font-bold text-green-400">30%</span>
-                    </div>
-                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full bg-blue-600 py-3 rounded-xl font-bold shadow-lg">Activate Plan</button>
+        <div id="tab-home" class="tab-content px-4 pt-6">
+            <div class="cyber-card float-animate p-8 rounded-lg mb-8 relative">
+                <div class="absolute top-0 right-0 p-4 opacity-20">
+                    <i class="fa-solid fa-microchip text-6xl text-cyan-400"></i>
                 </div>
-
-                <div class="glass p-5 rounded-3xl relative overflow-hidden group border border-purple-500/30">
-                    <div class="absolute top-0 right-0 bg-purple-600 text-[10px] px-3 py-1 rounded-bl-xl font-bold">BEST VALUE</div>
-                    <div class="flex justify-between items-end mb-4 relative z-10">
-                        <div>
-                            <h3 class="font-bold text-xl text-purple-300">Pro Member</h3>
-                            <p class="text-xs opacity-60">For Serious Earners</p>
-                        </div>
-                        <span class="text-2xl font-bold text-purple-300">2000</span>
-                    </div>
-                    <div class="bg-black/20 p-3 rounded-xl mb-4 text-xs flex justify-between">
-                        <span>Commission</span>
-                        <span class="font-bold text-green-400">50%</span>
-                    </div>
-                    <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full bg-gradient-to-r from-purple-600 to-pink-600 py-3 rounded-xl font-bold shadow-lg">Activate Plan</button>
-                </div>
-
-                <div class="glass p-5 rounded-3xl relative overflow-hidden group border border-yellow-500/30">
-                    <div class="flex justify-between items-end mb-4 relative z-10">
-                        <div>
-                            <h3 class="font-bold text-xl text-yellow-300">VIP Gold</h3>
-                            <p class="text-xs opacity-60">Maximum Profit</p>
-                        </div>
-                        <span class="text-2xl font-bold text-yellow-300">5000</span>
-                    </div>
-                    <div class="bg-black/20 p-3 rounded-xl mb-4 text-xs flex justify-between">
-                        <span>Commission</span>
-                        <span class="font-bold text-green-400">60%</span>
-                    </div>
-                    <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full bg-yellow-500 text-black py-3 rounded-xl font-bold shadow-lg">Activate Plan</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-team" class="tab-content px-4 text-center pt-8">
-            <div class="glass rounded-3xl p-8 mb-6 relative overflow-hidden">
-                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-pink-500 to-purple-500"></div>
-                <h2 class="text-2xl font-bold mb-2">Invite Friends</h2>
-                <p class="text-sm opacity-60 mb-6">Build your team and earn passive income forever.</p>
+                <p class="text-cyan-300 text-xs uppercase tracking-[0.2em] mb-2">Total Credits</p>
+                <h1 class="text-5xl font-bold mb-8 text-transparent bg-clip-text bg-gradient-to-r from-white to-cyan-300" style="text-shadow: 0 0 10px rgba(0,243,255,0.3);">
+                    <span id="bigBalance">0</span> <span class="text-2xl">PKR</span>
+                </h1>
                 
-                <div class="glass-dark p-4 rounded-xl mb-4 flex items-center justify-between">
-                    <span id="myLinkDisplay" class="text-xs font-mono text-pink-300 truncate mr-2 select-all">Loading link...</span>
-                    <i class="fa-regular fa-copy opacity-50"></i>
+                <div class="grid grid-cols-2 gap-4">
+                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="neon-btn-blue py-3 rounded-sm font-bold tracking-wider text-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-down"></i> INJECT FUNDS
+                    </button>
+                    <button class="cyber-card py-3 rounded-sm font-bold tracking-wider text-sm text-cyan-300 hover:bg-cyan-900/30 flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-arrow-up"></i> EXTRACT
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="cyber-card p-4 flex flex-col items-center justify-center relative group">
+                    <div class="absolute top-2 right-2 w-2 h-2 bg-green-500 rounded-full animate-ping"></div>
+                    <h4 class="text-cyan-300/60 text-xs uppercase mb-1">Active Protocol</h4>
+                    <span id="planDisplay" class="text-green-400 font-bold text-xl tracking-wider" style="text-shadow: 0 0 10px rgba(34,197,94,0.5);">Free</span>
+                </div>
+                <div class="cyber-card p-4 flex flex-col items-center justify-center relative">
+                     <h4 class="text-cyan-300/60 text-xs uppercase mb-1">Commission Rate</h4>
+                    <span id="commissionDisplay" class="text-pink-400 font-bold text-xl tracking-wider" style="text-shadow: 0 0 10px rgba(236, 72, 153, 0.5);">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-plans" class="tab-content px-4 pt-6">
+            <h2 class="text-2xl font-bold mb-6 tracking-wider text-cyan-300"><i class="fa-solid fa-rocket mr-2"></i>UPGRADE PROTOCOLS</h2>
+            
+            <div class="space-y-6">
+                <div class="cyber-card p-6 rounded-lg border-l-4 border-blue-500 relative overflow-hidden group">
+                    <div class="flex justify-between items-center mb-6 relative z-10">
+                        <h3 class="text-2xl font-bold text-blue-400 tracking-widest">STARTER</h3>
+                        <span class="text-xl font-bold text-white">500 <span class="text-sm">PKR</span></span>
+                    </div>
+                    <div class="flex items-center gap-3 mb-3 text-sm text-cyan-300/80"><i class="fa-solid fa-bolt text-blue-500"></i> 30% Commission Output</div>
+                    <div class="flex items-center gap-3 mb-6 text-sm text-cyan-300/80"><i class="fa-solid fa-shield-halved text-blue-500"></i> Basic Firewall</div>
+                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full neon-btn-blue py-3 rounded-sm font-bold tracking-widest">ACTIVATE</button>
                 </div>
 
-                <button onclick="shareLink()" class="w-full bg-[#25D366] py-4 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg hover:bg-[#20bd5a] transition">
-                    <i class="fa-brands fa-whatsapp text-xl"></i> Share on WhatsApp
-                </button>
+                <div class="cyber-card p-6 rounded-lg border-l-4 border-pink-500 relative overflow-hidden group bg-pink-900/10">
+                    <div class="absolute top-0 right-0 bg-pink-600 text-xs px-4 py-1 font-bold tracking-widest skew-x-[-20deg]">POPULAR</div>
+                    <div class="flex justify-between items-center mb-6 relative z-10">
+                        <h3 class="text-2xl font-bold text-pink-400 tracking-widest">PRO NET</h3>
+                        <span class="text-xl font-bold text-white">2000 <span class="text-sm">PKR</span></span>
+                    </div>
+                    <div class="flex items-center gap-3 mb-3 text-sm text-cyan-300/80"><i class="fa-solid fa-bolt text-pink-500"></i> 50% Commission Output</div>
+                    <div class="flex items-center gap-3 mb-6 text-sm text-cyan-300/80"><i class="fa-solid fa-shield-halved text-pink-500"></i> Priority Access</div>
+                    <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full neon-btn-pink py-3 rounded-sm font-bold tracking-widest">ACTIVATE</button>
+                </div>
+
+                <div class="cyber-card p-6 rounded-lg border-l-4 border-yellow-400 relative overflow-hidden group">
+                    <div class="flex justify-between items-center mb-6 relative z-10">
+                        <h3 class="text-2xl font-bold text-yellow-400 tracking-widest">VIP CYBER</h3>
+                        <span class="text-xl font-bold text-white">5000 <span class="text-sm">PKR</span></span>
+                    </div>
+                    <div class="flex items-center gap-3 mb-3 text-sm text-cyan-300/80"><i class="fa-solid fa-bolt text-yellow-500"></i> 60% MAX Output</div>
+                    <div class="flex items-center gap-3 mb-6 text-sm text-cyan-300/80"><i class="fa-solid fa-shield-halved text-yellow-500"></i> Admin Privileges</div>
+                    <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full bg-gradient-to-r from-yellow-500 to-orange-600 text-black py-3 rounded-sm font-bold tracking-widest hover:shadow-[0_0_20px_rgba(234,179,8,0.5)] transition">ACTIVATE</button>
+                </div>
             </div>
+        </div>
+
+        <div id="tab-team" class="tab-content px-4 pt-10 text-center">
+            <div class="w-32 h-32 mx-auto cyber-card rounded-full flex items-center justify-center mb-8 relative">
+                 <div class="absolute inset-0 rounded-full animate-ping opacity-20 bg-cyan-400"></div>
+                <i class="fa-solid fa-network-wired text-5xl text-cyan-400"></i>
+            </div>
+            <h2 class="text-3xl font-bold mb-2 tracking-widest text-white">EXPAND NETWORK</h2>
+            <p class="text-cyan-300/60 text-sm mb-8 px-4 tracking-wider">Share your neural link. Earn passive credits.</p>
+            
+            <div class="cyber-card p-4 mb-6 flex items-center justify-between gap-2 overflow-hidden rounded-sm border-cyan-500/30">
+                <p id="myLinkDisplay" class="text-xs text-cyan-400 truncate font-mono select-all tracking-wider">Generating Link...</p>
+                <i class="fa-solid fa-link text-cyan-600 animate-pulse"></i>
+            </div>
+            
+            <button onclick="shareLink()" class="w-full neon-btn-blue py-4 rounded-sm font-bold flex items-center justify-center gap-3 tracking-widest text-lg">
+                <i class="fa-brands fa-whatsapp text-2xl"></i> TRANSMIT LINK
+            </button>
         </div>
 
     </div>
 
-    <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-4">
-        <div class="glass w-full max-w-sm p-6 rounded-t-3xl sm:rounded-3xl bg-[#1a0b2e]">
+    <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4 backdrop-blur-md">
+        <div class="cyber-card w-full max-w-sm p-6 bg-[#0b0f19] rounded-lg border-cyan-500/50 relative">
+            <div class="absolute -top-10 -left-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-lg font-bold">Add Funds</h3>
-                <button onclick="document.getElementById('depositModal').style.display='none'" class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">✕</button>
+                <h3 class="text-xl font-bold text-cyan-400 tracking-wider">INJECT FUNDS</h3>
+                <button onclick="document.getElementById('depositModal').style.display='none'" class="text-cyan-600 hover:text-cyan-400"><i class="fa-solid fa-xmark text-2xl"></i></button>
             </div>
             
-            <div class="bg-gradient-to-r from-green-900/40 to-green-800/40 p-4 rounded-2xl mb-4 border border-green-500/30">
-                <p class="text-[10px] uppercase tracking-widest opacity-70 mb-1">Easypaisa Account</p>
+            <div class="bg-cyan-900/20 p-4 rounded-sm mb-6 border border-cyan-500/20 relative overflow-hidden">
+                 <div class="absolute top-0 right-0 p-2 opacity-10"><i class="fa-solid fa-tower-broadcast text-4xl"></i></div>
+                <p class="text-[10px] text-cyan-300/60 uppercase tracking-widest mb-2">Target Coordinates (EP/JC)</p>
                 <div class="flex justify-between items-center">
-                    <b class="text-xl">0348-8347820</b>
+                    <b class="text-white text-2xl tracking-[0.1em] font-mono" style="text-shadow: 0 0 10px rgba(0,243,255,0.5);">0348-8347820</b>
                 </div>
-                <p class="text-xs mt-1 text-green-300">Name: C9 UZAIR</p>
+                <p class="text-xs mt-2 text-cyan-400">Operator: C9 UZAIR</p>
             </div>
 
-            <label class="text-xs ml-2 opacity-70">Amount Sent</label>
-            <input type="number" id="depAmt" class="glass-input w-full p-4 rounded-2xl mb-3" placeholder="500">
+            <input type="number" id="depAmt" placeholder="AMOUNT (PKR)" class="cyber-input w-full p-4 rounded-sm mb-4 tracking-wider font-bold">
+            <input type="text" id="trxID" placeholder="TRANSACTION ID" class="cyber-input w-full p-4 rounded-sm mb-6 tracking-wider font-bold">
             
-            <label class="text-xs ml-2 opacity-70">Transaction ID</label>
-            <input type="text" id="trxID" class="glass-input w-full p-4 rounded-2xl mb-6" placeholder="TRX ID">
-            
-            <button onclick="submitDeposit()" class="w-full bg-white text-purple-900 font-bold py-4 rounded-2xl">Verify Payment</button>
+            <button onclick="submitDeposit()" class="w-full neon-btn-blue py-4 rounded-sm font-bold tracking-widest">INITIATE TRANSFER</button>
         </div>
     </div>
 
-    <div class="fixed bottom-4 left-4 right-4 z-40">
-        <div class="glass rounded-full flex justify-around p-4 shadow-2xl bg-[#1e1b4b]/80">
-            <div onclick="switchTab('home')" class="nav-btn text-pink-500 cursor-pointer flex flex-col items-center transition transform active:scale-90">
-                <i class="fa-solid fa-house text-xl"></i>
+    <div class="fixed bottom-0 left-0 w-full z-40 border-t border-cyan-900/50 bg-[#0b0f19]/90 backdrop-blur-md">
+        <div class="flex justify-around py-4 pb-6">
+            <div onclick="switchTab('home')" class="nav-btn text-cyan-400 cursor-pointer flex flex-col items-center transition transform active:scale-90 group">
+                <i class="fa-solid fa-house-signal text-2xl mb-1 group-hover:animate-pulse"></i>
+                <span class="text-[10px] tracking-widest uppercase">Base</span>
             </div>
-            <div onclick="switchTab('plans')" class="nav-btn text-gray-400 hover:text-white cursor-pointer flex flex-col items-center transition transform active:scale-90">
-                <i class="fa-solid fa-rocket text-xl"></i>
+            <div onclick="switchTab('plans')" class="nav-btn text-cyan-900/60 hover:text-cyan-400 cursor-pointer flex flex-col items-center transition transform active:scale-90 group">
+                <i class="fa-solid fa-layer-group text-2xl mb-1 group-hover:animate-pulse"></i>
+                <span class="text-[10px] tracking-widest uppercase">Upgrades</span>
             </div>
-            <div onclick="switchTab('team')" class="nav-btn text-gray-400 hover:text-white cursor-pointer flex flex-col items-center transition transform active:scale-90">
-                <i class="fa-solid fa-user-group text-xl"></i>
+            <div onclick="switchTab('team')" class="nav-btn text-cyan-900/60 hover:text-cyan-400 cursor-pointer flex flex-col items-center transition transform active:scale-90 group">
+                <i class="fa-solid fa-users-viewfinder text-2xl mb-1 group-hover:animate-pulse"></i>
+                 <span class="text-[10px] tracking-widest uppercase">Network</span>
             </div>
         </div>
     </div>
@@ -364,8 +374,8 @@
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
             document.getElementById('tab-' + tab).classList.add('active-tab');
-            document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('text-pink-500'); b.classList.add('text-gray-400'); });
-            event.currentTarget.classList.add('text-pink-500'); event.currentTarget.classList.remove('text-gray-400');
+            document.querySelectorAll('.nav-btn').forEach(b => { b.classList.remove('text-cyan-400'); b.classList.add('text-cyan-900/60'); });
+            event.currentTarget.classList.add('text-cyan-400'); event.currentTarget.classList.remove('text-cyan-900/60');
         }
     </script>
 </body>
