@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#f8fafc">
-    <title>Ultra Earn - Fintech</title>
+    <meta name="theme-color" content="#030712">
+    <title>Ultra Earn - Cosmic</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -16,253 +16,314 @@
 
     <style>
         body {
-            background-color: #f8fafc; /* Light Gray Background */
-            color: #1e293b; /* Dark Blue-Gray Text */
-            font-family: 'Roboto', sans-serif;
+            background-color: #030712; /* Deep Space Black */
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
             min-height: 100vh;
-            padding-bottom: 80px;
+            padding-bottom: 100px;
             -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
         }
 
-        /* Modern Fintech Card */
-        .fintech-card {
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            border: 1px solid #e2e8f0;
+        h1, h2, h3, .brand-font { font-family: 'Space Grotesk', sans-serif; }
+
+        /* 1. Cosmic Aurora Background */
+        .aurora-bg {
+            position: fixed; inset: 0; z-index: -1;
+            background: 
+                radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), 
+                radial-gradient(circle at 100% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            filter: blur(40px);
         }
 
-        /* Primary Blue Gradient */
-        .blue-gradient {
-            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
-            color: white;
+        /* 2. Ultra Glass Card */
+        .cosmic-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .cosmic-card:active { transform: scale(0.98); }
+
+        /* 3. Gradient Borders */
+        .gradient-border {
+            position: relative;
+            background: rgba(17, 24, 39, 0.8);
+            border-radius: 20px;
+        }
+        .gradient-border::before {
+            content: ""; position: absolute; inset: -1px; z-index: -1;
+            border-radius: 21px;
+            background: linear-gradient(45deg, #3b82f6, #8b5cf6, #ec4899);
+            opacity: 0.5;
+        }
+
+        /* 4. Cosmic Button */
+        .cosmic-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: white; border: none;
+            position: relative; overflow: hidden;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+            transition: 0.3s;
+        }
+        .cosmic-btn::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, transparent 60%);
+            transform: scale(0); opacity: 0; transition: 0.3s;
+        }
+        .cosmic-btn:active::after { transform: scale(2); opacity: 1; transition: 0s; }
+
+        /* 5. Floating Dock Nav */
+        .floating-dock {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .nav-item.active {
+            background: rgba(255,255,255,0.1);
+            color: #60a5fa;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2);
         }
 
         /* Inputs */
-        .clean-input {
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
-            color: #334155;
-            transition: 0.2s;
+        .cosmic-input {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white; transition: 0.3s;
         }
-        .clean-input:focus {
-            background: white;
-            border-color: #007bff;
+        .cosmic-input:focus {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: #3b82f6;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
-
-        /* Buttons */
-        .primary-btn {
-            background-color: #0056b3;
-            color: white;
-            font-weight: 600;
-            transition: 0.2s;
-        }
-        .primary-btn:hover { background-color: #004494; }
-        .primary-btn:active { transform: scale(0.98); }
 
         /* Tab Animation */
-        .tab-content { display: none; }
-        .active-tab { display: block; animation: fadeIn 0.3s ease-in-out; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .tab-content { display: none; animation: slideIn 0.4s ease-out; }
+        .active-tab { display: block; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        #loader { display: none; position: fixed; inset: 0; background: rgba(248, 250, 252, 0.9); z-index: 100; justify-content: center; align-items: center; }
+        #loader { display: none; position: fixed; inset: 0; background: #030712; z-index: 100; justify-content: center; align-items: center; }
     </style>
 </head>
 <body>
 
+    <div class="aurora-bg"></div>
+
     <div id="loader">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600"></div>
+        <div class="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
     </div>
 
-    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto bg-[#f8fafc]">
-        <div class="max-w-sm mx-auto w-full">
-            <div class="text-center mb-10">
-                <div class="w-16 h-16 bg-blue-600 rounded-xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-blue-200">
-                    <i class="fa-solid fa-wallet text-2xl text-white"></i>
-                </div>
-                <h1 class="text-3xl font-bold text-blue-900 mb-2">Ultra Earn</h1>
-                <p class="text-gray-500 text-sm">Secure Financial Growth</p>
+    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto bg-[#030712]">
+        <div class="w-full max-w-sm mx-auto">
+            <div class="mb-12">
+                <h1 class="text-5xl font-bold mb-2 bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">Ultra.</h1>
+                <p class="text-gray-400 text-lg tracking-wide">The Future of Earning</p>
             </div>
 
-            <div class="fintech-card p-8">
-                <div id="loginForm" class="space-y-5">
-                    <h2 class="text-xl font-bold mb-6 text-center">Welcome Back</h2>
-                    <input type="email" id="loginEmail" placeholder="Email Address" class="clean-input w-full p-4 rounded-lg">
-                    <input type="password" id="loginPass" placeholder="Password" class="clean-input w-full p-4 rounded-lg">
-                    <button onclick="login()" class="primary-btn w-full py-4 rounded-lg text-lg shadow-md">
-                        Sign In
-                    </button>
-                    <p onclick="toggleAuth()" class="text-center text-sm text-blue-600 font-medium cursor-pointer hover:underline mt-4">Create New Account</p>
+            <div id="loginForm" class="space-y-6">
+                <input type="email" id="loginEmail" placeholder="Email" class="cosmic-input w-full p-4 rounded-2xl text-lg">
+                <input type="password" id="loginPass" placeholder="Password" class="cosmic-input w-full p-4 rounded-2xl text-lg">
+                <button onclick="login()" class="cosmic-btn w-full py-4 rounded-2xl font-bold text-lg tracking-wide">
+                    Enter Portal
+                </button>
+                <div class="text-center mt-8">
+                    <p class="text-gray-500 text-sm">Don't have access?</p>
+                    <button onclick="toggleAuth()" class="text-blue-400 font-bold mt-2 hover:text-blue-300">Create Account</button>
                 </div>
-
-                <div id="registerForm" class="hidden space-y-5">
-                    <h2 class="text-xl font-bold mb-6 text-center">Create Account</h2>
-                    <div id="autoRefBadge" class="hidden bg-blue-50 text-blue-700 p-3 rounded-lg text-sm text-center border border-blue-100">
-                        Invited by: <span id="inviterId" class="font-bold">...</span>
-                    </div>
-                    <input type="text" id="regName" placeholder="Full Name" class="clean-input w-full p-4 rounded-lg">
-                    <input type="email" id="regEmail" placeholder="Email Address" class="clean-input w-full p-4 rounded-lg">
-                    <input type="password" id="regPass" placeholder="Set Password" class="clean-input w-full p-4 rounded-lg">
-                    <button onclick="register()" class="primary-btn w-full py-4 rounded-lg text-lg shadow-md">
-                        Sign Up
-                    </button>
-                    <p onclick="toggleAuth()" class="text-center text-sm text-blue-600 font-medium cursor-pointer hover:underline mt-4">Back to Login</p>
-                </div>
-                <p id="authMsg" class="text-center text-red-500 text-sm mt-4 font-medium"></p>
             </div>
+
+            <div id="registerForm" class="hidden space-y-6">
+                <div id="autoRefBadge" class="hidden bg-blue-500/10 border border-blue-500/30 p-3 rounded-xl flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-link text-blue-400"></i>
+                    <span class="text-sm text-blue-200">Invited by: <b id="inviterId">...</b></span>
+                </div>
+                <input type="text" id="regName" placeholder="Username" class="cosmic-input w-full p-4 rounded-2xl text-lg">
+                <input type="email" id="regEmail" placeholder="Email" class="cosmic-input w-full p-4 rounded-2xl text-lg">
+                <input type="password" id="regPass" placeholder="Password" class="cosmic-input w-full p-4 rounded-2xl text-lg">
+                <button onclick="register()" class="cosmic-btn w-full py-4 rounded-2xl font-bold text-lg tracking-wide bg-gradient-to-r from-purple-600 to-pink-600">
+                    Join Now
+                </button>
+                <div class="text-center mt-8">
+                    <button onclick="toggleAuth()" class="text-gray-400 text-sm hover:text-white">Back to Login</button>
+                </div>
+            </div>
+            <p id="authMsg" class="text-center text-red-400 text-sm mt-4 font-medium"></p>
         </div>
     </div>
 
-    <div id="mainApp" style="display:none;" class="max-w-md mx-auto px-4">
+    <div id="mainApp" style="display:none;" class="max-w-md mx-auto">
         
-        <div class="flex justify-between items-center py-6">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
-                    <i class="fa-solid fa-user"></i>
+        <div class="flex justify-between items-center p-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 p-[2px]">
+                    <div class="w-full h-full bg-[#030712] rounded-full flex items-center justify-center text-lg">🚀</div>
                 </div>
                 <div>
-                    <p class="text-xs text-gray-500 font-medium">Good day,</p>
-                    <h2 class="text-lg font-bold text-blue-900" id="userNameDisplay">User</h2>
+                    <h2 class="text-xl font-bold brand-font" id="userNameDisplay">User</h2>
+                    <p class="text-xs text-gray-500 uppercase tracking-widest">Premium Member</p>
                 </div>
             </div>
-            <button onclick="logout()" class="bg-white border border-gray-200 p-2 rounded-full text-gray-500 hover:bg-red-50 hover:text-red-500 transition shadow-sm">
-                <i class="fa-solid fa-power-off"></i>
+            <button onclick="logout()" class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-right-from-bracket"></i>
             </button>
         </div>
 
-        <div id="tab-home" class="tab-content">
-            <div class="blue-gradient rounded-2xl p-6 mb-6 shadow-lg relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-4 opacity-20">
-                     <i class="fa-brands fa-cc-visa text-5xl"></i>
+        <div id="tab-home" class="tab-content px-4">
+            <div class="gradient-border p-[1px] mb-8">
+                <div class="bg-[#0b1121] rounded-[20px] p-6 relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl"></div>
+                    <div class="flex justify-between items-start mb-8">
+                        <div>
+                            <p class="text-gray-400 text-sm mb-1">Total Balance</p>
+                            <h1 class="text-4xl font-bold brand-font text-white">
+                                <span class="text-2xl text-gray-500">Rs.</span> <span id="bigBalance">0</span>
+                            </h1>
+                        </div>
+                        <div class="bg-blue-500/10 p-2 rounded-lg">
+                            <i class="fa-solid fa-wallet text-blue-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <div class="flex gap-3">
+                        <button onclick="document.getElementById('depositModal').style.display='flex'" class="flex-1 bg-white text-black py-3 rounded-xl font-bold text-sm hover:bg-gray-200 transition">
+                            Deposit
+                        </button>
+                        <button class="flex-1 bg-white/5 text-white py-3 rounded-xl font-bold text-sm hover:bg-white/10 transition border border-white/10">
+                            Withdraw
+                        </button>
+                    </div>
                 </div>
-                <p class="text-blue-100 text-sm font-medium mb-2">Available Balance</p>
-                <h1 class="text-4xl font-bold mb-8">PKR <span id="bigBalance">0</span></h1>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="cosmic-card p-5">
+                    <i class="fa-solid fa-layer-group text-purple-400 text-xl mb-2"></i>
+                    <p class="text-gray-500 text-xs uppercase mb-1">Current Plan</p>
+                    <p id="planDisplay" class="text-lg font-bold">Free</p>
+                </div>
+                <div class="cosmic-card p-5">
+                    <i class="fa-solid fa-chart-pie text-pink-400 text-xl mb-2"></i>
+                    <p class="text-gray-500 text-xs uppercase mb-1">Commission</p>
+                    <p id="commissionDisplay" class="text-lg font-bold">0%</p>
+                </div>
+            </div>
+
+            <div onclick="switchTab('team')" class="cosmic-card p-1 flex items-center gap-4 cursor-pointer group">
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 w-16 h-16 rounded-xl flex items-center justify-center text-2xl group-active:scale-95 transition">
+                    <i class="fa-solid fa-users text-white"></i>
+                </div>
+                <div class="py-3 pr-4 flex-1">
+                    <h3 class="font-bold text-white mb-1">Referral Program</h3>
+                    <p class="text-xs text-gray-400">Build your network & earn passive income.</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-plans" class="tab-content px-4 pt-2">
+            <h2 class="text-2xl font-bold mb-6 brand-font pl-2">Marketplace</h2>
+            
+            <div class="space-y-5">
+                <div class="cosmic-card p-6 border-l-2 border-blue-500">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-blue-400 brand-font">Starter</h3>
+                        <span class="text-lg font-bold">500</span>
+                    </div>
+                    <div class="flex gap-4 mb-6 text-sm text-gray-400">
+                        <span><i class="fa-solid fa-check text-blue-500 mr-1"></i> 30% ROI</span>
+                        <span><i class="fa-solid fa-check text-blue-500 mr-1"></i> Basic</span>
+                    </div>
+                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full py-3 rounded-xl border border-blue-500/30 text-blue-400 font-bold hover:bg-blue-500 hover:text-white transition">Acquire Plan</button>
+                </div>
+
+                <div class="cosmic-card p-6 border-l-2 border-purple-500 bg-purple-500/5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-purple-400 brand-font">Pro</h3>
+                        <span class="text-lg font-bold">2000</span>
+                    </div>
+                    <div class="flex gap-4 mb-6 text-sm text-gray-400">
+                        <span><i class="fa-solid fa-check text-purple-500 mr-1"></i> 50% ROI</span>
+                        <span><i class="fa-solid fa-check text-purple-500 mr-1"></i> Priority</span>
+                    </div>
+                    <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full py-3 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-500 transition shadow-lg shadow-purple-900/30">Acquire Plan</button>
+                </div>
+
+                <div class="cosmic-card p-6 border-l-2 border-pink-500">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-pink-400 brand-font">VIP</h3>
+                        <span class="text-lg font-bold">5000</span>
+                    </div>
+                    <div class="flex gap-4 mb-6 text-sm text-gray-400">
+                        <span><i class="fa-solid fa-check text-pink-500 mr-1"></i> 60% ROI</span>
+                        <span><i class="fa-solid fa-check text-pink-500 mr-1"></i> Manager</span>
+                    </div>
+                    <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full py-3 rounded-xl border border-pink-500/30 text-pink-400 font-bold hover:bg-pink-500 hover:text-white transition">Acquire Plan</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-team" class="tab-content px-4 pt-10 text-center">
+            <div class="relative w-32 h-32 mx-auto mb-8">
+                <div class="absolute inset-0 bg-blue-500/20 rounded-full animate-ping"></div>
+                <div class="relative w-full h-full bg-[#0f172a] rounded-full border border-blue-500/30 flex items-center justify-center text-4xl">
+                    🔗
+                </div>
+            </div>
+            
+            <h2 class="text-3xl font-bold mb-2 brand-font">Invite & Earn</h2>
+            <p class="text-gray-400 text-sm mb-10 px-8">Share your unique cosmic link. Earnings are automated.</p>
+            
+            <div class="cosmic-card p-4 mb-6 flex items-center justify-between gap-3 bg-black/20">
+                <code id="myLinkDisplay" class="text-xs text-blue-400 truncate select-all">Loading link...</code>
+                <i class="fa-regular fa-copy text-gray-600"></i>
+            </div>
+            
+            <button onclick="shareLink()" class="cosmic-btn w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-3">
+                <i class="fa-brands fa-whatsapp text-xl"></i> Share Access
+            </button>
+        </div>
+
+    </div>
+
+    <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/90 backdrop-blur-md flex items-end sm:items-center justify-center p-4">
+        <div class="cosmic-card w-full max-w-sm p-6 bg-[#0f172a] relative border border-gray-700">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-xl font-bold">Add Funds</h3>
+                <button onclick="document.getElementById('depositModal').style.display='none'" class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-gray-400">✕</button>
+            </div>
+            
+            <div class="bg-blue-900/10 p-4 rounded-xl mb-6 border border-blue-500/20">
+                <p class="text-xs text-blue-400 uppercase tracking-widest mb-1">Target Account</p>
                 <div class="flex justify-between items-center">
-                     <p class="text-sm text-blue-100">**** **** 8821</p>
-                     <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold backdrop-blur">Active</span>
+                    <b class="text-xl text-white font-mono">0348-8347820</b>
+                    <span class="text-xs bg-blue-500/20 text-blue-300 px-2 py-1 rounded">EP/JC</span>
                 </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <button onclick="document.getElementById('depositModal').style.display='flex'" class="fintech-card p-4 flex items-center justify-center gap-2 text-blue-700 font-bold hover:bg-blue-50 transition">
-                    <i class="fa-solid fa-circle-down"></i> Deposit
-                </button>
-                 <button class="fintech-card p-4 flex items-center justify-center gap-2 text-gray-700 font-bold hover:bg-gray-50 transition">
-                    <i class="fa-solid fa-circle-up"></i> Withdraw
-                </button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div class="fintech-card p-4">
-                    <div class="flex items-center gap-2 mb-2 text-gray-500 text-sm">
-                        <i class="fa-solid fa-briefcase text-blue-500"></i> Current Plan
-                    </div>
-                    <p id="planDisplay" class="text-lg font-bold text-blue-900">Free Tier</p>
-                </div>
-                 <div class="fintech-card p-4">
-                    <div class="flex items-center gap-2 mb-2 text-gray-500 text-sm">
-                        <i class="fa-solid fa-percent text-green-500"></i> Commission
-                    </div>
-                    <p id="commissionDisplay" class="text-lg font-bold text-green-600">0%</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-plans" class="tab-content pt-2">
-            <h2 class="text-xl font-bold text-blue-900 mb-6">Investment Packages</h2>
-            
-            <div class="space-y-4">
-                <div class="fintech-card p-6 border-l-4 border-blue-500 flex justify-between items-center">
-                    <div>
-                        <h3 class="font-bold text-lg text-blue-900">Starter Plan</h3>
-                        <p class="text-sm text-gray-500 mb-2">30% Commission • Daily Payouts</p>
-                        <span class="text-xl font-bold text-blue-600">500 PKR</span>
-                    </div>
-                    <button onclick="buyPlan(500, 'Starter', 30)" class="primary-btn px-6 py-2 rounded-lg text-sm">Invest</button>
-                </div>
-
-                <div class="fintech-card p-6 border-l-4 border-purple-500 flex justify-between items-center relative overflow-hidden">
-                    <div class="absolute top-0 right-0 bg-purple-100 text-purple-700 text-xs px-2 py-1 font-bold rounded-bl">POPULAR</div>
-                    <div>
-                        <h3 class="font-bold text-lg text-blue-900">Pro Plan</h3>
-                        <p class="text-sm text-gray-500 mb-2">50% Commission • Priority Support</p>
-                        <span class="text-xl font-bold text-purple-600">2000 PKR</span>
-                    </div>
-                    <button onclick="buyPlan(2000, 'Pro', 50)" class="bg-purple-600 text-white font-bold px-6 py-2 rounded-lg text-sm hover:bg-purple-700 transition">Invest</button>
-                </div>
-
-                <div class="fintech-card p-6 border-l-4 border-orange-500 flex justify-between items-center">
-                    <div>
-                        <h3 class="font-bold text-lg text-blue-900">VIP Plan</h3>
-                        <p class="text-sm text-gray-500 mb-2">60% Commission • Personal Manager</p>
-                        <span class="text-xl font-bold text-orange-600">5000 PKR</span>
-                    </div>
-                    <button onclick="buyPlan(5000, 'VIP', 60)" class="bg-orange-500 text-white font-bold px-6 py-2 rounded-lg text-sm hover:bg-orange-600 transition">Invest</button>
-                </div>
-            </div>
-        </div>
-
-        <div id="tab-team" class="tab-content pt-6 text-center">
-            <div class="fintech-card p-8">
-                <div class="w-20 h-20 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-6">
-                    <i class="fa-solid fa-share-nodes text-3xl text-green-600"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-blue-900 mb-2">Refer & Earn</h2>
-                <p class="text-gray-500 text-sm mb-8">Grow your network and earn lifetime commissions.</p>
-                
-                <div class="bg-gray-100 p-4 rounded-lg mb-6 flex items-center justify-between border border-gray-200">
-                    <p id="myLinkDisplay" class="text-sm text-blue-600 font-medium truncate mr-2 select-all">Generating link...</p>
-                    <i class="fa-regular fa-copy text-gray-400"></i>
-                </div>
-                
-                <button onclick="shareLink()" class="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white py-4 rounded-lg font-bold flex items-center justify-center gap-2 shadow-md transition">
-                    <i class="fa-brands fa-whatsapp text-xl"></i> Share via WhatsApp
-                </button>
-            </div>
-        </div>
-
-    </div>
-
-    <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="fintech-card w-full max-w-sm p-6 relative">
-            <button onclick="document.getElementById('depositModal').style.display='none'" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">✕</button>
-            <h3 class="text-xl font-bold text-blue-900 mb-6">Deposit Funds</h3>
-            
-            <div class="bg-blue-50 p-4 rounded-lg mb-6 border border-blue-100">
-                <p class="text-xs text-blue-600 font-bold uppercase mb-1">Easypaisa Account</p>
-                <p class="text-2xl font-bold text-blue-900">0348-8347820</p>
-                <p class="text-sm text-gray-500 mt-1">Account Name: C9 UZAIR</p>
+                <p class="text-xs text-gray-500 mt-2">Title: C9 UZAIR</p>
             </div>
 
             <div class="space-y-4">
-                <div>
-                    <label class="text-sm font-bold text-gray-700 block mb-2">Amount Sent (PKR)</label>
-                    <input type="number" id="depAmt" placeholder="e.g. 500" class="clean-input w-full p-4 rounded-lg">
-                </div>
-                <div>
-                     <label class="text-sm font-bold text-gray-700 block mb-2">Transaction ID</label>
-                    <input type="text" id="trxID" placeholder="e.g. 83729..." class="clean-input w-full p-4 rounded-lg">
-                </div>
-                <button onclick="submitDeposit()" class="primary-btn w-full py-4 rounded-lg font-bold mt-4 shadow-md">Submit For Verification</button>
+                <input type="number" id="depAmt" placeholder="Amount (PKR)" class="cosmic-input w-full p-4 rounded-xl">
+                <input type="text" id="trxID" placeholder="Transaction ID" class="cosmic-input w-full p-4 rounded-xl">
+                <button onclick="submitDeposit()" class="cosmic-btn w-full py-4 rounded-xl font-bold mt-2">Verify Transaction</button>
             </div>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-40 pb-6 pt-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
-        <div class="flex justify-around max-w-md mx-auto">
-            <div onclick="switchTab('home')" class="nav-btn text-blue-600 cursor-pointer flex flex-col items-center group transition">
-                <i class="fa-solid fa-house-chimney text-xl mb-1 group-hover:scale-110 transition"></i>
-                <span class="text-xs font-medium">Home</span>
+    <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-40">
+        <div class="floating-dock flex gap-2 p-2">
+            <div onclick="switchTab('home')" class="nav-item cursor-pointer w-12 h-12 rounded-xl flex items-center justify-center text-gray-400 transition-all duration-300 active text-blue-400 bg-white/10 -translate-y-1">
+                <i class="fa-solid fa-house text-lg"></i>
             </div>
-            <div onclick="switchTab('plans')" class="nav-btn text-gray-400 hover:text-blue-600 cursor-pointer flex flex-col items-center group transition">
-                <i class="fa-solid fa-chart-pie text-xl mb-1 group-hover:scale-110 transition"></i>
-                <span class="text-xs font-medium">Invest</span>
+            <div onclick="switchTab('plans')" class="nav-item cursor-pointer w-12 h-12 rounded-xl flex items-center justify-center text-gray-400 transition-all duration-300 hover:bg-white/5">
+                <i class="fa-solid fa-cube text-lg"></i>
             </div>
-            <div onclick="switchTab('team')" class="nav-btn text-gray-400 hover:text-blue-600 cursor-pointer flex flex-col items-center group transition">
-                <i class="fa-solid fa-users-line text-xl mb-1 group-hover:scale-110 transition"></i>
-                <span class="text-xs font-medium">Team</span>
+            <div onclick="switchTab('team')" class="nav-item cursor-pointer w-12 h-12 rounded-xl flex items-center justify-center text-gray-400 transition-all duration-300 hover:bg-white/5">
+                <i class="fa-solid fa-users text-lg"></i>
             </div>
         </div>
     </div>
@@ -346,26 +407,30 @@
 
         function buyPlan(price, name, rate) {
             if(myData.balance >= price) {
-                if(confirm("Purchase " + name + " Plan?")) {
+                if(confirm("Purchase " + name + "?")) {
                     db.ref('users/' + currentUser.uid).update({ balance: myData.balance - price, plan: name, commissionRate: rate });
-                    alert("Plan Activated!");
+                    alert("Activated!");
                 }
-            } else { alert("Insufficient Funds"); document.getElementById('depositModal').style.display='flex'; }
+            } else { alert("Low Balance!"); document.getElementById('depositModal').style.display='flex'; }
         }
 
         function shareLink() { 
             const link = document.getElementById('myLinkDisplay').innerText;
-            window.open("https://wa.me/?text=" + encodeURIComponent("Join Ultra Earn:\n" + link), '_blank'); 
+            window.open("https://wa.me/?text=" + encodeURIComponent("🚀 Join Ultra:\n" + link), '_blank'); 
         }
         
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
             document.getElementById('tab-' + tab).classList.add('active-tab');
-            document.querySelectorAll('.nav-btn').forEach(b => { 
-                b.classList.remove('text-blue-600'); b.classList.add('text-gray-400');
+            
+            // Dock Animation Logic
+            document.querySelectorAll('.nav-item').forEach(b => {
+                b.classList.remove('active', 'text-blue-400', 'bg-white/10', '-translate-y-1');
+                b.classList.add('text-gray-400');
             });
             const activeBtn = event.currentTarget;
-            activeBtn.classList.add('text-blue-600'); activeBtn.classList.remove('text-gray-400');
+            activeBtn.classList.add('active', 'text-blue-400', 'bg-white/10', '-translate-y-1');
+            activeBtn.classList.remove('text-gray-400');
         }
     </script>
 </body>
