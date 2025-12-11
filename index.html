@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#000000">
-    <title>Ultra Earn - Royal</title>
+    <meta name="theme-color" content="#f8fafc">
+    <title>Ultra Earn - Fintech</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -16,290 +16,253 @@
 
     <style>
         body {
-            background-color: #000000;
-            color: #d4af37; /* Gold Color */
-            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* Light Gray Background */
+            color: #1e293b; /* Dark Blue-Gray Text */
+            font-family: 'Roboto', sans-serif;
             min-height: 100vh;
-            padding-bottom: 90px;
+            padding-bottom: 80px;
             -webkit-tap-highlight-color: transparent;
-            background-image: radial-gradient(circle at 50% 0%, #1a1a1a 0%, #000000 70%);
         }
 
-        /* Gold Gradient Text */
-        .gold-text {
-            background: linear-gradient(to right, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            font-family: 'Cinzel', serif;
+        /* Modern Fintech Card */
+        .fintech-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e2e8f0;
         }
 
-        /* Golden Border Card */
-        .vip-card {
-            background: linear-gradient(145deg, #0f0f0f, #080808);
-            border: 1px solid #333;
-            position: relative;
-            overflow: hidden;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
-        }
-        .vip-card::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            border-radius: 12px;
-            padding: 1px;
-            background: linear-gradient(45deg, transparent, #d4af37, transparent);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            opacity: 0.5;
+        /* Primary Blue Gradient */
+        .blue-gradient {
+            background: linear-gradient(135deg, #0056b3 0%, #007bff 100%);
+            color: white;
         }
 
-        /* Shimmer Effect Button */
-        .gold-btn {
-            background: linear-gradient(45deg, #bf953f, #aa771c);
-            color: black;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
-            transition: 0.3s;
-            border: none;
+        /* Inputs */
+        .clean-input {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #334155;
+            transition: 0.2s;
         }
-        .gold-btn::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-            transition: 0.5s;
-        }
-        .gold-btn:hover::before { left: 100%; }
-        .gold-btn:active { transform: scale(0.98); }
-
-        /* Royal Input */
-        .royal-input {
-            background: transparent;
-            border-bottom: 1px solid #333;
-            color: #fcf6ba;
-            font-family: 'Cinzel', serif;
-            transition: 0.3s;
-        }
-        .royal-input:focus {
-            border-bottom-color: #d4af37;
+        .clean-input:focus {
+            background: white;
+            border-color: #007bff;
             outline: none;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
         }
-        .royal-input::placeholder { color: #555; font-family: 'Inter', sans-serif; }
+
+        /* Buttons */
+        .primary-btn {
+            background-color: #0056b3;
+            color: white;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        .primary-btn:hover { background-color: #004494; }
+        .primary-btn:active { transform: scale(0.98); }
 
         /* Tab Animation */
-        .tab-content { display: none; animation: fadeEffect 0.6s; }
-        .active-tab { display: block; }
-        @keyframes fadeEffect { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
+        .tab-content { display: none; }
+        .active-tab { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 100; justify-content: center; align-items: center; }
+        #loader { display: none; position: fixed; inset: 0; background: rgba(248, 250, 252, 0.9); z-index: 100; justify-content: center; align-items: center; }
     </style>
 </head>
 <body>
 
     <div id="loader">
-        <div class="text-center">
-            <i class="fa-solid fa-crown text-4xl mb-4 gold-text animate-bounce"></i>
-            <p class="text-xs tracking-[0.3em] uppercase text-[#aa771c]">Authenticating</p>
-        </div>
+        <div class="animate-spin rounded-full h-12 w-12 border-t-4 border-b-4 border-blue-600"></div>
     </div>
 
-    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-8 overflow-y-auto bg-black">
-        <div class="text-center mb-16">
-            <i class="fa-solid fa-crown text-5xl mb-4 gold-text"></i>
-            <h1 class="text-4xl font-bold gold-text tracking-widest mb-2">ULTRA EARN</h1>
-            <div class="h-[1px] w-24 mx-auto bg-gradient-to-r from-transparent via-[#aa771c] to-transparent"></div>
-            <p class="text-[#666] text-xs mt-2 uppercase tracking-[0.2em]">Members Only Club</p>
-        </div>
-
-        <div id="loginForm" class="space-y-8">
-            <input type="email" id="loginEmail" placeholder="ENTER EMAIL" class="royal-input w-full p-3 text-center text-lg">
-            <input type="password" id="loginPass" placeholder="PASSWORD" class="royal-input w-full p-3 text-center text-lg">
-            <button onclick="login()" class="gold-btn w-full py-4 rounded-sm shadow-[0_0_15px_rgba(212,175,55,0.3)]">
-                ENTER CLUB
-            </button>
-            <p onclick="toggleAuth()" class="text-center text-[#444] text-xs cursor-pointer hover:text-[#d4af37] transition uppercase tracking-wider">Apply for Membership</p>
-        </div>
-
-        <div id="registerForm" class="hidden space-y-8">
-            <div id="autoRefBadge" class="hidden border border-[#d4af37] p-2 text-center text-[10px] text-[#d4af37] uppercase tracking-widest">
-                Referred By: <span id="inviterId" class="text-white">...</span>
+    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto bg-[#f8fafc]">
+        <div class="max-w-sm mx-auto w-full">
+            <div class="text-center mb-10">
+                <div class="w-16 h-16 bg-blue-600 rounded-xl mx-auto flex items-center justify-center mb-4 shadow-lg shadow-blue-200">
+                    <i class="fa-solid fa-wallet text-2xl text-white"></i>
+                </div>
+                <h1 class="text-3xl font-bold text-blue-900 mb-2">Ultra Earn</h1>
+                <p class="text-gray-500 text-sm">Secure Financial Growth</p>
             </div>
-            <input type="text" id="regName" placeholder="FULL NAME" class="royal-input w-full p-3 text-center text-lg">
-            <input type="email" id="regEmail" placeholder="EMAIL ADDRESS" class="royal-input w-full p-3 text-center text-lg">
-            <input type="password" id="regPass" placeholder="SET PASSWORD" class="royal-input w-full p-3 text-center text-lg">
-            <button onclick="register()" class="gold-btn w-full py-4 rounded-sm shadow-[0_0_15px_rgba(212,175,55,0.3)]">
-                JOIN NOW
-            </button>
-            <p onclick="toggleAuth()" class="text-center text-[#444] text-xs cursor-pointer hover:text-[#d4af37] transition uppercase tracking-wider">Access Existing Account</p>
+
+            <div class="fintech-card p-8">
+                <div id="loginForm" class="space-y-5">
+                    <h2 class="text-xl font-bold mb-6 text-center">Welcome Back</h2>
+                    <input type="email" id="loginEmail" placeholder="Email Address" class="clean-input w-full p-4 rounded-lg">
+                    <input type="password" id="loginPass" placeholder="Password" class="clean-input w-full p-4 rounded-lg">
+                    <button onclick="login()" class="primary-btn w-full py-4 rounded-lg text-lg shadow-md">
+                        Sign In
+                    </button>
+                    <p onclick="toggleAuth()" class="text-center text-sm text-blue-600 font-medium cursor-pointer hover:underline mt-4">Create New Account</p>
+                </div>
+
+                <div id="registerForm" class="hidden space-y-5">
+                    <h2 class="text-xl font-bold mb-6 text-center">Create Account</h2>
+                    <div id="autoRefBadge" class="hidden bg-blue-50 text-blue-700 p-3 rounded-lg text-sm text-center border border-blue-100">
+                        Invited by: <span id="inviterId" class="font-bold">...</span>
+                    </div>
+                    <input type="text" id="regName" placeholder="Full Name" class="clean-input w-full p-4 rounded-lg">
+                    <input type="email" id="regEmail" placeholder="Email Address" class="clean-input w-full p-4 rounded-lg">
+                    <input type="password" id="regPass" placeholder="Set Password" class="clean-input w-full p-4 rounded-lg">
+                    <button onclick="register()" class="primary-btn w-full py-4 rounded-lg text-lg shadow-md">
+                        Sign Up
+                    </button>
+                    <p onclick="toggleAuth()" class="text-center text-sm text-blue-600 font-medium cursor-pointer hover:underline mt-4">Back to Login</p>
+                </div>
+                <p id="authMsg" class="text-center text-red-500 text-sm mt-4 font-medium"></p>
+            </div>
         </div>
-        <p id="authMsg" class="text-center text-red-500 text-xs mt-6"></p>
     </div>
 
-    <div id="mainApp" style="display:none;" class="max-w-md mx-auto">
+    <div id="mainApp" style="display:none;" class="max-w-md mx-auto px-4">
         
-        <div class="flex justify-between items-center p-6 border-b border-[#222]">
-            <div>
-                <p class="text-[10px] text-[#555] uppercase tracking-widest">Member Profile</p>
-                <h2 class="text-lg gold-text font-bold" id="userNameDisplay">User</h2>
+        <div class="flex justify-between items-center py-6">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 font-medium">Good day,</p>
+                    <h2 class="text-lg font-bold text-blue-900" id="userNameDisplay">User</h2>
+                </div>
             </div>
-            <button onclick="logout()" class="border border-[#333] w-10 h-10 flex items-center justify-center text-[#555] hover:border-[#d4af37] hover:text-[#d4af37] transition rounded-full">
+            <button onclick="logout()" class="bg-white border border-gray-200 p-2 rounded-full text-gray-500 hover:bg-red-50 hover:text-red-500 transition shadow-sm">
                 <i class="fa-solid fa-power-off"></i>
             </button>
         </div>
 
-        <div id="tab-home" class="tab-content px-6 pt-8">
-            <div class="vip-card p-8 mb-8 text-center relative">
-                <div class="absolute top-2 left-1/2 transform -translate-x-1/2">
-                    <i class="fa-solid fa-crown text-yellow-900/30 text-6xl"></i>
+        <div id="tab-home" class="tab-content">
+            <div class="blue-gradient rounded-2xl p-6 mb-6 shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-4 opacity-20">
+                     <i class="fa-brands fa-cc-visa text-5xl"></i>
                 </div>
-                <p class="text-[#888] text-xs uppercase tracking-[0.2em] mb-2 relative z-10">Total Net Worth</p>
-                <h1 class="text-4xl font-serif text-white mb-6 relative z-10 tracking-wider">
-                    <span class="text-[#d4af37]">Rs.</span> <span id="bigBalance">0</span>
-                </h1>
-                
-                <div class="flex justify-center gap-4 relative z-10">
-                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="border border-[#d4af37] text-[#d4af37] px-6 py-2 text-xs uppercase tracking-widest hover:bg-[#d4af37] hover:text-black transition">
-                        Deposit
-                    </button>
-                    <button class="border border-[#333] text-[#666] px-6 py-2 text-xs uppercase tracking-widest hover:border-white hover:text-white transition">
-                        Withdraw
-                    </button>
+                <p class="text-blue-100 text-sm font-medium mb-2">Available Balance</p>
+                <h1 class="text-4xl font-bold mb-8">PKR <span id="bigBalance">0</span></h1>
+                <div class="flex justify-between items-center">
+                     <p class="text-sm text-blue-100">**** **** 8821</p>
+                     <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold backdrop-blur">Active</span>
                 </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <div class="vip-card p-4 text-center">
-                    <p class="text-[10px] text-[#555] uppercase mb-1">Membership Tier</p>
-                    <p id="planDisplay" class="gold-text text-sm font-bold">Standard</p>
-                </div>
-                <div class="vip-card p-4 text-center">
-                    <p class="text-[10px] text-[#555] uppercase mb-1">Commission Rate</p>
-                    <p id="commissionDisplay" class="text-white text-sm font-bold">0%</p>
-                </div>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <button onclick="document.getElementById('depositModal').style.display='flex'" class="fintech-card p-4 flex items-center justify-center gap-2 text-blue-700 font-bold hover:bg-blue-50 transition">
+                    <i class="fa-solid fa-circle-down"></i> Deposit
+                </button>
+                 <button class="fintech-card p-4 flex items-center justify-center gap-2 text-gray-700 font-bold hover:bg-gray-50 transition">
+                    <i class="fa-solid fa-circle-up"></i> Withdraw
+                </button>
             </div>
 
-            <div onclick="switchTab('team')" class="vip-card p-5 flex items-center justify-between cursor-pointer hover:bg-[#111] transition">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 border border-[#333] flex items-center justify-center rounded-full text-[#d4af37]">
-                        <i class="fa-solid fa-gem"></i>
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="fintech-card p-4">
+                    <div class="flex items-center gap-2 mb-2 text-gray-500 text-sm">
+                        <i class="fa-solid fa-briefcase text-blue-500"></i> Current Plan
                     </div>
+                    <p id="planDisplay" class="text-lg font-bold text-blue-900">Free Tier</p>
+                </div>
+                 <div class="fintech-card p-4">
+                    <div class="flex items-center gap-2 mb-2 text-gray-500 text-sm">
+                        <i class="fa-solid fa-percent text-green-500"></i> Commission
+                    </div>
+                    <p id="commissionDisplay" class="text-lg font-bold text-green-600">0%</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-plans" class="tab-content pt-2">
+            <h2 class="text-xl font-bold text-blue-900 mb-6">Investment Packages</h2>
+            
+            <div class="space-y-4">
+                <div class="fintech-card p-6 border-l-4 border-blue-500 flex justify-between items-center">
                     <div>
-                        <h4 class="text-white text-sm uppercase tracking-wide">Affiliate Program</h4>
-                        <p class="text-[10px] text-[#666]">Invite others to the club</p>
+                        <h3 class="font-bold text-lg text-blue-900">Starter Plan</h3>
+                        <p class="text-sm text-gray-500 mb-2">30% Commission • Daily Payouts</p>
+                        <span class="text-xl font-bold text-blue-600">500 PKR</span>
                     </div>
-                </div>
-                <i class="fa-solid fa-chevron-right text-[#333]"></i>
-            </div>
-        </div>
-
-        <div id="tab-plans" class="tab-content px-6 pt-8">
-            <h2 class="text-center gold-text text-xl mb-8 tracking-[0.2em]">MEMBERSHIP TIERS</h2>
-            
-            <div class="space-y-6">
-                <div class="vip-card p-6 relative group">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-white text-lg font-serif">SILVER</h3>
-                            <p class="text-[10px] text-[#666] uppercase">Entry Level</p>
-                        </div>
-                        <p class="text-xl text-[#d4af37]">500</p>
-                    </div>
-                    <ul class="text-xs text-[#888] space-y-2 mb-6 border-t border-[#222] pt-4">
-                        <li class="flex justify-between"><span>Commission</span> <span class="text-white">30%</span></li>
-                        <li class="flex justify-between"><span>Support</span> <span class="text-white">Basic</span></li>
-                    </ul>
-                    <button onclick="buyPlan(500, 'Silver', 30)" class="w-full border border-[#333] text-[#888] py-3 text-xs uppercase tracking-widest hover:border-[#d4af37] hover:text-[#d4af37] transition">Purchase</button>
+                    <button onclick="buyPlan(500, 'Starter', 30)" class="primary-btn px-6 py-2 rounded-lg text-sm">Invest</button>
                 </div>
 
-                <div class="vip-card p-6 relative group border-[#d4af37]">
-                    <div class="absolute top-0 right-0 bg-[#d4af37] text-black text-[9px] px-2 py-1 uppercase font-bold">Recommended</div>
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="gold-text text-lg font-serif">GOLD</h3>
-                            <p class="text-[10px] text-[#666] uppercase">Pro Access</p>
-                        </div>
-                        <p class="text-xl text-[#d4af37]">2000</p>
+                <div class="fintech-card p-6 border-l-4 border-purple-500 flex justify-between items-center relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-purple-100 text-purple-700 text-xs px-2 py-1 font-bold rounded-bl">POPULAR</div>
+                    <div>
+                        <h3 class="font-bold text-lg text-blue-900">Pro Plan</h3>
+                        <p class="text-sm text-gray-500 mb-2">50% Commission • Priority Support</p>
+                        <span class="text-xl font-bold text-purple-600">2000 PKR</span>
                     </div>
-                    <ul class="text-xs text-[#888] space-y-2 mb-6 border-t border-[#222] pt-4">
-                        <li class="flex justify-between"><span>Commission</span> <span class="text-white">50%</span></li>
-                        <li class="flex justify-between"><span>Withdrawal</span> <span class="text-white">Priority</span></li>
-                    </ul>
-                    <button onclick="buyPlan(2000, 'Gold', 50)" class="gold-btn w-full py-3 text-xs">Purchase</button>
+                    <button onclick="buyPlan(2000, 'Pro', 50)" class="bg-purple-600 text-white font-bold px-6 py-2 rounded-lg text-sm hover:bg-purple-700 transition">Invest</button>
                 </div>
 
-                <div class="vip-card p-6 relative group">
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <h3 class="text-white text-lg font-serif">PLATINUM</h3>
-                            <p class="text-[10px] text-[#666] uppercase">VIP Status</p>
-                        </div>
-                        <p class="text-xl text-[#d4af37]">5000</p>
+                <div class="fintech-card p-6 border-l-4 border-orange-500 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-lg text-blue-900">VIP Plan</h3>
+                        <p class="text-sm text-gray-500 mb-2">60% Commission • Personal Manager</p>
+                        <span class="text-xl font-bold text-orange-600">5000 PKR</span>
                     </div>
-                    <ul class="text-xs text-[#888] space-y-2 mb-6 border-t border-[#222] pt-4">
-                        <li class="flex justify-between"><span>Commission</span> <span class="text-white">60%</span></li>
-                        <li class="flex justify-between"><span>Manager</span> <span class="text-white">Personal</span></li>
-                    </ul>
-                    <button onclick="buyPlan(5000, 'Platinum', 60)" class="w-full border border-[#333] text-[#888] py-3 text-xs uppercase tracking-widest hover:border-white hover:text-white transition">Purchase</button>
+                    <button onclick="buyPlan(5000, 'VIP', 60)" class="bg-orange-500 text-white font-bold px-6 py-2 rounded-lg text-sm hover:bg-orange-600 transition">Invest</button>
                 </div>
             </div>
         </div>
 
-        <div id="tab-team" class="tab-content px-6 pt-12 text-center">
-            <i class="fa-solid fa-users-rays text-5xl text-[#333] mb-6"></i>
-            <h2 class="gold-text text-2xl mb-2 font-serif">EXPAND NETWORK</h2>
-            <p class="text-[#666] text-xs mb-10 px-8 leading-relaxed">Invite elite members to your network and earn royalties on their deposits.</p>
-            
-            <div class="vip-card p-4 mb-8 flex items-center justify-between">
-                <p id="myLinkDisplay" class="text-[10px] text-[#888] font-mono tracking-widest select-all">LOADING...</p>
-                <i class="fa-solid fa-link text-[#d4af37]"></i>
+        <div id="tab-team" class="tab-content pt-6 text-center">
+            <div class="fintech-card p-8">
+                <div class="w-20 h-20 bg-green-100 rounded-full mx-auto flex items-center justify-center mb-6">
+                    <i class="fa-solid fa-share-nodes text-3xl text-green-600"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-blue-900 mb-2">Refer & Earn</h2>
+                <p class="text-gray-500 text-sm mb-8">Grow your network and earn lifetime commissions.</p>
+                
+                <div class="bg-gray-100 p-4 rounded-lg mb-6 flex items-center justify-between border border-gray-200">
+                    <p id="myLinkDisplay" class="text-sm text-blue-600 font-medium truncate mr-2 select-all">Generating link...</p>
+                    <i class="fa-regular fa-copy text-gray-400"></i>
+                </div>
+                
+                <button onclick="shareLink()" class="w-full bg-[#25D366] hover:bg-[#20ba5a] text-white py-4 rounded-lg font-bold flex items-center justify-center gap-2 shadow-md transition">
+                    <i class="fa-brands fa-whatsapp text-xl"></i> Share via WhatsApp
+                </button>
             </div>
-            
-            <button onclick="shareLink()" class="gold-btn w-full py-4 shadow-[0_4px_20px_rgba(212,175,55,0.2)] flex items-center justify-center gap-2">
-                <i class="fa-brands fa-whatsapp"></i> SHARE INVITE
-            </button>
         </div>
 
     </div>
 
-    <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-6">
-        <div class="vip-card w-full max-w-sm p-8 relative bg-black border border-[#333]">
-            <button onclick="document.getElementById('depositModal').style.display='none'" class="absolute top-4 right-4 text-[#555] hover:text-white">✕</button>
-            <h3 class="gold-text text-center text-xl mb-8 font-serif">ADD FUNDS</h3>
+    <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="fintech-card w-full max-w-sm p-6 relative">
+            <button onclick="document.getElementById('depositModal').style.display='none'" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700">✕</button>
+            <h3 class="text-xl font-bold text-blue-900 mb-6">Deposit Funds</h3>
             
-            <div class="text-center mb-8">
-                <p class="text-[10px] text-[#555] uppercase tracking-widest mb-2">Easypaisa / Jazzcash</p>
-                <p class="text-2xl text-white font-serif tracking-wider">0348-8347820</p>
-                <p class="text-[10px] text-[#d4af37] mt-1">C9 UZAIR</p>
+            <div class="bg-blue-50 p-4 rounded-lg mb-6 border border-blue-100">
+                <p class="text-xs text-blue-600 font-bold uppercase mb-1">Easypaisa Account</p>
+                <p class="text-2xl font-bold text-blue-900">0348-8347820</p>
+                <p class="text-sm text-gray-500 mt-1">Account Name: C9 UZAIR</p>
             </div>
 
-            <div class="space-y-6">
-                <input type="number" id="depAmt" placeholder="AMOUNT (PKR)" class="royal-input w-full p-2 text-center">
-                <input type="text" id="trxID" placeholder="TRANSACTION ID" class="royal-input w-full p-2 text-center">
-                <button onclick="submitDeposit()" class="gold-btn w-full py-3 mt-4">VERIFY TRANSACTION</button>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm font-bold text-gray-700 block mb-2">Amount Sent (PKR)</label>
+                    <input type="number" id="depAmt" placeholder="e.g. 500" class="clean-input w-full p-4 rounded-lg">
+                </div>
+                <div>
+                     <label class="text-sm font-bold text-gray-700 block mb-2">Transaction ID</label>
+                    <input type="text" id="trxID" placeholder="e.g. 83729..." class="clean-input w-full p-4 rounded-lg">
+                </div>
+                <button onclick="submitDeposit()" class="primary-btn w-full py-4 rounded-lg font-bold mt-4 shadow-md">Submit For Verification</button>
             </div>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full bg-black border-t border-[#222] z-40 pb-6 pt-4">
-        <div class="flex justify-around">
-            <div onclick="switchTab('home')" class="nav-btn text-[#d4af37] cursor-pointer flex flex-col items-center group">
-                <div class="h-[1px] w-8 bg-[#d4af37] mb-2 transition group-hover:w-12"></div>
-                <span class="text-[9px] uppercase tracking-widest">Club</span>
+    <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-40 pb-6 pt-3 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)]">
+        <div class="flex justify-around max-w-md mx-auto">
+            <div onclick="switchTab('home')" class="nav-btn text-blue-600 cursor-pointer flex flex-col items-center group transition">
+                <i class="fa-solid fa-house-chimney text-xl mb-1 group-hover:scale-110 transition"></i>
+                <span class="text-xs font-medium">Home</span>
             </div>
-            <div onclick="switchTab('plans')" class="nav-btn text-[#555] cursor-pointer flex flex-col items-center group hover:text-white transition">
-                <div class="h-[1px] w-0 bg-white mb-2 transition-all group-hover:w-8"></div>
-                <span class="text-[9px] uppercase tracking-widest">Tiers</span>
+            <div onclick="switchTab('plans')" class="nav-btn text-gray-400 hover:text-blue-600 cursor-pointer flex flex-col items-center group transition">
+                <i class="fa-solid fa-chart-pie text-xl mb-1 group-hover:scale-110 transition"></i>
+                <span class="text-xs font-medium">Invest</span>
             </div>
-            <div onclick="switchTab('team')" class="nav-btn text-[#555] cursor-pointer flex flex-col items-center group hover:text-white transition">
-                <div class="h-[1px] w-0 bg-white mb-2 transition-all group-hover:w-8"></div>
-                <span class="text-[9px] uppercase tracking-widest">Network</span>
+            <div onclick="switchTab('team')" class="nav-btn text-gray-400 hover:text-blue-600 cursor-pointer flex flex-col items-center group transition">
+                <i class="fa-solid fa-users-line text-xl mb-1 group-hover:scale-110 transition"></i>
+                <span class="text-xs font-medium">Team</span>
             </div>
         </div>
     </div>
@@ -339,7 +302,7 @@
             const myNewCode = "U-" + Math.floor(10000 + Math.random() * 90000);
             auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
                 db.ref('users/' + cred.user.uid).set({
-                    name: name, email: email, myCode: myNewCode, invitedBy: detectedReferral, balance: 0, plan: "Standard", commissionRate: 0
+                    name: name, email: email, myCode: myNewCode, invitedBy: detectedReferral, balance: 0, plan: "Free", commissionRate: 0
                 }).then(() => { showLoader(false); window.location.href = window.location.origin + window.location.pathname; });
             }).catch(e => { showLoader(false); document.getElementById('authMsg').innerText = e.message; });
         }
@@ -383,28 +346,26 @@
 
         function buyPlan(price, name, rate) {
             if(myData.balance >= price) {
-                if(confirm("Purchase " + name + " Membership?")) {
+                if(confirm("Purchase " + name + " Plan?")) {
                     db.ref('users/' + currentUser.uid).update({ balance: myData.balance - price, plan: name, commissionRate: rate });
-                    alert("Membership Upgraded!");
+                    alert("Plan Activated!");
                 }
             } else { alert("Insufficient Funds"); document.getElementById('depositModal').style.display='flex'; }
         }
 
         function shareLink() { 
             const link = document.getElementById('myLinkDisplay').innerText;
-            window.open("https://wa.me/?text=" + encodeURIComponent("Join the Club:\n" + link), '_blank'); 
+            window.open("https://wa.me/?text=" + encodeURIComponent("Join Ultra Earn:\n" + link), '_blank'); 
         }
         
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
             document.getElementById('tab-' + tab).classList.add('active-tab');
             document.querySelectorAll('.nav-btn').forEach(b => { 
-                b.classList.remove('text-[#d4af37]'); b.classList.add('text-[#555]');
-                b.querySelector('.h-\\[1px\\]').classList.remove('w-8', 'bg-[#d4af37]'); b.querySelector('.h-\\[1px\\]').classList.add('w-0', 'bg-white');
+                b.classList.remove('text-blue-600'); b.classList.add('text-gray-400');
             });
             const activeBtn = event.currentTarget;
-            activeBtn.classList.add('text-[#d4af37]'); activeBtn.classList.remove('text-[#555]');
-            activeBtn.querySelector('.h-\\[1px\\]').classList.add('w-8', 'bg-[#d4af37]'); activeBtn.querySelector('.h-\\[1px\\]').classList.remove('w-0', 'bg-white');
+            activeBtn.classList.add('text-blue-600'); activeBtn.classList.remove('text-gray-400');
         }
     </script>
 </body>
