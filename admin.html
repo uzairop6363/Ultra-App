@@ -7,44 +7,81 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; font-family: monospace; }
+        .glass-panel { background: #1e293b; border: 1px solid #334155; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        .btn { transition: 0.2s; } .btn:active { transform: scale(0.95); }
+    </style>
 </head>
-<body class="bg-gray-900 text-white p-4 font-mono">
+<body class="p-4 max-w-6xl mx-auto">
 
     <div id="loginOverlay" class="fixed inset-0 bg-black z-50 flex flex-col justify-center items-center">
-        <h1 class="text-4xl font-bold text-red-600 mb-4 tracking-widest">MASTER CONTROL</h1>
-        <div class="w-72 space-y-4">
-            <input type="text" id="u" placeholder="Admin ID" class="w-full bg-gray-800 p-3 text-white border border-gray-600">
-            <input type="password" id="p" placeholder="Passkey" class="w-full bg-gray-800 p-3 text-white border border-gray-600">
-            <button onclick="check()" class="w-full bg-red-700 hover:bg-red-600 py-3 font-bold uppercase">Authenticate</button>
+        <h1 class="text-4xl font-bold text-red-600 mb-6 tracking-widest border-b-2 border-red-600 pb-2">MASTER CONTROL</h1>
+        <div class="w-80 space-y-4">
+            <input type="text" id="u" placeholder="ADMIN ID" class="w-full bg-gray-900 p-4 text-white border border-gray-700 rounded outline-none focus:border-red-500">
+            <input type="password" id="p" placeholder="ACCESS KEY" class="w-full bg-gray-900 p-4 text-white border border-gray-700 rounded outline-none focus:border-red-500">
+            <button onclick="check()" class="w-full bg-red-700 hover:bg-red-600 py-4 font-bold uppercase rounded tracking-wider shadow-lg shadow-red-900/50 btn">ENTER SYSTEM</button>
         </div>
     </div>
 
     <div id="panel" style="display:none;">
-        <div class="flex justify-between items-center mb-8 border-b border-gray-700 pb-4">
-            <h1 class="text-2xl font-bold text-blue-400">ADMIN DASHBOARD</h1>
-            <button onclick="location.reload()" class="bg-gray-700 px-4 py-1 text-sm rounded">LOGOUT</button>
+        
+        <div class="flex justify-between items-center mb-10 border-b border-gray-700 pb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-blue-400">ADMIN DASHBOARD</h1>
+                <p class="text-xs text-gray-500 tracking-widest mt-1">STATUS: ONLINE</p>
+            </div>
+            <button onclick="location.reload()" class="bg-gray-700 hover:bg-gray-600 px-6 py-2 text-sm rounded btn">LOGOUT</button>
         </div>
 
         <div class="grid md:grid-cols-2 gap-8">
+            
             <div>
-                <h2 class="text-xl font-bold text-yellow-400 mb-4 border-b border-yellow-400 pb-2">PENDING DEPOSITS</h2>
-                <div id="deposits" class="space-y-3">Loading...</div>
+                <h2 class="text-xl font-bold text-yellow-400 mb-4 flex items-center gap-2">
+                    <span>📥</span> PENDING DEPOSITS
+                </h2>
+                <div id="deposits" class="space-y-4">
+                    <p class="text-gray-500 animate-pulse">Scanning for requests...</p>
+                </div>
             </div>
 
             <div>
-                <h2 class="text-xl font-bold text-pink-500 mb-4 border-b border-pink-500 pb-2">WITHDRAW REQUESTS</h2>
-                <div id="withdrawals" class="space-y-3">Loading...</div>
+                <h2 class="text-xl font-bold text-pink-500 mb-4 flex items-center gap-2">
+                    <span>📤</span> WITHDRAW REQUESTS
+                </h2>
+                <div id="withdrawals" class="space-y-4">
+                    <p class="text-gray-500 animate-pulse">Scanning for requests...</p>
+                </div>
             </div>
         </div>
 
-        <div class="mt-12">
-            <h2 class="text-xl font-bold text-green-400 mb-4 border-b border-green-400 pb-2">ALL USERS</h2>
-            <div id="users" class="grid gap-2">Loading...</div>
+        <div class="mt-16">
+            <h2 class="text-xl font-bold text-green-400 mb-4 flex items-center gap-2 border-b border-green-900 pb-2">
+                <span>👥</span> USER DATABASE
+            </h2>
+            <div class="glass-panel p-4 overflow-x-auto">
+                <table class="w-full text-left text-sm text-gray-400">
+                    <thead class="text-xs text-gray-200 uppercase bg-gray-800">
+                        <tr>
+                            <th class="px-4 py-3">User Email</th>
+                            <th class="px-4 py-3">Plan</th>
+                            <th class="px-4 py-3">Balance</th>
+                            <th class="px-4 py-3">Invites</th>
+                            <th class="px-4 py-3">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersList">
+                        </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
     <script>
-        // --- FIREBASE CONFIG (Updated) ---
+        // ===========================================
+        // ⚠️ PASTE YOUR FIREBASE CONFIG HERE ⚠️
+        // ===========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -57,124 +94,163 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        // --- AUTH ---
         function check() {
-            if(document.getElementById('u').value === "uzairop6363" && document.getElementById('p').value === "uzairseema+-123") {
+            const u = document.getElementById('u').value;
+            const p = document.getElementById('p').value;
+            // YOUR CREDENTIALS
+            if(u === "uzairop6363" && p === "uzairseema+-123") {
                 document.getElementById('loginOverlay').style.display = 'none';
                 document.getElementById('panel').style.display = 'block';
                 loadData();
-            } else { alert("ACCESS DENIED"); }
+            } else { 
+                alert("ACCESS DENIED: Invalid Credentials"); 
+            }
         }
 
+        // --- DATA LOADING ---
         function loadData() {
-            // 1. Deposits
+            
+            // 1. DEPOSITS
             db.ref('deposits').on('value', snap => {
-                const div = document.getElementById('deposits'); div.innerHTML = "";
+                const div = document.getElementById('deposits'); 
+                div.innerHTML = "";
+                let count = 0;
+                
                 snap.forEach(child => {
                     const d = child.val();
                     if(d.status === "Pending") {
+                        count++;
+                        // Checking if senderNum exists (New Logic) or fallback to TRX
+                        const proof = d.senderNum ? `Sender: <span class="text-white font-mono text-lg">${d.senderNum}</span>` : `TRX: <span class="text-white font-mono">${d.trx}</span>`;
+                        
                         div.innerHTML += `
-                        <div class="bg-gray-800 p-4 border border-yellow-600 rounded">
-                            <p class="text-white font-bold text-lg">${d.amount} PKR</p>
-                            <p class="text-xs text-gray-400">${d.email}</p>
-                            <p class="text-xs text-yellow-500 font-mono">TRX: ${d.trx}</p>
-                            <p class="text-[10px] text-gray-500">Ref: ${d.invitedBy || 'None'}</p>
-                            <div class="mt-2 flex gap-2">
-                                <button onclick="approveDep('${child.key}', '${d.uid}', ${d.amount}, '${d.invitedBy}')" class="bg-green-600 px-3 py-1 text-xs font-bold rounded">APPROVE</button>
-                                <button onclick="rejectDep('${child.key}')" class="bg-red-600 px-3 py-1 text-xs rounded">REJECT</button>
+                        <div class="glass-panel p-5 border-l-4 border-yellow-500 relative">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-yellow-500/20 text-yellow-400 text-[10px] px-2 py-1 rounded font-bold uppercase">${d.method}</span>
+                                <b class="text-2xl text-white">${d.amount}</b>
+                            </div>
+                            <p class="text-xs text-gray-400 mb-2">${d.email}</p>
+                            <div class="bg-black/30 p-2 rounded mb-3 text-yellow-200 text-sm">
+                                ${proof}
+                            </div>
+                            <p class="text-[10px] text-gray-500 mb-3">Referred By: <span class="text-blue-400">${d.invitedBy || 'None'}</span></p>
+                            
+                            <div class="flex gap-2">
+                                <button onclick="approveDep('${child.key}', '${d.uid}', ${d.amount}, '${d.invitedBy}')" class="flex-1 bg-green-600 hover:bg-green-500 text-white py-2 rounded text-xs font-bold btn">APPROVE</button>
+                                <button onclick="rejectDep('${child.key}')" class="flex-1 bg-red-600 hover:bg-red-500 text-white py-2 rounded text-xs font-bold btn">REJECT</button>
                             </div>
                         </div>`;
                     }
                 });
+                if(count === 0) div.innerHTML = '<p class="text-gray-600 italic">No pending deposits.</p>';
             });
 
-            // 2. Withdrawals
+            // 2. WITHDRAWALS
             db.ref('withdrawals').on('value', snap => {
-                const div = document.getElementById('withdrawals'); div.innerHTML = "";
+                const div = document.getElementById('withdrawals'); 
+                div.innerHTML = "";
+                let count = 0;
+
                 snap.forEach(child => {
                     const w = child.val();
                     if(w.status === "Pending") {
+                        count++;
                         div.innerHTML += `
-                        <div class="bg-gray-800 p-4 border border-pink-600 rounded">
-                            <p class="text-white font-bold text-lg">${w.amount} PKR</p>
-                            <p class="text-xs text-gray-400">${w.email}</p>
-                            <div class="bg-black/30 p-2 my-2 text-xs">
-                                <p>Method: ${w.method}</p>
-                                <p>Name: ${w.accName}</p>
-                                <p class="text-pink-400 font-mono">No: ${w.accNum}</p>
+                        <div class="glass-panel p-5 border-l-4 border-pink-500 relative">
+                            <div class="flex justify-between items-start mb-2">
+                                <span class="bg-pink-500/20 text-pink-400 text-[10px] px-2 py-1 rounded font-bold uppercase">${w.method}</span>
+                                <b class="text-2xl text-white">${w.amount}</b>
                             </div>
-                            <button onclick="markPaid('${child.key}')" class="w-full bg-green-600 py-1 text-xs font-bold rounded">MARK AS PAID</button>
+                            <p class="text-xs text-gray-400 mb-3">${w.email}</p>
+                            <div class="bg-black/30 p-3 rounded mb-3 space-y-1">
+                                <p class="text-xs text-gray-400">Name: <span class="text-white">${w.accName}</span></p>
+                                <p class="text-xs text-gray-400">Account: <span class="text-pink-400 font-mono font-bold text-lg">${w.accNum}</span></p>
+                            </div>
+                            <button onclick="markPaid('${child.key}')" class="w-full bg-green-600 hover:bg-green-500 text-white py-2 rounded text-xs font-bold btn">MARK AS PAID</button>
                         </div>`;
                     }
                 });
+                if(count === 0) div.innerHTML = '<p class="text-gray-600 italic">No pending withdrawals.</p>';
             });
 
-            // 3. Users
+            // 3. USERS LIST
             db.ref('users').on('value', snap => {
-                const div = document.getElementById('users'); div.innerHTML = "";
+                const tbody = document.getElementById('usersList'); 
+                tbody.innerHTML = "";
+                
                 snap.forEach(child => {
                     const u = child.val();
-                    div.innerHTML += `
-                    <div class="bg-gray-800 p-2 flex justify-between items-center text-sm border-b border-gray-700">
-                        <span>${u.email}</span>
-                        <div class="flex items-center gap-2">
-                            <b class="text-blue-400">${u.balance}</b>
-                            <button onclick="editBal('${child.key}', ${u.balance})" class="text-[10px] border px-1">EDIT</button>
-                        </div>
-                    </div>`;
+                    tbody.innerHTML += `
+                    <tr class="border-b border-gray-800 hover:bg-gray-800/50">
+                        <td class="px-4 py-3 font-mono">${u.email}</td>
+                        <td class="px-4 py-3"><span class="bg-blue-900 text-blue-300 px-2 py-1 rounded text-xs">${u.plan || 'Free'}</span></td>
+                        <td class="px-4 py-3 font-bold text-green-400">${u.balance}</td>
+                        <td class="px-4 py-3 text-yellow-400">${u.inviteCount || 0}</td>
+                        <td class="px-4 py-3">
+                            <button onclick="editBal('${child.key}', ${u.balance})" class="text-xs border border-gray-600 px-2 py-1 rounded hover:bg-white hover:text-black transition">EDIT</button>
+                        </td>
+                    </tr>`;
                 });
             });
         }
 
         // --- ACTIONS ---
-        
+
+        // 1. APPROVE DEPOSIT (AND REWARD INVITER)
         function approveDep(key, uid, amt, ref) {
-            if(!confirm("Confirm Deposit?")) return;
+            if(!confirm("Are you sure? This will add money to user.")) return;
             
-            // 1. Mark Deposit as Approved
+            // A. Update Status
             db.ref('deposits/'+key).update({status: "Approved"});
             
-            // 2. Add Balance to Depositor (Optional - Usually they buy plans)
-            // But let's add it so they can buy plan
+            // B. Add Balance to the User who deposited
             db.ref('users/'+uid+'/balance').once('value', s => {
-                let curr = s.val() || 0;
-                db.ref('users/'+uid).update({balance: curr + parseInt(amt)});
+                let currentBal = s.val() || 0;
+                db.ref('users/'+uid).update({balance: currentBal + parseInt(amt)});
             });
 
-            // 3. REWARD INVITER (The Logic)
+            // C. THE MAGIC: Reward the Inviter
             if(ref && ref !== "Admin") {
-                db.ref('users').orderByChild('myCode').equalTo(ref).once('value', s => {
-                    s.forEach(inviter => {
-                        let inviterData = inviter.val();
-                        
-                        // Give 1000 Rs
-                        let newBal = (inviterData.balance || 0) + 1000;
-                        
-                        // Increase Invite Count (Unlock Tasks)
-                        let newCount = (inviterData.inviteCount || 0) + 1;
+                db.ref('users').orderByChild('myCode').equalTo(ref).once('value', snapshot => {
+                    if(snapshot.exists()) {
+                        snapshot.forEach(inviter => {
+                            let iData = inviter.val();
+                            
+                            // Calculation: Old Balance + 1000
+                            let newInviterBalance = (iData.balance || 0) + 1000;
+                            // Increase Invite Count (This unlocks tasks)
+                            let newInviteCount = (iData.inviteCount || 0) + 1;
 
-                        db.ref('users/'+inviter.key).update({
-                            balance: newBal,
-                            inviteCount: newCount
+                            db.ref('users/'+inviter.key).update({
+                                balance: newInviterBalance,
+                                inviteCount: newInviteCount
+                            });
+                            
+                            alert(`Deposit Approved!\nUser got ${amt}.\nInviter (${iData.name}) got 1000 Reward + 1 Invite Count.`);
                         });
-                        alert("Approved! Inviter ("+ref+") rewarded.");
-                    });
+                    } else {
+                        alert("Deposit Approved! (Inviter Code Invalid)");
+                    }
                 });
             } else {
-                alert("Deposit Approved! (No Inviter found)");
+                alert("Deposit Approved! (No Inviter)");
             }
         }
 
-        function rejectDep(key) { if(confirm("Reject?")) db.ref('deposits/'+key).update({status: "Rejected"}); }
+        function rejectDep(key) {
+            if(confirm("Reject this deposit?")) db.ref('deposits/'+key).update({status: "Rejected"});
+        }
 
         function markPaid(key) {
-            if(confirm("Have you sent the money? Mark as Paid?")) {
+            if(confirm("Did you send the money? Mark as Paid?")) {
                 db.ref('withdrawals/'+key).update({status: "Paid"});
             }
         }
 
         function editBal(uid, old) {
-            let n = prompt("New Balance:", old);
-            if(n) db.ref('users/'+uid).update({balance: parseInt(n)});
+            let n = prompt("Enter New Balance:", old);
+            if(n !== null) db.ref('users/'+uid).update({balance: parseInt(n)});
         }
     </script>
 </body>
