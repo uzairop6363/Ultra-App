@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
-    <title>Ultra Earn</title>
+    <title>Ultra Earn - TASK FORCE</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Exo+2:wght@300;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Bruno+Ace+SC&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -15,180 +15,209 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
     <style>
-        body { background-color: #000; color: #fff; font-family: 'Exo 2', sans-serif; min-height: 100vh; overflow-x: hidden; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
-        h1, h2, h3, .god-font { font-family: 'Syncopate', sans-serif; letter-spacing: 1px; }
-
-        /* GOD BACKGROUND */
-        .god-bg { position: fixed; inset: 0; z-index: -2; background: #000; }
-        .god-bg::before { content: ''; position: absolute; inset: -50%; background: conic-gradient(from 0deg, #ff0000, #0000ff, #ffa500, #ffffff, #ff0000, #0000ff, #ffa500, #ffffff); filter: blur(80px); opacity: 0.4; animation: slowSpin 20s linear infinite; }
-        @keyframes slowSpin { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
-
-        /* GRANDFATHER CARDS */
-        .gf-card { position: relative; background: rgba(10, 10, 10, 0.9); border-radius: 20px; z-index: 1; overflow: hidden; }
-        .gf-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(transparent, transparent, transparent, var(--color1), var(--color2), var(--color1)); animation: rotate 4s linear infinite; z-index: -2; }
-        .gf-card::after { content: ''; position: absolute; inset: 2px; background: rgba(5, 5, 5, 0.95); border-radius: 18px; z-index: -1; }
-        @keyframes rotate { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
-
-        .tier-border { --color1: #00ff00; --color2: #a200ff; }
-        .profit-border { --color1: #00ffff; --color2: #ff00de; }
-        .gold-border { --color1: #ffd700; --color2: #ff8c00; }
-        .starter-border { --color1: #007bff; --color2: #ffffff; }
-        .vip-border { --color1: #ff0000; --color2: #ffff00; }
-        .balance-border { --color1: #ffffff; --color2: #00ffea; }
-
-        /* BUTTONS & INPUTS */
-        .god-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; font-weight: 800; box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); transition: 0.3s; position: relative; overflow: hidden; }
-        .god-btn:active { transform: scale(0.95); box-shadow: 0 0 50px rgba(255, 0, 85, 1); }
-        .god-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-family: 'Exo 2', sans-serif; transition: 0.3s; }
-        .god-input:focus { border-color: #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.3); outline: none; background: rgba(0,0,0,0.8); }
+        body { background-color: #000; color: #fff; font-family: 'Orbitron', sans-serif; min-height: 100vh; overflow-x: hidden; padding-bottom: 120px; -webkit-tap-highlight-color: transparent; }
         
+        /* PLASMA BACKGROUND */
+        .plasma-bg { position: fixed; inset: 0; z-index: -2; background: radial-gradient(circle at 50% 50%, #0f0c29, #302b63, #24243e); }
+        .grid-overlay { position: absolute; inset: 0; background-image: linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px); background-size: 30px 30px; opacity: 0.2; }
+
+        /* TASK CARDS */
+        .task-card {
+            background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 16px; padding: 16px; margin-bottom: 12px;
+            display: flex; justify-content: space-between; items-center;
+            transition: 0.3s; position: relative; overflow: hidden;
+        }
+        .task-card.locked { opacity: 0.7; border-color: #ff0055; }
+        .task-card.locked::after {
+            content: 'LOCKED'; position: absolute; inset: 0; background: rgba(0,0,0,0.8);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: bold; color: #ff0055; letter-spacing: 4px;
+            backdrop-filter: blur(2px);
+        }
+
+        /* BUTTONS */
+        .god-btn {
+            background: #000; color: #00ffff; border: 1px solid #00ffff;
+            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); transition: 0.2s;
+        }
+        .god-btn:active { background: #00ffff; color: #000; }
+
+        .unlock-btn {
+            background: linear-gradient(90deg, #ff0055, #ff00aa); border: none; color: white;
+            box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); width: 100%; padding: 15px;
+            border-radius: 12px; font-weight: bold; margin-top: 10px; text-transform: uppercase;
+        }
+
         /* UTILS */
-        .tab-content { display: none; animation: blastIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .cyber-input { background: #111; border: 1px solid #333; color: #fff; padding: 12px; width: 100%; border-radius: 8px; outline: none; }
+        .tab-content { display: none; animation: fadeIn 0.5s; }
         .active-tab { display: block; }
-        @keyframes blastIn { from { opacity: 0; transform: scale(0.5); filter: blur(10px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 100; justify-content: center; align-items: center; }
-        .pulse-ring { width: 80px; height: 80px; border-radius: 50%; border: 4px solid #fff; animation: ring 1.5s infinite; }
-        @keyframes ring { 0% {transform: scale(0.5); opacity: 1;} 100% {transform: scale(1.5); opacity: 0;} }
     </style>
 </head>
 <body>
 
-    <div class="god-bg"></div>
-    <div id="loader"><div class="pulse-ring"></div><p class="absolute mt-24 font-bold text-white tracking-widest text-xs">LOADING...</p></div>
+    <div class="plasma-bg"><div class="grid-overlay"></div></div>
+    <div id="loader"><div class="w-16 h-16 border-4 border-t-[#00ffff] rounded-full animate-spin"></div></div>
 
-    <div id="guideModal" class="hidden fixed inset-0 z-[110] bg-black/95 flex items-center justify-center p-4 backdrop-blur-md">
-        <div class="gf-card gold-border w-full max-w-sm p-6 text-center">
-            <h2 class="text-2xl font-bold text-yellow-400 mb-4 god-font">WELCOME</h2>
-            <div class="space-y-4 text-sm text-gray-300 text-left">
-                <p><strong class="text-white">1. Deposit:</strong> Account me paise dalny ke liye Deposit button dabayen aur diye gaye number par bhejen.</p>
-                <p><strong class="text-white">2. Earning:</strong> Plans wale section me ja kar Plan khareeden, earning khud shuru ho jayegi.</p>
-                <p><strong class="text-white">3. Withdraw:</strong> Jab paise ban jayen to Withdraw button se JazzCash/Easypaisa me nikalwa len.</p>
-                <p><strong class="text-white">4. Invite:</strong> Doston ko invite karen aur free commission hasil karen.</p>
+    <div id="guideModal" class="hidden fixed inset-0 z-[110] bg-black/95 flex items-center justify-center p-4">
+        <div class="bg-[#111] border border-[#00ffff] w-full max-w-sm p-6 rounded-2xl text-center">
+            <h2 class="text-xl font-bold text-[#00ffff] mb-4">KAAM KAISE KAREN?</h2>
+            <div class="text-sm text-gray-300 space-y-3 text-left">
+                <p>🚀 <strong>1. Tasks:</strong> Rozana apko 5 Tasks milenge (Total 1000 Rs).</p>
+                <p>🔒 <strong>2. Unlock:</strong> Tasks locked honge. Inhen kholne ke liye "Unlock Now" dabayen.</p>
+                <p>👥 <strong>3. Invite:</strong> Apne kisi dost ko invite karen (2000 wala plan).</p>
+                <p>💰 <strong>4. Reward:</strong> Jaise hi dost deposit karega, apke tasks unlock ho jayenge aur 1000 Rs mil jayenge.</p>
             </div>
-            <button onclick="closeGuide()" class="god-btn w-full py-3 mt-6 rounded-lg uppercase">Start Earning</button>
+            <button onclick="closeGuide()" class="god-btn w-full py-3 mt-6 rounded font-bold">START WORK</button>
         </div>
     </div>
 
-    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto bg-black/80 backdrop-blur-md">
-        <div class="gf-card balance-border p-8 w-full max-w-sm mx-auto text-center">
-            <h1 class="text-4xl mb-2 font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 god-font">ULTRA</h1>
-            <div id="loginForm" class="space-y-6">
-                <input type="email" id="loginEmail" placeholder="USER EMAIL" class="god-input w-full p-4 rounded-lg text-center">
-                <input type="password" id="loginPass" placeholder="PASSWORD" class="god-input w-full p-4 rounded-lg text-center">
-                <button onclick="login()" class="god-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase">LOGIN</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-4 cursor-pointer hover:text-white border-b border-gray-600 inline-block">CREATE ACCOUNT</p>
+    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 bg-black/90">
+        <div class="text-center w-full max-w-sm mx-auto">
+            <h1 class="text-5xl font-black text-white mb-2 tracking-tighter" style="text-shadow: 0 0 20px #00ffff;">TASK FORCE</h1>
+            <p class="text-[#00ffff] text-xs tracking-[0.5em] mb-10">DAILY EARNINGS</p>
+
+            <div id="loginForm" class="space-y-4">
+                <input type="email" id="loginEmail" placeholder="EMAIL" class="cyber-input text-center">
+                <input type="password" id="loginPass" placeholder="PASSWORD" class="cyber-input text-center">
+                <button onclick="login()" class="god-btn w-full py-3 rounded text-lg font-bold">LOGIN</button>
+                <p onclick="toggleAuth()" class="text-xs text-gray-500 mt-4 cursor-pointer hover:text-[#00ffff]">CREATE ACCOUNT</p>
             </div>
-            <div id="registerForm" class="hidden space-y-6">
-                <div id="autoRefBadge" class="hidden border border-white/50 p-2 text-white text-xs uppercase tracking-widest rounded mb-4">Referred By: <span id="inviterId" class="text-yellow-400">...</span></div>
-                <input type="text" id="regName" placeholder="YOUR NAME" class="god-input w-full p-4 rounded-lg text-center">
-                <input type="email" id="regEmail" placeholder="EMAIL" class="god-input w-full p-4 rounded-lg text-center">
-                <input type="password" id="regPass" placeholder="PASSWORD" class="god-input w-full p-4 rounded-lg text-center">
-                <button onclick="register()" class="god-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase bg-gradient-to-r from-blue-600 to-cyan-500">JOIN NOW</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-4 cursor-pointer hover:text-white">BACK TO LOGIN</p>
+
+            <div id="registerForm" class="hidden space-y-4">
+                <div id="autoRefBadge" class="hidden border border-[#00ffff] p-2 text-[#00ffff] text-xs rounded mb-2">Referred By: <span id="inviterId">...</span></div>
+                <input type="text" id="regName" placeholder="NAME" class="cyber-input text-center">
+                <input type="email" id="regEmail" placeholder="EMAIL" class="cyber-input text-center">
+                <input type="password" id="regPass" placeholder="PASSWORD" class="cyber-input text-center">
+                <button onclick="register()" class="god-btn w-full py-3 rounded text-lg font-bold">REGISTER</button>
+                <p onclick="toggleAuth()" class="text-xs text-gray-500 mt-4 cursor-pointer hover:text-[#00ffff]">BACK TO LOGIN</p>
             </div>
-            <p id="authMsg" class="text-red-500 text-xs mt-4 font-bold uppercase"></p>
+            <p id="authMsg" class="text-red-500 text-xs mt-4"></p>
         </div>
     </div>
 
     <div id="mainApp" style="display:none;" class="max-w-md mx-auto">
-        <div class="flex justify-between items-center p-6">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_0_20px_white]"><i class="fa-solid fa-crown text-black text-xl"></i></div>
-                <div><h2 class="text-lg font-bold text-white god-font" id="userNameDisplay">USER</h2><p class="text-[10px] text-gray-400 uppercase tracking-widest">System Online</p></div>
-            </div>
-            <button onclick="logout()" class="text-white hover:text-red-500 transition duration-300"><i class="fa-solid fa-power-off text-2xl drop-shadow-[0_0_10px_white]"></i></button>
+        <div class="flex justify-between items-center p-6 border-b border-[#00ffff]/20">
+            <div><h2 class="text-lg font-bold text-white" id="userNameDisplay">USER</h2><p class="text-[10px] text-[#00ffff]">Status: Active</p></div>
+            <button onclick="logout()" class="text-red-500"><i class="fa-solid fa-power-off text-xl"></i></button>
         </div>
 
-        <div id="tab-home" class="tab-content px-4 pt-4">
-            <div class="gf-card balance-border p-8 mb-8 text-center relative">
-                <p class="text-gray-400 text-xs tracking-[0.4em] uppercase mb-4">Total Balance</p>
-                <h1 class="text-5xl font-black mb-8 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"><span class="text-2xl text-gray-500">Rs.</span><span id="bigBalance">0</span></h1>
-                <div class="flex gap-4 justify-center">
-                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="bg-white text-black px-8 py-3 rounded-full font-bold uppercase hover:scale-105 transition shadow-[0_0_20px_white]">Deposit</button>
-                    <button onclick="openWithdrawModal()" class="bg-transparent border border-white text-white px-8 py-3 rounded-full font-bold uppercase hover:bg-white/10 transition">Withdraw</button>
+        <div id="tab-tasks" class="tab-content px-4 pt-6">
+            <div class="bg-[#111] border border-[#00ffff] p-6 rounded-2xl text-center mb-8 shadow-[0_0_20px_rgba(0,255,255,0.2)]">
+                <p class="text-gray-400 text-xs uppercase tracking-widest mb-2">Wallet Balance</p>
+                <h1 class="text-4xl font-bold text-white mb-4">Rs. <span id="bigBalance">0</span></h1>
+                <div class="flex gap-2">
+                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="flex-1 bg-[#00ffff] text-black py-2 rounded font-bold text-xs">DEPOSIT</button>
+                    <button onclick="openWithdrawModal()" class="flex-1 border border-[#00ffff] text-[#00ffff] py-2 rounded font-bold text-xs">WITHDRAW</button>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <div class="gf-card tier-border p-5 text-center"><i class="fa-solid fa-layer-group text-purple-400 text-2xl mb-2"></i><p class="text-gray-400 text-[10px] uppercase">Plan</p><p id="planDisplay" class="text-xl font-bold text-green-400 god-font">FREE</p></div>
-                <div class="gf-card profit-border p-5 text-center"><i class="fa-solid fa-chart-line text-cyan-400 text-2xl mb-2"></i><p class="text-gray-400 text-[10px] uppercase">Profit</p><p id="commissionDisplay" class="text-xl font-bold text-pink-500 god-font">0%</p></div>
+
+            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-list-check text-[#00ffff]"></i> DAILY TASKS</h2>
+            
+            <div class="space-y-4" id="taskList">
+                <div class="task-card locked">
+                    <div>
+                        <h4 class="font-bold text-white">Watch Ad Video</h4>
+                        <p class="text-xs text-gray-400">Reward: 200 PKR</p>
+                    </div>
+                    <i class="fa-solid fa-play text-gray-500 text-xl"></i>
+                </div>
+                <div class="task-card locked">
+                    <div>
+                        <h4 class="font-bold text-white">Rate Application</h4>
+                        <p class="text-xs text-gray-400">Reward: 200 PKR</p>
+                    </div>
+                    <i class="fa-solid fa-star text-gray-500 text-xl"></i>
+                </div>
+                <div class="task-card locked">
+                    <div>
+                        <h4 class="font-bold text-white">Visit Website</h4>
+                        <p class="text-xs text-gray-400">Reward: 200 PKR</p>
+                    </div>
+                    <i class="fa-solid fa-globe text-gray-500 text-xl"></i>
+                </div>
+                <div class="task-card locked">
+                    <div>
+                        <h4 class="font-bold text-white">Daily Check-in</h4>
+                        <p class="text-xs text-gray-400">Reward: 200 PKR</p>
+                    </div>
+                    <i class="fa-solid fa-calendar-check text-gray-500 text-xl"></i>
+                </div>
+                <div class="task-card locked">
+                    <div>
+                        <h4 class="font-bold text-white">Bonus Task</h4>
+                        <p class="text-xs text-gray-400">Reward: 200 PKR</p>
+                    </div>
+                    <i class="fa-solid fa-gift text-gray-500 text-xl"></i>
+                </div>
             </div>
-            <div onclick="switchTab('team')" class="gf-card gold-border p-5 flex items-center justify-between cursor-pointer group">
-                <div class="flex items-center gap-4"><div class="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center text-yellow-400 text-2xl"><i class="fa-solid fa-users"></i></div><div><h3 class="text-lg font-bold text-white god-font">REFERRAL</h3><p class="text-[10px] text-gray-400">Earn Passive Income</p></div></div><i class="fa-solid fa-chevron-right text-white"></i>
+
+            <div class="mt-6 p-4 bg-[#1a1a1a] rounded-xl border border-[#ff0055] text-center">
+                <p class="text-xs text-gray-400 mb-2">Tasks are currently LOCKED.</p>
+                <h3 class="text-lg font-bold text-white mb-2">TOTAL VALUE: <span class="text-[#00ffff]">1000 PKR</span></h3>
+                <button onclick="shareLink()" class="unlock-btn animate-pulse">
+                    <i class="fa-solid fa-lock-open mr-2"></i> INVITE 1 FRIEND TO UNLOCK
+                </button>
+                <p class="text-[10px] text-gray-500 mt-2">*Friend must activate 2000 PKR Plan</p>
             </div>
         </div>
 
-        <div id="tab-plans" class="tab-content px-4 pt-4">
-            <h2 class="text-2xl font-bold mb-6 text-white god-font text-center">SELECT TIER</h2>
-            <div class="space-y-6">
-                <div class="gf-card starter-border p-6">
-                    <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-blue-400 god-font">STARTER</h3><span class="text-xl font-bold text-white">RS 500</span></div>
-                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full border border-blue-500 text-blue-400 py-3 rounded font-bold uppercase hover:bg-blue-500 hover:text-white transition">Purchase</button>
-                </div>
-                <div class="gf-card gold-border p-6">
-                    <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-yellow-400 god-font">GOLD PRO</h3><span class="text-xl font-bold text-white">RS 2000</span></div>
-                    <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-black py-3 rounded font-bold uppercase">Purchase</button>
-                </div>
-                <div class="gf-card vip-border p-6">
-                    <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-red-500 god-font">VIP GOD</h3><span class="text-xl font-bold text-white">RS 5000</span></div>
-                    <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full border border-red-500 text-red-500 py-3 rounded font-bold uppercase hover:bg-red-500 hover:text-white transition">Purchase</button>
-                </div>
+        <div id="tab-me" class="tab-content px-4 pt-6 text-center">
+            <div class="w-24 h-24 mx-auto rounded-full border-2 border-[#00ffff] bg-black flex items-center justify-center mb-4">
+                <i class="fa-solid fa-user-astronaut text-4xl text-white"></i>
             </div>
-        </div>
-
-        <div id="tab-team" class="tab-content px-4 pt-10 text-center">
-            <div class="w-32 h-32 mx-auto rounded-full bg-black border-2 border-white flex items-center justify-center mb-8 shadow-[0_0_30px_white] animate-pulse"><i class="fa-solid fa-network-wired text-5xl text-white"></i></div>
-            <h2 class="text-3xl font-bold text-white mb-2 god-font">INVITE</h2>
-            <div class="gf-card balance-border p-4 mb-8 flex items-center justify-between rounded">
-                <code id="myLinkDisplay" class="text-xs text-cyan-400 truncate select-all">GENERATING...</code><i class="fa-solid fa-copy text-white"></i>
+            <h2 class="text-xl font-bold text-white" id="profileName">USER</h2>
+            <div class="bg-[#111] p-3 rounded mt-4 flex justify-between items-center border border-gray-800">
+                <p class="text-xs text-gray-400">YOUR LINK:</p>
+                <code id="myLinkDisplay" class="text-xs text-[#00ffff] select-all">Loading...</code>
             </div>
-            <button onclick="shareLink()" class="god-btn w-full py-4 rounded-lg font-bold flex items-center justify-center gap-3 text-lg"><i class="fa-brands fa-whatsapp text-2xl"></i> SHARE YOUR LINK</button>
+            <button onclick="logout()" class="w-full border border-red-500 text-red-500 py-3 mt-6 rounded font-bold">LOGOUT</button>
         </div>
     </div>
 
     <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-        <div class="gf-card profit-border w-full max-w-sm p-8">
-            <div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-bold text-white god-font">DEPOSIT</h3><button onclick="document.getElementById('depositModal').style.display='none'" class="text-gray-500 hover:text-white text-2xl">✕</button></div>
-            <div class="border border-white/20 p-4 rounded mb-6 text-center">
-                <p class="text-[10px] text-gray-500 uppercase tracking-[0.2em] mb-2">Send Money To</p>
-                <p class="text-2xl text-white font-mono tracking-widest">0311-1813896</p>
-                <p class="text-sm text-pink-500 mt-1 font-bold">OBAID ALI (Easypaisa)</p>
+        <div class="bg-[#111] border border-[#00ffff] w-full max-w-sm p-6 rounded-2xl relative">
+            <button onclick="document.getElementById('depositModal').style.display='none'" class="absolute top-4 right-4 text-gray-500">✕</button>
+            <h3 class="text-xl font-bold text-[#00ffff] mb-4">DEPOSIT FUNDS</h3>
+            <div class="bg-[#00ffff]/10 p-4 rounded mb-4 text-center border border-[#00ffff]/30">
+                <p class="text-[10px] text-gray-400 uppercase">Easypaisa Account</p>
+                <p class="text-2xl font-mono text-white font-bold my-1">0311-1813896</p>
+                <p class="text-xs text-[#ff00ff] font-bold">OBAID ALI</p>
             </div>
-            <div class="space-y-4">
-                <p class="text-xs text-center text-gray-400">Pese bhej kar TRX ID neechay likhen:</p>
-                <input type="number" id="depAmt" placeholder="AMOUNT (PKR)" class="god-input w-full p-4 rounded text-center">
-                <input type="text" id="trxID" placeholder="TRX ID" class="god-input w-full p-4 rounded text-center">
-                <button onclick="submitDeposit()" class="god-btn w-full py-4 rounded font-bold tracking-widest">VERIFY PAYMENT</button>
-            </div>
+            <p class="text-xs text-gray-400 mb-2">Amount send karne ke baad TRX ID likhen:</p>
+            <input type="number" id="depAmt" placeholder="Amount (e.g 2000)" class="cyber-input mb-3">
+            <input type="text" id="trxID" placeholder="TRX ID" class="cyber-input mb-4">
+            <button onclick="submitDeposit()" class="god-btn w-full py-3 rounded font-bold">SUBMIT REQUEST</button>
         </div>
     </div>
 
     <div id="withdrawModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-        <div class="gf-card vip-border w-full max-w-sm p-8">
-            <div class="flex justify-between items-center mb-8"><h3 class="text-2xl font-bold text-white god-font">WITHDRAW</h3><button onclick="document.getElementById('withdrawModal').style.display='none'" class="text-gray-500 hover:text-white text-2xl">✕</button></div>
-            <div class="space-y-4">
-                <select id="withMethod" class="god-input w-full p-4 rounded bg-black">
+        <div class="bg-[#111] border border-[#ff00ff] w-full max-w-sm p-6 rounded-2xl relative">
+            <button onclick="document.getElementById('withdrawModal').style.display='none'" class="absolute top-4 right-4 text-gray-500">✕</button>
+            <h3 class="text-xl font-bold text-[#ff00ff] mb-4">WITHDRAW MONEY</h3>
+            <div class="space-y-3">
+                <select id="withMethod" class="cyber-input">
                     <option value="Easypaisa">Easypaisa</option>
                     <option value="JazzCash">JazzCash</option>
                 </select>
-                <input type="text" id="withName" placeholder="ACCOUNT NAME" class="god-input w-full p-4 rounded">
-                <input type="number" id="withNum" placeholder="ACCOUNT NUMBER" class="god-input w-full p-4 rounded">
-                <input type="number" id="withAmt" placeholder="AMOUNT (Min 100)" class="god-input w-full p-4 rounded">
-                <button onclick="submitWithdraw()" class="god-btn w-full py-4 rounded font-bold tracking-widest">SEND REQUEST</button>
+                <input type="text" id="withName" placeholder="Account Name" class="cyber-input">
+                <input type="number" id="withNum" placeholder="Account Number" class="cyber-input">
+                <input type="number" id="withAmt" placeholder="Amount (Min 500)" class="cyber-input">
+                <button onclick="submitWithdraw()" class="god-btn w-full py-3 rounded font-bold" style="border-color:#ff00ff; color:#ff00ff">CONFIRM WITHDRAW</button>
             </div>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full z-40 bg-black/90 backdrop-blur-md border-t border-white/10 pb-6 pt-4">
-        <div class="flex justify-around max-w-md mx-auto">
-            <div onclick="switchTab('home')" class="nav-btn text-white group cursor-pointer flex flex-col items-center"><i class="fa-solid fa-house text-xl mb-1 drop-shadow-[0_0_10px_white]"></i><span class="text-[8px] uppercase tracking-widest">Home</span></div>
-            <div onclick="switchTab('plans')" class="nav-btn text-gray-500 group cursor-pointer flex flex-col items-center"><i class="fa-solid fa-cube text-xl mb-1"></i><span class="text-[8px] uppercase tracking-widest">Plans</span></div>
-            <div onclick="switchTab('team')" class="nav-btn text-gray-500 group cursor-pointer flex flex-col items-center"><i class="fa-solid fa-users text-xl mb-1"></i><span class="text-[8px] uppercase tracking-widest">Team</span></div>
-        </div>
+    <div class="fixed bottom-0 left-0 w-full bg-black/90 border-t border-[#333] p-4 flex justify-around z-40">
+        <div onclick="switchTab('tasks')" class="text-center cursor-pointer text-[#00ffff]"><i class="fa-solid fa-list-check text-xl"></i><p class="text-[10px]">TASKS</p></div>
+        <div onclick="switchTab('me')" class="text-center cursor-pointer text-gray-500 hover:text-white"><i class="fa-solid fa-user text-xl"></i><p class="text-[10px]">ME</p></div>
     </div>
+
     <script>
-        // ===========================================
-        // ⚠️ PASTE YOUR FIREBASE CONFIG HERE ⚠️
-        // ===========================================
+        // --- PASTE FIREBASE CONFIG HERE ---
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -211,17 +240,10 @@
                 document.getElementById('inviterId').innerText = detectedReferral;
                 toggleAuth();
             }
-            
-            // Show Guide on Load
-            if (!localStorage.getItem("guideSeen")) {
-                setTimeout(() => document.getElementById('guideModal').style.display = 'flex', 1500);
-            }
+            if (!localStorage.getItem("guideSeen")) { setTimeout(() => document.getElementById('guideModal').style.display = 'flex', 1500); }
         };
 
-        function closeGuide() {
-            document.getElementById('guideModal').style.display = 'none';
-            localStorage.setItem("guideSeen", "true");
-        }
+        function closeGuide() { document.getElementById('guideModal').style.display = 'none'; localStorage.setItem("guideSeen", "true"); }
 
         function register() {
             const email = document.getElementById('regEmail').value, pass = document.getElementById('regPass').value, name = document.getElementById('regName').value;
@@ -230,7 +252,7 @@
             const myNewCode = "U-" + Math.floor(10000 + Math.random() * 90000);
             auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
                 db.ref('users/' + cred.user.uid).set({
-                    name: name, email: email, myCode: myNewCode, invitedBy: detectedReferral, balance: 0, plan: "Free", commissionRate: 0
+                    name: name, email: email, myCode: myNewCode, invitedBy: detectedReferral, balance: 0, plan: "Free"
                 }).then(() => { showLoader(false); window.location.href = window.location.origin + window.location.pathname; });
             }).catch(e => { showLoader(false); document.getElementById('authMsg').innerText = e.message; });
         }
@@ -255,9 +277,8 @@
                     myData = snap.val();
                     if(myData) {
                         document.getElementById('userNameDisplay').innerText = myData.name;
+                        document.getElementById('profileName').innerText = myData.name;
                         document.getElementById('bigBalance').innerText = myData.balance;
-                        document.getElementById('planDisplay').innerText = myData.plan;
-                        document.getElementById('commissionDisplay').innerText = myData.commissionRate + "%";
                         const link = window.location.origin + window.location.pathname + "?ref=" + myData.myCode;
                         document.getElementById('myLinkDisplay').innerText = link;
                     }
@@ -269,59 +290,33 @@
             const amt = document.getElementById('depAmt').value, trx = document.getElementById('trxID').value;
             if(!amt || !trx) return alert("Fill all fields");
             db.ref('deposits').push({ uid: currentUser.uid, email: myData.email, amount: amt, trx: trx, invitedBy: myData.invitedBy, status: "Pending", timestamp: Date.now() });
-            alert("Deposit Request Sent!"); document.getElementById('depositModal').style.display='none';
+            alert("Request Sent! Admin will approve."); document.getElementById('depositModal').style.display='none';
         }
 
-        // WITHDRAW LOGIC
         function openWithdrawModal() {
-            if(myData.balance < 100) return alert("Min Withdraw 100 PKR");
+            if(myData.balance < 500) return alert("Min Withdraw 500 PKR");
             document.getElementById('withdrawModal').style.display = 'flex';
         }
 
         function submitWithdraw() {
-            const method = document.getElementById('withMethod').value;
-            const name = document.getElementById('withName').value;
-            const num = document.getElementById('withNum').value;
-            const amt = parseInt(document.getElementById('withAmt').value);
-
-            if(!name || !num || !amt) return alert("Fill details");
+            const method = document.getElementById('withMethod').value, name = document.getElementById('withName').value, num = document.getElementById('withNum').value, amt = parseInt(document.getElementById('withAmt').value);
+            if(!name || !num || !amt) return alert("Fill all fields");
             if(amt > myData.balance) return alert("Insufficient Balance");
-
-            if(confirm("Confirm Withdraw " + amt + " PKR?")) {
+            if(confirm("Confirm Withdraw?")) {
                 db.ref('users/' + currentUser.uid).update({ balance: myData.balance - amt });
-                db.ref('withdrawals').push({
-                    uid: currentUser.uid, email: myData.email, amount: amt, method: method, accName: name, accNum: num, status: "Pending", timestamp: Date.now()
-                });
-                alert("Withdraw Request Sent!");
-                document.getElementById('withdrawModal').style.display='none';
+                db.ref('withdrawals').push({ uid: currentUser.uid, email: myData.email, amount: amt, method: method, accName: name, accNum: num, status: "Pending", timestamp: Date.now() });
+                alert("Withdrawal Sent!"); document.getElementById('withdrawModal').style.display='none';
             }
-        }
-
-        function buyPlan(price, name, rate) {
-            if(myData.balance >= price) {
-                if(confirm("Purchase " + name + "?")) {
-                    db.ref('users/' + currentUser.uid).update({ balance: myData.balance - price, plan: name, commissionRate: rate });
-                    alert("Activated!");
-                }
-            } else { alert("Low Balance!"); document.getElementById('depositModal').style.display='flex'; }
         }
 
         function shareLink() { 
             const link = document.getElementById('myLinkDisplay').innerText;
-            window.open("https://wa.me/?text=" + encodeURIComponent("🚀 Join Ultra Earn!\n\n👇 Click here:\n" + link), '_blank'); 
+            window.open("https://wa.me/?text=" + encodeURIComponent("🔥 Unlock 1000 PKR instantly! Join Ultra Earn and complete tasks.\n\n👇 Click here:\n" + link), '_blank'); 
         }
         
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
             document.getElementById('tab-' + tab).classList.add('active-tab');
-            document.querySelectorAll('.nav-btn i').forEach(b => { b.classList.remove('text-white', 'drop-shadow-[0_0_10px_white]'); b.classList.add('text-gray-500'); });
-            document.querySelectorAll('.nav-btn span').forEach(b => { b.classList.remove('text-white'); b.classList.add('text-gray-500'); });
-            
-            const activeBtn = event.currentTarget;
-            activeBtn.querySelector('i').classList.add('text-white', 'drop-shadow-[0_0_10px_white]');
-            activeBtn.querySelector('i').classList.remove('text-gray-500');
-            activeBtn.querySelector('span').classList.add('text-white');
-            activeBtn.querySelector('span').classList.remove('text-gray-500');
         }
     </script>
 </body>
