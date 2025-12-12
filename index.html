@@ -18,165 +18,194 @@
         body { background-color: #000; color: #fff; font-family: 'Exo 2', sans-serif; min-height: 100vh; overflow-x: hidden; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
         h1, h2, h3, .god-font { font-family: 'Syncopate', sans-serif; letter-spacing: 1px; }
 
-        /* THEME */
+        /* GOD BACKGROUND */
         .god-bg { position: fixed; inset: 0; z-index: -2; background: #000; }
         .god-bg::before { content: ''; position: absolute; inset: -50%; background: conic-gradient(from 0deg, #ff0000, #0000ff, #ffa500, #ffffff, #ff0000, #0000ff, #ffa500, #ffffff); filter: blur(80px); opacity: 0.4; animation: slowSpin 20s linear infinite; }
         @keyframes slowSpin { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
 
+        /* CARDS */
         .gf-card { position: relative; background: rgba(10, 10, 10, 0.9); border-radius: 20px; z-index: 1; overflow: hidden; margin-bottom: 15px; }
         .gf-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(transparent, transparent, transparent, var(--color1), var(--color2), var(--color1)); animation: rotate 4s linear infinite; z-index: -2; }
         .gf-card::after { content: ''; position: absolute; inset: 2px; background: rgba(5, 5, 5, 0.95); border-radius: 18px; z-index: -1; }
         @keyframes rotate { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
 
+        .tier-border { --color1: #00ff00; --color2: #a200ff; }
+        .profit-border { --color1: #00ffff; --color2: #ff00de; }
         .gold-border { --color1: #ffd700; --color2: #ff8c00; }
+        .starter-border { --color1: #007bff; --color2: #ffffff; }
         .vip-border { --color1: #ff0000; --color2: #ffff00; }
         .balance-border { --color1: #ffffff; --color2: #00ffea; }
         .locked-border { --color1: #ff0000; --color2: #550000; }
         .unlocked-border { --color1: #00ff00; --color2: #00ffff; }
 
-        .god-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; font-weight: 800; box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); transition: 0.3s; }
-        .god-btn:active { transform: scale(0.95); }
-        .god-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 10px; border-radius: 8px; width: 100%; }
-        
-        .tab-content { display: none; } .active-tab { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* BUTTONS */
+        .god-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; font-weight: 800; box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); transition: 0.3s; position: relative; overflow: hidden; }
+        .god-btn:active { transform: scale(0.95); box-shadow: 0 0 50px rgba(255, 0, 85, 1); }
+        .god-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-family: 'Exo 2', sans-serif; transition: 0.3s; }
+        .god-input:focus { border-color: #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.3); outline: none; background: rgba(0,0,0,0.8); }
+        select.god-input option { background: #000; }
+
+        /* UTILS */
+        .tab-content { display: none; animation: blastIn 0.5s; } .active-tab { display: block; }
+        @keyframes blastIn { from { opacity: 0; transform: scale(0.8); filter: blur(10px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
         #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 100; justify-content: center; align-items: center; }
+        .pulse-ring { width: 80px; height: 80px; border-radius: 50%; border: 4px solid #fff; animation: ring 1.5s infinite; }
+        @keyframes ring { 0% {transform: scale(0.5); opacity: 1;} 100% {transform: scale(1.5); opacity: 0;} }
     </style>
 </head>
 <body>
 
     <div class="god-bg"></div>
-    <div id="loader"><p class="text-white font-bold animate-pulse">LOADING SYSTEM...</p></div>
+    <div id="loader"><div class="pulse-ring"></div><p class="absolute mt-24 font-bold text-white tracking-widest text-xs">LOADING...</p></div>
 
-    <div id="guideModal" class="hidden fixed inset-0 z-[110] bg-black/95 flex items-center justify-center p-4">
+    <div id="guideModal" class="hidden fixed inset-0 z-[110] bg-black/95 flex items-center justify-center p-4 backdrop-blur-md">
         <div class="gf-card gold-border w-full max-w-sm p-6 text-center">
-            <h2 class="text-xl font-bold text-yellow-400 mb-4 god-font">INSTRUCTIONS</h2>
-            <div class="space-y-3 text-sm text-gray-300 text-left">
-                <p>1. <strong>Tasks:</strong> 500+ Tasks Available. Har task ka 200 Rs.</p>
-                <p>2. <strong>Unlock:</strong> Tasks locked hain. Inhen kholne k liye 1 dost ko invite karen.</p>
-                <p>3. <strong>Earning:</strong> Dost ke deposit karte hi 1000 Rs milenge aur tasks unlock honge.</p>
+            <h2 class="text-2xl font-bold text-yellow-400 mb-4 god-font">WELCOME</h2>
+            <div class="space-y-4 text-sm text-gray-300 text-left p-2">
+                <p>1. <strong>Tasks:</strong> 'Tasks' tab me 500+ tasks hain. 1 Task = 200 Rs.</p>
+                <p>2. <strong>Unlock:</strong> Tasks locked hain. Inhen kholne k liye <strong>1 dost ko invite karen</strong> (Jo plan buy kare).</p>
+                <p>3. <strong>Plans:</strong> 'Plans' tab se Investment karen aur daily earning start karen.</p>
+                <p>4. <strong>Deposit/Withdraw:</strong> Asaan tariqy se paise add aur withdraw karen.</p>
             </div>
-            <button onclick="closeGuide()" class="god-btn w-full py-3 mt-6 rounded">START</button>
+            <button onclick="closeGuide()" class="god-btn w-full py-3 mt-6 rounded-lg uppercase">Start Earning</button>
         </div>
     </div>
 
-    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 bg-black/90">
+    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto bg-black/80 backdrop-blur-md">
         <div class="gf-card balance-border p-8 w-full max-w-sm mx-auto text-center">
-            <h1 class="text-4xl mb-4 font-bold god-font text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">ULTRA EARN</h1>
-            <div id="loginForm" class="space-y-4">
-                <input type="email" id="loginEmail" placeholder="EMAIL" class="god-input text-center">
-                <input type="password" id="loginPass" placeholder="PASSWORD" class="god-input text-center">
-                <button onclick="login()" class="god-btn w-full py-3 rounded">LOGIN</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-400 cursor-pointer mt-4">CREATE ACCOUNT</p>
+            <h1 class="text-4xl mb-2 font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 god-font">ULTRA</h1>
+            <div id="loginForm" class="space-y-6">
+                <input type="email" id="loginEmail" placeholder="USER EMAIL" class="god-input w-full p-4 rounded-lg text-center">
+                <input type="password" id="loginPass" placeholder="PASSWORD" class="god-input w-full p-4 rounded-lg text-center">
+                <button onclick="login()" class="god-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase">LOGIN</button>
+                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-4 cursor-pointer hover:text-white border-b border-gray-600 inline-block">CREATE ACCOUNT</p>
             </div>
-            <div id="registerForm" class="hidden space-y-4">
-                <div id="autoRefBadge" class="hidden text-xs text-yellow-400 mb-2">Invited By: <span id="inviterId">...</span></div>
-                <input type="text" id="regName" placeholder="NAME" class="god-input text-center">
-                <input type="email" id="regEmail" placeholder="EMAIL" class="god-input text-center">
-                <input type="password" id="regPass" placeholder="PASSWORD" class="god-input text-center">
-                <button onclick="register()" class="god-btn w-full py-3 rounded">REGISTER</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-400 cursor-pointer mt-4">BACK TO LOGIN</p>
+            <div id="registerForm" class="hidden space-y-6">
+                <div id="autoRefBadge" class="hidden border border-white/50 p-2 text-white text-xs uppercase tracking-widest rounded mb-4">Referred By: <span id="inviterId" class="text-yellow-400">...</span></div>
+                <input type="text" id="regName" placeholder="YOUR NAME" class="god-input w-full p-4 rounded-lg text-center">
+                <input type="email" id="regEmail" placeholder="EMAIL" class="god-input w-full p-4 rounded-lg text-center">
+                <input type="password" id="regPass" placeholder="PASSWORD" class="god-input w-full p-4 rounded-lg text-center">
+                <button onclick="register()" class="god-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase bg-gradient-to-r from-blue-600 to-cyan-500">JOIN NOW</button>
+                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-4 cursor-pointer hover:text-white">BACK TO LOGIN</p>
             </div>
-            <p id="authMsg" class="text-red-500 text-xs mt-4"></p>
+            <p id="authMsg" class="text-red-500 text-xs mt-4 font-bold uppercase"></p>
         </div>
     </div>
 
     <div id="mainApp" style="display:none;" class="max-w-md mx-auto">
         <div class="flex justify-between items-center p-6">
-            <h2 class="text-lg font-bold god-font" id="userNameDisplay">USER</h2>
-            <button onclick="logout()" class="text-red-500 text-xl"><i class="fa-solid fa-power-off"></i></button>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_0_20px_white]"><i class="fa-solid fa-crown text-black text-xl"></i></div>
+                <div><h2 class="text-lg font-bold text-white god-font" id="userNameDisplay">USER</h2><p class="text-[10px] text-gray-400 uppercase tracking-widest">System Online</p></div>
+            </div>
+            <button onclick="logout()" class="text-white hover:text-red-500 transition duration-300"><i class="fa-solid fa-power-off text-2xl drop-shadow-[0_0_10px_white]"></i></button>
         </div>
 
         <div id="tab-home" class="tab-content px-4 pt-4">
-            <div class="gf-card balance-border p-8 text-center mb-6">
-                <p class="text-gray-400 text-xs tracking-widest mb-2">BALANCE</p>
-                <h1 class="text-4xl font-bold mb-6">Rs. <span id="bigBalance">0</span></h1>
-                <div class="flex gap-4">
-                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="bg-white text-black flex-1 py-2 rounded font-bold text-sm">DEPOSIT</button>
-                    <button onclick="openWithdrawModal()" class="border border-white text-white flex-1 py-2 rounded font-bold text-sm">WITHDRAW</button>
+            <div class="gf-card balance-border p-8 mb-8 text-center relative">
+                <p class="text-gray-400 text-xs tracking-[0.4em] uppercase mb-4">Total Balance</p>
+                <h1 class="text-5xl font-black mb-8 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.5)]"><span class="text-2xl text-gray-500">Rs.</span><span id="bigBalance">0</span></h1>
+                <div class="flex gap-4 justify-center">
+                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="bg-white text-black px-8 py-3 rounded-full font-bold uppercase hover:scale-105 transition shadow-[0_0_20px_white]">Deposit</button>
+                    <button onclick="openWithdrawModal()" class="bg-transparent border border-white text-white px-8 py-3 rounded-full font-bold uppercase hover:bg-white/10 transition">Withdraw</button>
                 </div>
             </div>
-            <div onclick="switchTab('team')" class="gf-card gold-border p-4 flex items-center justify-between cursor-pointer">
-                <div>
-                    <h3 class="font-bold text-yellow-400">INVITE FRIENDS</h3>
-                    <p class="text-xs text-gray-400">Unlock Tasks & Earn</p>
-                </div>
-                <i class="fa-solid fa-chevron-right"></i>
+            <div class="grid grid-cols-2 gap-4 mb-8">
+                <div class="gf-card tier-border p-5 text-center"><i class="fa-solid fa-layer-group text-purple-400 text-2xl mb-2"></i><p class="text-gray-400 text-[10px] uppercase">Plan</p><p id="planDisplay" class="text-xl font-bold text-green-400 god-font">FREE</p></div>
+                <div class="gf-card profit-border p-5 text-center"><i class="fa-solid fa-chart-line text-cyan-400 text-2xl mb-2"></i><p class="text-gray-400 text-[10px] uppercase">Invites</p><p id="inviteCountDisplay" class="text-xl font-bold text-pink-500 god-font">0</p></div>
+            </div>
+            <div onclick="switchTab('team')" class="gf-card gold-border p-5 flex items-center justify-between cursor-pointer group">
+                <div class="flex items-center gap-4"><div class="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center text-yellow-400 text-2xl"><i class="fa-solid fa-users"></i></div><div><h3 class="text-lg font-bold text-white god-font">REFERRAL</h3><p class="text-[10px] text-gray-400">Earn Passive Income</p></div></div><i class="fa-solid fa-chevron-right text-white"></i>
             </div>
         </div>
 
         <div id="tab-tasks" class="tab-content px-4 pt-4">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold god-font">TASKS</h2>
-                <span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded">200 PKR Each</span>
+                <h2 class="text-xl font-bold text-white god-font">MISSIONS</h2>
+                <span class="text-xs text-yellow-400 font-bold bg-yellow-400/10 px-2 py-1 rounded">200 PKR/Task</span>
             </div>
-            <div id="tasksContainer" class="pb-10 space-y-4"></div>
+            <div id="tasksContainer" class="pb-10 space-y-4">
+                </div>
         </div>
 
         <div id="tab-plans" class="tab-content px-4 pt-4">
-            <h2 class="text-xl font-bold mb-4 text-center god-font">INVESTMENT</h2>
+            <h2 class="text-2xl font-bold mb-6 text-white god-font text-center">INVESTMENT</h2>
             <div class="space-y-6">
                 <div class="gf-card starter-border p-6">
-                    <div class="flex justify-between mb-4"><h3 class="text-xl font-bold text-blue-400">STARTER</h3><span class="text-lg font-bold">500</span></div>
-                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full border border-blue-500 text-blue-400 py-2 rounded font-bold">BUY NOW</button>
+                    <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-blue-400 god-font">STARTER</h3><span class="text-xl font-bold text-white">500</span></div>
+                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li>Daily: 15 PKR</li><li>Duration: 33 Days</li></ul>
+                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full border border-blue-500 text-blue-400 py-3 rounded font-bold uppercase hover:bg-blue-500 hover:text-white transition">Purchase</button>
                 </div>
                 <div class="gf-card gold-border p-6">
-                    <div class="flex justify-between mb-4"><h3 class="text-xl font-bold text-yellow-400">GOLD PRO</h3><span class="text-lg font-bold">2000</span></div>
-                    <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full bg-yellow-500 text-black py-2 rounded font-bold">BUY NOW</button>
+                    <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-yellow-400 god-font">GOLD PRO</h3><span class="text-xl font-bold text-white">2000</span></div>
+                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li>Daily: 60 PKR</li><li>Duration: 33 Days</li></ul>
+                    <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-black py-3 rounded font-bold uppercase">Purchase</button>
                 </div>
                 <div class="gf-card vip-border p-6">
-                    <div class="flex justify-between mb-4"><h3 class="text-xl font-bold text-red-500">VIP GOD</h3><span class="text-lg font-bold">5000</span></div>
-                    <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full border border-red-500 text-red-500 py-2 rounded font-bold">BUY NOW</button>
+                    <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-red-500 god-font">VIP GOD</h3><span class="text-xl font-bold text-white">5000</span></div>
+                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li>Daily: 150 PKR</li><li>Duration: 33 Days</li></ul>
+                    <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full border border-red-500 text-red-500 py-3 rounded font-bold uppercase hover:bg-red-500 hover:text-white transition">Purchase</button>
                 </div>
             </div>
         </div>
 
-        <div id="tab-team" class="tab-content px-4 pt-10 text-center">
-            <h2 class="text-2xl font-bold mb-4 god-font">YOUR NETWORK</h2>
-            <div class="gf-card balance-border p-4 mb-4 flex justify-between items-center">
-                <p class="text-xs text-gray-400">Invites:</p>
-                <h1 class="text-2xl text-cyan-400 font-bold" id="inviteCountDisplay">0</h1>
+        <div id="tab-me" class="tab-content px-4 pt-10 text-center">
+            <div class="w-32 h-32 mx-auto rounded-full bg-black border-2 border-white flex items-center justify-center mb-8 shadow-[0_0_30px_white] animate-pulse"><i class="fa-solid fa-network-wired text-5xl text-white"></i></div>
+            <h2 class="text-3xl font-bold text-white mb-2 god-font">NETWORK</h2>
+            <div class="gf-card balance-border p-4 mb-8 flex items-center justify-between rounded">
+                <code id="myLinkDisplay" class="text-xs text-cyan-400 truncate select-all">GENERATING...</code><i class="fa-solid fa-copy text-white"></i>
             </div>
-            <div class="gf-card balance-border p-4 mb-6">
-                <code id="myLinkDisplay" class="text-xs text-cyan-400 break-all">Loading...</code>
-            </div>
-            <button onclick="shareLink()" class="god-btn w-full py-3 rounded">SHARE LINK</button>
+            <button onclick="shareLink()" class="god-btn w-full py-4 rounded-lg font-bold flex items-center justify-center gap-3 text-lg"><i class="fa-brands fa-whatsapp text-2xl"></i> SHARE LINK</button>
         </div>
     </div>
 
     <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-        <div class="gf-card profit-border w-full max-w-sm p-6 text-center">
-            <h3 class="text-xl font-bold text-white mb-4">DEPOSIT</h3>
-            <p class="text-2xl font-mono font-bold text-white mb-1">0311-1813896</p>
-            <p class="text-sm text-pink-500 font-bold mb-4">OBAID ALI (Easypaisa)</p>
-            <input type="number" id="depAmt" placeholder="Amount (PKR)" class="god-input mb-3 text-center">
-            <input type="text" id="trxID" placeholder="TRX ID" class="god-input mb-4 text-center">
-            <button onclick="submitDeposit()" class="god-btn w-full py-2 rounded">SUBMIT</button>
-            <button onclick="document.getElementById('depositModal').style.display='none'" class="text-gray-500 text-xs mt-4">CANCEL</button>
+        <div class="gf-card gold-border w-full max-w-sm p-6 bg-[#050505]">
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-white">DEPOSIT</h3><button onclick="document.getElementById('depositModal').style.display='none'" class="text-gray-500 text-xl">✕</button></div>
+            
+            <div class="flex gap-2 mb-6">
+                <button onclick="selectMethod('ep')" id="btn-ep" class="flex-1 py-3 rounded border border-green-500 bg-green-900/20 text-green-400 font-bold text-xs">EASYPAISA</button>
+                <button onclick="selectMethod('jc')" id="btn-jc" class="flex-1 py-3 rounded border border-gray-700 bg-gray-800 text-gray-500 font-bold text-xs">JAZZCASH</button>
+            </div>
+
+            <div class="bg-gray-900 border border-gray-700 p-4 rounded text-center mb-6">
+                <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Send Money To</p>
+                <p class="text-2xl font-mono font-bold text-white tracking-wider">03111813896</p>
+                <p class="text-xs font-bold text-yellow-400 uppercase mt-1">OBAID ALI</p>
+            </div>
+
+            <div class="space-y-4">
+                <div><label class="text-[10px] text-gray-400 block mb-1">Amount Sent (PKR)</label><input type="number" id="depAmt" placeholder="e.g 2000" class="god-input text-center font-bold"></div>
+                <div><label class="text-[10px] text-gray-400 block mb-1">Sender Number (Jis se bheje)</label><input type="number" id="senderNum" placeholder="e.g 0300123..." class="god-input text-center"></div>
+                <button onclick="submitDeposit()" class="god-btn w-full py-4 rounded font-bold tracking-widest mt-2">VERIFY PAYMENT</button>
+            </div>
         </div>
     </div>
 
     <div id="withdrawModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
         <div class="gf-card vip-border w-full max-w-sm p-6">
-            <h3 class="text-xl font-bold text-white mb-4 text-center">WITHDRAW</h3>
-            <select id="withMethod" class="god-input mb-3 bg-black"><option>Easypaisa</option><option>JazzCash</option></select>
-            <input type="text" id="withName" placeholder="Account Name" class="god-input mb-3">
-            <input type="number" id="withNum" placeholder="Account Number" class="god-input mb-3">
-            <input type="number" id="withAmt" placeholder="Amount (Min 500)" class="god-input mb-4">
-            <button onclick="submitWithdraw()" class="god-btn w-full py-2 rounded">SUBMIT</button>
-            <button onclick="document.getElementById('withdrawModal').style.display='none'" class="text-gray-500 text-xs mt-4 w-full">CANCEL</button>
+            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-white">WITHDRAW</h3><button onclick="document.getElementById('withdrawModal').style.display='none'" class="text-gray-500 text-xl">✕</button></div>
+            <div class="space-y-4">
+                <select id="withMethod" class="god-input w-full p-4 rounded bg-black"><option>Easypaisa</option><option>JazzCash</option></select>
+                <input type="text" id="withName" placeholder="Account Name" class="god-input w-full p-4 rounded">
+                <input type="number" id="withNum" placeholder="Account Number" class="god-input w-full p-4 rounded">
+                <input type="number" id="withAmt" placeholder="Amount (Min 500)" class="god-input w-full p-4 rounded">
+                <button onclick="submitWithdraw()" class="god-btn w-full py-4 rounded font-bold tracking-widest">SEND REQUEST</button>
+            </div>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full bg-black border-t border-white/10 p-4 flex justify-around z-40">
-        <div onclick="switchTab('home')" class="text-center cursor-pointer text-white"><i class="fa-solid fa-house text-xl"></i><p class="text-[10px]">HOME</p></div>
-        <div onclick="switchTab('tasks')" class="text-center cursor-pointer text-gray-500"><i class="fa-solid fa-list-check text-xl"></i><p class="text-[10px]">TASKS</p></div>
-        <div onclick="switchTab('plans')" class="text-center cursor-pointer text-gray-500"><i class="fa-solid fa-cube text-xl"></i><p class="text-[10px]">PLANS</p></div>
-        <div onclick="switchTab('team')" class="text-center cursor-pointer text-gray-500"><i class="fa-solid fa-user text-xl"></i><p class="text-[10px]">TEAM</p></div>
+    <div class="fixed bottom-0 left-0 w-full bg-black/95 border-t border-white/10 p-4 flex justify-around z-40 backdrop-blur-md">
+        <div onclick="switchTab('home')" class="text-center cursor-pointer text-white nav-item"><i class="fa-solid fa-house text-xl mb-1"></i><p class="text-[10px]">HOME</p></div>
+        <div onclick="switchTab('tasks')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-list-check text-xl mb-1"></i><p class="text-[10px]">TASKS</p></div>
+        <div onclick="switchTab('plans')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-cube text-xl mb-1"></i><p class="text-[10px]">PLANS</p></div>
+        <div onclick="switchTab('me')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-user text-xl mb-1"></i><p class="text-[10px]">TEAM</p></div>
     </div>
 
     <script>
-        // === CONFIG ===
+        // ===========================================
+        // ⚠️ PASTE YOUR FIREBASE CONFIG HERE ⚠️
+        // ===========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -190,13 +219,14 @@
         const auth = firebase.auth();
         const db = firebase.database();
         let currentUser, myData, detectedReferral = "Admin";
+        let selectedDepMethod = "Easypaisa";
 
         // TASKS LIST
         const taskLinks = [
             { title: "Watch Video", icon: "fa-youtube", url: "https://youtu.be/bTTMOMniVkw?si=vkQLUufpIba4xVOu" },
             { title: "Sponsored Ad", icon: "fa-play", url: "https://youtu.be/wOPsEtX3V3I?si=0bfQ2F_XTwsMTs_x" },
             { title: "Visit Website", icon: "fa-globe", url: "https://prpwinapk.net/" },
-            { title: "Subscribe", icon: "fa-bell", url: "https://youtube.com/@3pattizainab?si=LqgLi4JzBNPRK2vD" },
+            { title: "Subscribe Channel", icon: "fa-bell", url: "https://youtube.com/@3pattizainab?si=LqgLi4JzBNPRK2vD" },
             { title: "Rate App", icon: "fa-star", url: "https://play.google.com/store/apps" }
         ];
 
@@ -211,14 +241,13 @@
             if (!localStorage.getItem("guideSeen")) setTimeout(() => document.getElementById('guideModal').style.display = 'flex', 1500);
         };
 
-        // --- OPTIMIZED RENDER TASKS (CRASH FIX) ---
+        // --- RENDER TASKS (Optimized Loop) ---
         function renderTasks(inviteCount) {
             const container = document.getElementById('tasksContainer');
-            // Build HTML string first (Performance Fix)
             let htmlContent = "";
             const unlockedLimit = inviteCount * 5; 
 
-            for (let i = 0; i < 100; i++) { // Reduced to 100 visible tasks for mobile safety, can be 500
+            for (let i = 0; i < 50; i++) { // Generated 50 for smoother performance
                 const taskData = taskLinks[i % 5];
                 const isUnlocked = i < unlockedLimit;
                 
@@ -281,23 +310,35 @@
                         document.getElementById('userNameDisplay').innerText = myData.name;
                         document.getElementById('bigBalance').innerText = myData.balance;
                         document.getElementById('inviteCountDisplay').innerText = myData.inviteCount || 0;
-                        document.getElementById('myLinkDisplay').innerText = window.location.origin + window.location.pathname + "?ref=" + myData.myCode;
-                        
-                        // Render Tasks with Optimized Loop
+                        const link = window.location.origin + window.location.pathname + "?ref=" + myData.myCode;
+                        document.getElementById('myLinkDisplay').innerText = link;
                         renderTasks(myData.inviteCount || 0);
                     }
                 });
             } else { document.getElementById('authScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; }
         });
 
-        // --- FEATURES ---
-        function submitDeposit() {
-            const amt = document.getElementById('depAmt').value, trx = document.getElementById('trxID').value;
-            if(!amt || !trx) return alert("Fill all fields");
-            db.ref('deposits').push({ uid: currentUser.uid, email: myData.email, amount: amt, trx: trx, invitedBy: myData.invitedBy, status: "Pending", timestamp: Date.now() });
-            alert("Sent!"); document.getElementById('depositModal').style.display='none';
+        // --- DEPOSIT ---
+        function selectMethod(type) {
+            document.getElementById('btn-ep').className = "flex-1 py-3 rounded border border-gray-700 bg-gray-800 text-gray-500 font-bold text-xs";
+            document.getElementById('btn-jc').className = "flex-1 py-3 rounded border border-gray-700 bg-gray-800 text-gray-500 font-bold text-xs";
+            if (type === 'ep') {
+                selectedDepMethod = "Easypaisa";
+                document.getElementById('btn-ep').className = "flex-1 py-3 rounded border border-green-500 bg-green-900/20 text-green-400 font-bold text-xs shadow-lg";
+            } else {
+                selectedDepMethod = "JazzCash";
+                document.getElementById('btn-jc').className = "flex-1 py-3 rounded border border-red-500 bg-red-900/20 text-red-400 font-bold text-xs shadow-lg";
+            }
         }
 
+        function submitDeposit() {
+            const amt = document.getElementById('depAmt').value, sender = document.getElementById('senderNum').value;
+            if(!amt || !sender) return alert("Fill all details");
+            db.ref('deposits').push({ uid: currentUser.uid, email: myData.email, amount: amt, senderNum: sender, method: selectedDepMethod, invitedBy: myData.invitedBy, status: "Pending", timestamp: Date.now() });
+            alert("Deposit Request Sent!"); document.getElementById('depositModal').style.display='none';
+        }
+
+        // --- WITHDRAW ---
         function openWithdrawModal() {
             if(myData.balance < 500) return alert("Min Withdraw 500 PKR");
             document.getElementById('withdrawModal').style.display = 'flex';
@@ -307,7 +348,7 @@
             const method = document.getElementById('withMethod').value, name = document.getElementById('withName').value, num = document.getElementById('withNum').value, amt = parseInt(document.getElementById('withAmt').value);
             if(!name || !num || !amt) return alert("Fill details");
             if(amt > myData.balance) return alert("Insufficient Balance");
-            if(confirm("Withdraw?")) {
+            if(confirm("Confirm Withdraw?")) {
                 db.ref('users/' + currentUser.uid).update({ balance: myData.balance - amt });
                 db.ref('withdrawals').push({ uid: currentUser.uid, email: myData.email, amount: amt, method: method, accName: name, accNum: num, status: "Pending", timestamp: Date.now() });
                 alert("Request Sent!"); document.getElementById('withdrawModal').style.display='none';
@@ -316,9 +357,9 @@
 
         function buyPlan(price, name, rate) {
             if(myData.balance >= price) {
-                if(confirm("Buy Plan?")) {
+                if(confirm("Purchase Plan?")) {
                     db.ref('users/' + currentUser.uid).update({ balance: myData.balance - price, plan: name, commissionRate: rate });
-                    alert("Success!");
+                    alert("Activated!");
                 }
             } else { alert("Low Balance!"); document.getElementById('depositModal').style.display='flex'; }
         }
@@ -331,8 +372,9 @@
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
             document.getElementById('tab-' + tab).classList.add('active-tab');
-            document.querySelectorAll('.text-center').forEach(div => div.classList.remove('text-white'));
+            document.querySelectorAll('.nav-item').forEach(el => { el.classList.remove('text-white'); el.classList.add('text-gray-500'); });
             event.currentTarget.classList.add('text-white');
+            event.currentTarget.classList.remove('text-gray-500');
         }
     </script>
 </body>
