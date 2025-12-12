@@ -4,220 +4,160 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
-    <title>Ultra Earn - TASK FORCE</title>
-    
+    <title>Ultra Earn - INFINITY</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Bruno+Ace+SC&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
     <style>
-        body { background-color: #000; color: #fff; font-family: 'Orbitron', sans-serif; min-height: 100vh; overflow-x: hidden; padding-bottom: 120px; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #000; color: #fff; font-family: 'Rajdhani', sans-serif; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
+        .meta-bg { position: fixed; inset: 0; z-index: -2; background: #030014; background-image: linear-gradient(rgba(18, 16, 20, 0) 50%, rgba(0, 255, 255, 0.05) 50%); background-size: 100% 4px; animation: scan 10s linear infinite; }
+        @keyframes scan { from {background-position: 0 0;} to {background-position: 0 100%;} }
         
-        /* PLASMA BACKGROUND */
-        .plasma-bg { position: fixed; inset: 0; z-index: -2; background: radial-gradient(circle at 50% 50%, #0f0c29, #302b63, #24243e); }
-        .grid-overlay { position: absolute; inset: 0; background-image: linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 255, 255, 0.1) 1px, transparent 1px); background-size: 30px 30px; opacity: 0.2; }
-
-        /* TASK CARDS */
-        .task-card {
-            background: rgba(20, 20, 20, 0.8); border: 1px solid rgba(0, 255, 255, 0.2);
-            border-radius: 16px; padding: 16px; margin-bottom: 12px;
-            display: flex; justify-content: space-between; items-center;
-            transition: 0.3s; position: relative; overflow: hidden;
-        }
-        .task-card.locked { opacity: 0.7; border-color: #ff0055; }
-        .task-card.locked::after {
-            content: 'LOCKED'; position: absolute; inset: 0; background: rgba(0,0,0,0.8);
-            display: flex; align-items: center; justify-content: center;
-            font-size: 20px; font-weight: bold; color: #ff0055; letter-spacing: 4px;
-            backdrop-filter: blur(2px);
-        }
-
+        /* CARDS & UI */
+        .meta-card { background: rgba(18, 18, 25, 0.8); border: 1px solid rgba(0, 255, 255, 0.2); border-radius: 16px; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .glitch { font-family: 'Orbitron', sans-serif; text-shadow: 2px 2px 0px #ff00ff, -2px -2px 0px #00ffff; }
+        
+        /* TASK ITEM */
+        .task-item { display: flex; justify-content: space-between; items-center; background: #0a0a0a; border: 1px solid #333; padding: 15px; border-radius: 12px; margin-bottom: 10px; transition: 0.3s; }
+        .task-item.locked { opacity: 0.6; filter: grayscale(1); border-color: #ff0055; pointer-events: none; }
+        .task-item.unlocked { border-color: #00ffff; box-shadow: 0 0 10px rgba(0, 255, 255, 0.1); }
+        
         /* BUTTONS */
-        .god-btn {
-            background: #000; color: #00ffff; border: 1px solid #00ffff;
-            box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); transition: 0.2s;
-        }
+        .god-btn { background: #000; color: #00ffff; border: 1px solid #00ffff; box-shadow: 0 0 10px rgba(0, 255, 255, 0.3); font-family: 'Orbitron'; text-transform: uppercase; font-weight: bold; transition: 0.2s; }
         .god-btn:active { background: #00ffff; color: #000; }
-
-        .unlock-btn {
-            background: linear-gradient(90deg, #ff0055, #ff00aa); border: none; color: white;
-            box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); width: 100%; padding: 15px;
-            border-radius: 12px; font-weight: bold; margin-top: 10px; text-transform: uppercase;
-        }
-
+        .cyber-input { background: #111; border: 1px solid #333; color: #fff; padding: 12px; width: 100%; border-radius: 8px; outline: none; text-align: center; }
+        
         /* UTILS */
-        .cyber-input { background: #111; border: 1px solid #333; color: #fff; padding: 12px; width: 100%; border-radius: 8px; outline: none; }
-        .tab-content { display: none; animation: fadeIn 0.5s; }
-        .active-tab { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .tab-content { display: none; animation: fadeIn 0.4s; } .active-tab { display: block; }
+        @keyframes fadeIn { from {opacity: 0; transform: translateY(10px);} to {opacity: 1; transform: translateY(0);} }
         #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 100; justify-content: center; align-items: center; }
     </style>
 </head>
 <body>
 
-    <div class="plasma-bg"><div class="grid-overlay"></div></div>
+    <div class="meta-bg"></div>
     <div id="loader"><div class="w-16 h-16 border-4 border-t-[#00ffff] rounded-full animate-spin"></div></div>
 
     <div id="guideModal" class="hidden fixed inset-0 z-[110] bg-black/95 flex items-center justify-center p-4">
-        <div class="bg-[#111] border border-[#00ffff] w-full max-w-sm p-6 rounded-2xl text-center">
-            <h2 class="text-xl font-bold text-[#00ffff] mb-4">KAAM KAISE KAREN?</h2>
+        <div class="meta-card w-full max-w-sm p-6 text-center border-t-4 border-t-[#00ffff]">
+            <h2 class="text-xl font-bold text-[#00ffff] mb-4 font-[Orbitron]">MISSION GUIDE</h2>
             <div class="text-sm text-gray-300 space-y-3 text-left">
-                <p>🚀 <strong>1. Tasks:</strong> Rozana apko 5 Tasks milenge (Total 1000 Rs).</p>
-                <p>🔒 <strong>2. Unlock:</strong> Tasks locked honge. Inhen kholne ke liye "Unlock Now" dabayen.</p>
-                <p>👥 <strong>3. Invite:</strong> Apne kisi dost ko invite karen (2000 wala plan).</p>
-                <p>💰 <strong>4. Reward:</strong> Jaise hi dost deposit karega, apke tasks unlock ho jayenge aur 1000 Rs mil jayenge.</p>
+                <p>🎯 <strong>TASKS:</strong> Yahan unlimited tasks hain. Har task ke <strong>200 PKR</strong> hain.</p>
+                <p>🔒 <strong>UNLOCK:</strong> Shuru me tasks locked hongy.</p>
+                <p>👥 <strong>CONDITION:</strong> Har <strong>5 Tasks</strong> unlock krny k liye <strong>1 Friend</strong> ko invite krna lazmi hai.</p>
+                <p>💰 <strong>EARNING:</strong> Jese hi dost deposit krega, 5 Tasks unlock hojayenge aur 1000 PKR mil jayenge.</p>
             </div>
-            <button onclick="closeGuide()" class="god-btn w-full py-3 mt-6 rounded font-bold">START WORK</button>
+            <button onclick="closeGuide()" class="god-btn w-full py-3 mt-6 rounded">START MISSION</button>
         </div>
     </div>
 
     <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 bg-black/90">
-        <div class="text-center w-full max-w-sm mx-auto">
-            <h1 class="text-5xl font-black text-white mb-2 tracking-tighter" style="text-shadow: 0 0 20px #00ffff;">TASK FORCE</h1>
-            <p class="text-[#00ffff] text-xs tracking-[0.5em] mb-10">DAILY EARNINGS</p>
-
+        <div class="w-full max-w-sm mx-auto text-center">
+            <h1 class="text-5xl font-black text-white mb-2 glitch">ULTRA</h1>
+            <p class="text-[#00ffff] text-xs tracking-[0.5em] mb-10">EARN INFINITY</p>
+            
             <div id="loginForm" class="space-y-4">
-                <input type="email" id="loginEmail" placeholder="EMAIL" class="cyber-input text-center">
-                <input type="password" id="loginPass" placeholder="PASSWORD" class="cyber-input text-center">
-                <button onclick="login()" class="god-btn w-full py-3 rounded text-lg font-bold">LOGIN</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-500 mt-4 cursor-pointer hover:text-[#00ffff]">CREATE ACCOUNT</p>
+                <input type="email" id="loginEmail" placeholder="EMAIL" class="cyber-input">
+                <input type="password" id="loginPass" placeholder="PASSWORD" class="cyber-input">
+                <button onclick="login()" class="god-btn w-full py-3 rounded text-lg">LOGIN</button>
+                <p onclick="toggleAuth()" class="text-xs text-gray-500 mt-4 cursor-pointer">CREATE NEW ACCOUNT</p>
             </div>
 
             <div id="registerForm" class="hidden space-y-4">
                 <div id="autoRefBadge" class="hidden border border-[#00ffff] p-2 text-[#00ffff] text-xs rounded mb-2">Referred By: <span id="inviterId">...</span></div>
-                <input type="text" id="regName" placeholder="NAME" class="cyber-input text-center">
-                <input type="email" id="regEmail" placeholder="EMAIL" class="cyber-input text-center">
-                <input type="password" id="regPass" placeholder="PASSWORD" class="cyber-input text-center">
-                <button onclick="register()" class="god-btn w-full py-3 rounded text-lg font-bold">REGISTER</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-500 mt-4 cursor-pointer hover:text-[#00ffff]">BACK TO LOGIN</p>
+                <input type="text" id="regName" placeholder="NAME" class="cyber-input">
+                <input type="email" id="regEmail" placeholder="EMAIL" class="cyber-input">
+                <input type="password" id="regPass" placeholder="PASSWORD" class="cyber-input">
+                <button onclick="register()" class="god-btn w-full py-3 rounded text-lg">REGISTER</button>
+                <p onclick="toggleAuth()" class="text-xs text-gray-500 mt-4 cursor-pointer">BACK TO LOGIN</p>
             </div>
-            <p id="authMsg" class="text-red-500 text-xs mt-4"></p>
+            <p id="authMsg" class="text-red-500 text-xs mt-4 font-bold"></p>
         </div>
     </div>
 
     <div id="mainApp" style="display:none;" class="max-w-md mx-auto">
         <div class="flex justify-between items-center p-6 border-b border-[#00ffff]/20">
-            <div><h2 class="text-lg font-bold text-white" id="userNameDisplay">USER</h2><p class="text-[10px] text-[#00ffff]">Status: Active</p></div>
+            <div><h2 class="text-lg font-bold text-white" id="userNameDisplay">PLAYER</h2><p class="text-[10px] text-[#00ffff] animate-pulse">● SYSTEM ONLINE</p></div>
             <button onclick="logout()" class="text-red-500"><i class="fa-solid fa-power-off text-xl"></i></button>
         </div>
 
         <div id="tab-tasks" class="tab-content px-4 pt-6">
-            <div class="bg-[#111] border border-[#00ffff] p-6 rounded-2xl text-center mb-8 shadow-[0_0_20px_rgba(0,255,255,0.2)]">
+            <div class="meta-card p-6 text-center mb-8 bg-gradient-to-b from-[#00ffff]/10 to-transparent">
                 <p class="text-gray-400 text-xs uppercase tracking-widest mb-2">Wallet Balance</p>
-                <h1 class="text-4xl font-bold text-white mb-4">Rs. <span id="bigBalance">0</span></h1>
+                <h1 class="text-5xl font-bold text-white mb-4 glitch">Rs. <span id="bigBalance">0</span></h1>
                 <div class="flex gap-2">
-                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="flex-1 bg-[#00ffff] text-black py-2 rounded font-bold text-xs">DEPOSIT</button>
-                    <button onclick="openWithdrawModal()" class="flex-1 border border-[#00ffff] text-[#00ffff] py-2 rounded font-bold text-xs">WITHDRAW</button>
+                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="flex-1 bg-[#00ffff] text-black py-2 rounded font-bold text-xs uppercase">Deposit</button>
+                    <button onclick="openWithdrawModal()" class="flex-1 border border-[#00ffff] text-[#00ffff] py-2 rounded font-bold text-xs uppercase">Withdraw</button>
                 </div>
             </div>
 
-            <h2 class="text-xl font-bold text-white mb-4 flex items-center gap-2"><i class="fa-solid fa-list-check text-[#00ffff]"></i> DAILY TASKS</h2>
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-white"><i class="fa-solid fa-list-check text-[#00ffff] mr-2"></i>MISSIONS</h2>
+                <span class="text-xs text-gray-400">Rate: 200 PKR/Task</span>
+            </div>
             
-            <div class="space-y-4" id="taskList">
-                <div class="task-card locked">
-                    <div>
-                        <h4 class="font-bold text-white">Watch Ad Video</h4>
-                        <p class="text-xs text-gray-400">Reward: 200 PKR</p>
-                    </div>
-                    <i class="fa-solid fa-play text-gray-500 text-xl"></i>
+            <div id="tasksContainer" class="space-y-3 pb-10">
                 </div>
-                <div class="task-card locked">
-                    <div>
-                        <h4 class="font-bold text-white">Rate Application</h4>
-                        <p class="text-xs text-gray-400">Reward: 200 PKR</p>
-                    </div>
-                    <i class="fa-solid fa-star text-gray-500 text-xl"></i>
-                </div>
-                <div class="task-card locked">
-                    <div>
-                        <h4 class="font-bold text-white">Visit Website</h4>
-                        <p class="text-xs text-gray-400">Reward: 200 PKR</p>
-                    </div>
-                    <i class="fa-solid fa-globe text-gray-500 text-xl"></i>
-                </div>
-                <div class="task-card locked">
-                    <div>
-                        <h4 class="font-bold text-white">Daily Check-in</h4>
-                        <p class="text-xs text-gray-400">Reward: 200 PKR</p>
-                    </div>
-                    <i class="fa-solid fa-calendar-check text-gray-500 text-xl"></i>
-                </div>
-                <div class="task-card locked">
-                    <div>
-                        <h4 class="font-bold text-white">Bonus Task</h4>
-                        <p class="text-xs text-gray-400">Reward: 200 PKR</p>
-                    </div>
-                    <i class="fa-solid fa-gift text-gray-500 text-xl"></i>
-                </div>
-            </div>
-
-            <div class="mt-6 p-4 bg-[#1a1a1a] rounded-xl border border-[#ff0055] text-center">
-                <p class="text-xs text-gray-400 mb-2">Tasks are currently LOCKED.</p>
-                <h3 class="text-lg font-bold text-white mb-2">TOTAL VALUE: <span class="text-[#00ffff]">1000 PKR</span></h3>
-                <button onclick="shareLink()" class="unlock-btn animate-pulse">
-                    <i class="fa-solid fa-lock-open mr-2"></i> INVITE 1 FRIEND TO UNLOCK
-                </button>
-                <p class="text-[10px] text-gray-500 mt-2">*Friend must activate 2000 PKR Plan</p>
-            </div>
         </div>
 
-        <div id="tab-me" class="tab-content px-4 pt-6 text-center">
-            <div class="w-24 h-24 mx-auto rounded-full border-2 border-[#00ffff] bg-black flex items-center justify-center mb-4">
-                <i class="fa-solid fa-user-astronaut text-4xl text-white"></i>
+        <div id="tab-me" class="tab-content px-4 pt-10 text-center">
+            <div class="w-24 h-24 mx-auto rounded-full border-2 border-[#00ffff] flex items-center justify-center mb-4 shadow-[0_0_20px_cyan]"><i class="fa-solid fa-user-astronaut text-4xl text-white"></i></div>
+            <h2 class="text-xl font-bold text-white mb-2" id="profileName">USER</h2>
+            
+            <div class="meta-card p-4 mb-6">
+                <p class="text-xs text-gray-400 mb-2">YOUR INVITE LINK</p>
+                <div class="bg-black p-2 rounded border border-[#333] flex justify-between">
+                    <code id="myLinkDisplay" class="text-xs text-[#00ffff] truncate select-all">Loading...</code>
+                    <i class="fa-solid fa-copy text-gray-500"></i>
+                </div>
             </div>
-            <h2 class="text-xl font-bold text-white" id="profileName">USER</h2>
-            <div class="bg-[#111] p-3 rounded mt-4 flex justify-between items-center border border-gray-800">
-                <p class="text-xs text-gray-400">YOUR LINK:</p>
-                <code id="myLinkDisplay" class="text-xs text-[#00ffff] select-all">Loading...</code>
+            
+            <div class="meta-card p-4 mb-6">
+                <p class="text-xs text-gray-400">TOTAL INVITES (UNLOCKED SETS)</p>
+                <h1 class="text-3xl text-[#00ffff] font-bold" id="inviteCountDisplay">0</h1>
             </div>
-            <button onclick="logout()" class="w-full border border-red-500 text-red-500 py-3 mt-6 rounded font-bold">LOGOUT</button>
+
+            <button onclick="shareLink()" class="god-btn w-full py-3 rounded flex items-center justify-center gap-2 mb-4"><i class="fa-brands fa-whatsapp text-xl"></i> INVITE NOW</button>
         </div>
     </div>
 
     <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-        <div class="bg-[#111] border border-[#00ffff] w-full max-w-sm p-6 rounded-2xl relative">
-            <button onclick="document.getElementById('depositModal').style.display='none'" class="absolute top-4 right-4 text-gray-500">✕</button>
-            <h3 class="text-xl font-bold text-[#00ffff] mb-4">DEPOSIT FUNDS</h3>
-            <div class="bg-[#00ffff]/10 p-4 rounded mb-4 text-center border border-[#00ffff]/30">
+        <div class="meta-card w-full max-w-sm p-6">
+            <div class="flex justify-between mb-4"><h3 class="text-xl font-bold text-[#00ffff]">DEPOSIT</h3><button onclick="document.getElementById('depositModal').style.display='none'" class="text-gray-500">✕</button></div>
+            <div class="bg-[#00ffff]/10 p-3 rounded mb-4 text-center border border-[#00ffff]/30">
                 <p class="text-[10px] text-gray-400 uppercase">Easypaisa Account</p>
                 <p class="text-2xl font-mono text-white font-bold my-1">0311-1813896</p>
                 <p class="text-xs text-[#ff00ff] font-bold">OBAID ALI</p>
             </div>
-            <p class="text-xs text-gray-400 mb-2">Amount send karne ke baad TRX ID likhen:</p>
-            <input type="number" id="depAmt" placeholder="Amount (e.g 2000)" class="cyber-input mb-3">
+            <input type="number" id="depAmt" placeholder="AMOUNT (PKR)" class="cyber-input mb-3">
             <input type="text" id="trxID" placeholder="TRX ID" class="cyber-input mb-4">
-            <button onclick="submitDeposit()" class="god-btn w-full py-3 rounded font-bold">SUBMIT REQUEST</button>
+            <button onclick="submitDeposit()" class="god-btn w-full py-3 rounded">SUBMIT</button>
         </div>
     </div>
 
     <div id="withdrawModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-        <div class="bg-[#111] border border-[#ff00ff] w-full max-w-sm p-6 rounded-2xl relative">
-            <button onclick="document.getElementById('withdrawModal').style.display='none'" class="absolute top-4 right-4 text-gray-500">✕</button>
-            <h3 class="text-xl font-bold text-[#ff00ff] mb-4">WITHDRAW MONEY</h3>
-            <div class="space-y-3">
-                <select id="withMethod" class="cyber-input">
-                    <option value="Easypaisa">Easypaisa</option>
-                    <option value="JazzCash">JazzCash</option>
-                </select>
-                <input type="text" id="withName" placeholder="Account Name" class="cyber-input">
-                <input type="number" id="withNum" placeholder="Account Number" class="cyber-input">
-                <input type="number" id="withAmt" placeholder="Amount (Min 500)" class="cyber-input">
-                <button onclick="submitWithdraw()" class="god-btn w-full py-3 rounded font-bold" style="border-color:#ff00ff; color:#ff00ff">CONFIRM WITHDRAW</button>
-            </div>
+        <div class="meta-card w-full max-w-sm p-6">
+            <div class="flex justify-between mb-4"><h3 class="text-xl font-bold text-[#ff0055]">WITHDRAW</h3><button onclick="document.getElementById('withdrawModal').style.display='none'" class="text-gray-500">✕</button></div>
+            <select id="withMethod" class="cyber-input mb-3"><option>Easypaisa</option><option>JazzCash</option></select>
+            <input type="text" id="withName" placeholder="Account Name" class="cyber-input mb-3">
+            <input type="number" id="withNum" placeholder="Account Number" class="cyber-input mb-3">
+            <input type="number" id="withAmt" placeholder="Amount" class="cyber-input mb-4">
+            <button onclick="submitWithdraw()" class="god-btn w-full py-3 rounded" style="border-color:#ff0055; color:#ff0055">CASHOUT</button>
         </div>
     </div>
 
     <div class="fixed bottom-0 left-0 w-full bg-black/90 border-t border-[#333] p-4 flex justify-around z-40">
         <div onclick="switchTab('tasks')" class="text-center cursor-pointer text-[#00ffff]"><i class="fa-solid fa-list-check text-xl"></i><p class="text-[10px]">TASKS</p></div>
-        <div onclick="switchTab('me')" class="text-center cursor-pointer text-gray-500 hover:text-white"><i class="fa-solid fa-user text-xl"></i><p class="text-[10px]">ME</p></div>
+        <div onclick="switchTab('me')" class="text-center cursor-pointer text-gray-500 hover:text-white"><i class="fa-solid fa-user text-xl"></i><p class="text-[10px]">PROFILE</p></div>
     </div>
-
     <script>
-        // --- PASTE FIREBASE CONFIG HERE ---
+        // ===========================================
+        // ⚠️ PASTE YOUR FIREBASE CONFIG HERE ⚠️
+        // ===========================================
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -232,6 +172,15 @@
         const db = firebase.database();
         let currentUser, myData, detectedReferral = "Admin";
 
+        // --- TASK CONFIGURATION ---
+        const taskLinks = [
+            { title: "Watch Video 1", icon: "fa-youtube", url: "https://youtu.be/bTTMOMniVkw?si=vkQLUufpIba4xVOu" },
+            { title: "Watch Video 2", icon: "fa-play", url: "https://youtu.be/wOPsEtX3V3I?si=0bfQ2F_XTwsMTs_x" },
+            { title: "Visit Website", icon: "fa-globe", url: "https://prpwinapk.net/" },
+            { title: "Subscribe Channel", icon: "fa-bell", url: "https://youtube.com/@3pattizainab?si=LqgLi4JzBNPRK2vD" },
+            { title: "Rate App", icon: "fa-star", url: "https://play.google.com/store/apps" } // Generic link
+        ];
+
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('ref')) {
@@ -243,30 +192,54 @@
             if (!localStorage.getItem("guideSeen")) { setTimeout(() => document.getElementById('guideModal').style.display = 'flex', 1500); }
         };
 
-        function closeGuide() { document.getElementById('guideModal').style.display = 'none'; localStorage.setItem("guideSeen", "true"); }
+        function renderTasks(inviteCount) {
+            const container = document.getElementById('tasksContainer');
+            container.innerHTML = "";
+            const unlockedLimit = inviteCount * 5; // 1 invite = 5 tasks
 
-        function register() {
-            const email = document.getElementById('regEmail').value, pass = document.getElementById('regPass').value, name = document.getElementById('regName').value;
-            if(pass.length < 6) return alert("Password too short");
-            showLoader(true);
-            const myNewCode = "U-" + Math.floor(10000 + Math.random() * 90000);
-            auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
-                db.ref('users/' + cred.user.uid).set({
-                    name: name, email: email, myCode: myNewCode, invitedBy: detectedReferral, balance: 0, plan: "Free"
-                }).then(() => { showLoader(false); window.location.href = window.location.origin + window.location.pathname; });
-            }).catch(e => { showLoader(false); document.getElementById('authMsg').innerText = e.message; });
+            // Generate 500 Tasks
+            for (let i = 0; i < 500; i++) {
+                const taskData = taskLinks[i % 5]; // Repeat the 5 tasks
+                const taskNum = i + 1;
+                const isUnlocked = i < unlockedLimit;
+                
+                let btnHtml = isUnlocked 
+                    ? `<button onclick="doTask('${taskData.url}')" class="bg-[#00ffff] text-black px-4 py-1 rounded font-bold text-xs hover:scale-105 transition">CLAIM 200</button>`
+                    : `<div class="text-[#ff0055] font-bold text-xs flex items-center"><i class="fa-solid fa-lock mr-1"></i> LOCKED</div>`;
+
+                let cardClass = isUnlocked ? "task-item unlocked" : "task-item locked";
+
+                const html = `
+                <div class="${cardClass}">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded bg-gray-800 flex items-center justify-center text-white"><i class="fa-brands ${taskData.icon}"></i></div>
+                        <div>
+                            <h4 class="font-bold text-sm text-white">Task #${taskNum}: ${taskData.title}</h4>
+                            <p class="text-[10px] text-gray-400">Reward: 200 PKR</p>
+                        </div>
+                    </div>
+                    ${btnHtml}
+                </div>`;
+                
+                // Show a separator after every 5 tasks to encourage invites
+                if (i > 0 && (i + 1) % 5 === 0) {
+                    const separator = `
+                    <div class="text-center my-4 p-2 border border-dashed border-gray-700 rounded bg-[#111]">
+                        <p class="text-[10px] text-gray-400 uppercase">Invite 1 Friend to Unlock Next 5 Tasks</p>
+                    </div>`;
+                    container.innerHTML += html + separator;
+                } else {
+                    container.innerHTML += html;
+                }
+            }
         }
 
-        function login() {
-            showLoader(true);
-            auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPass').value)
-            .catch(e => { showLoader(false); document.getElementById('authMsg').innerText = e.message; });
+        function doTask(url) {
+            window.open(url, '_blank');
+            // Hum yahan fake loading dikha skty hain, lekin balance Admin approval se hi barhega
         }
 
-        function toggleAuth() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('registerForm').classList.toggle('hidden'); }
-        function logout() { auth.signOut(); location.reload(); }
-        function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
-
+        // --- AUTH & DATA ---
         auth.onAuthStateChanged(user => {
             showLoader(false);
             if(user) {
@@ -279,45 +252,76 @@
                         document.getElementById('userNameDisplay').innerText = myData.name;
                         document.getElementById('profileName').innerText = myData.name;
                         document.getElementById('bigBalance').innerText = myData.balance;
+                        document.getElementById('inviteCountDisplay').innerText = myData.inviteCount || 0;
+                        
                         const link = window.location.origin + window.location.pathname + "?ref=" + myData.myCode;
                         document.getElementById('myLinkDisplay').innerText = link;
+                        
+                        // Render Tasks based on Invites
+                        renderTasks(myData.inviteCount || 0);
                     }
                 });
             } else { document.getElementById('authScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; }
         });
 
+        // --- STANDARD FUNCTIONS ---
+        function register() {
+            const email = document.getElementById('regEmail').value, pass = document.getElementById('regPass').value, name = document.getElementById('regName').value;
+            if(pass.length < 6) return alert("Password too short");
+            showLoader(true);
+            const myNewCode = "U-" + Math.floor(10000 + Math.random() * 90000);
+            auth.createUserWithEmailAndPassword(email, pass).then((cred) => {
+                db.ref('users/' + cred.user.uid).set({
+                    name: name, email: email, myCode: myNewCode, invitedBy: detectedReferral, balance: 0, inviteCount: 0
+                }).then(() => { showLoader(false); window.location.href = window.location.origin + window.location.pathname; });
+            }).catch(e => { showLoader(false); document.getElementById('authMsg').innerText = e.message; });
+        }
+
+        function login() {
+            showLoader(true);
+            auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPass').value)
+            .catch(e => { showLoader(false); document.getElementById('authMsg').innerText = e.message; });
+        }
+
         function submitDeposit() {
             const amt = document.getElementById('depAmt').value, trx = document.getElementById('trxID').value;
-            if(!amt || !trx) return alert("Fill all fields");
+            if(!amt || !trx) return alert("Details Missing");
             db.ref('deposits').push({ uid: currentUser.uid, email: myData.email, amount: amt, trx: trx, invitedBy: myData.invitedBy, status: "Pending", timestamp: Date.now() });
-            alert("Request Sent! Admin will approve."); document.getElementById('depositModal').style.display='none';
+            alert("Deposit Request Sent!"); document.getElementById('depositModal').style.display='none';
         }
 
         function openWithdrawModal() {
-            if(myData.balance < 500) return alert("Min Withdraw 500 PKR");
+            if(myData.balance < 500) return alert("Minimum Withdraw 500 PKR");
             document.getElementById('withdrawModal').style.display = 'flex';
         }
 
         function submitWithdraw() {
             const method = document.getElementById('withMethod').value, name = document.getElementById('withName').value, num = document.getElementById('withNum').value, amt = parseInt(document.getElementById('withAmt').value);
-            if(!name || !num || !amt) return alert("Fill all fields");
+            if(!name || !num || !amt) return alert("Details Missing");
             if(amt > myData.balance) return alert("Insufficient Balance");
             if(confirm("Confirm Withdraw?")) {
                 db.ref('users/' + currentUser.uid).update({ balance: myData.balance - amt });
                 db.ref('withdrawals').push({ uid: currentUser.uid, email: myData.email, amount: amt, method: method, accName: name, accNum: num, status: "Pending", timestamp: Date.now() });
-                alert("Withdrawal Sent!"); document.getElementById('withdrawModal').style.display='none';
+                alert("Withdraw Sent!"); document.getElementById('withdrawModal').style.display='none';
             }
         }
 
         function shareLink() { 
             const link = document.getElementById('myLinkDisplay').innerText;
-            window.open("https://wa.me/?text=" + encodeURIComponent("🔥 Unlock 1000 PKR instantly! Join Ultra Earn and complete tasks.\n\n👇 Click here:\n" + link), '_blank'); 
+            window.open("https://wa.me/?text=" + encodeURIComponent("🔥 Unlock 1000 PKR Instantly! Just complete tasks.\n\n👇 Join Now:\n" + link), '_blank'); 
         }
         
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
             document.getElementById('tab-' + tab).classList.add('active-tab');
+            document.querySelectorAll('.text-center').forEach(div => div.classList.remove('text-[#00ffff]'));
+            event.currentTarget.classList.add('text-[#00ffff]');
         }
+
+        function toggleAuth() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('registerForm').classList.toggle('hidden'); }
+        function logout() { auth.signOut(); location.reload(); }
+        function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
+        function closeGuide() { document.getElementById('guideModal').style.display = 'none'; localStorage.setItem("guideSeen", "true"); }
     </script>
 </body>
 </html>
