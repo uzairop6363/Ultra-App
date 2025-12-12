@@ -44,7 +44,7 @@
     </div>
 
     <script>
-        // --- PASTE FIREBASE CONFIG HERE ---
+        // --- FIREBASE CONFIG (Updated) ---
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -77,6 +77,7 @@
                             <p class="text-white font-bold text-lg">${d.amount} PKR</p>
                             <p class="text-xs text-gray-400">${d.email}</p>
                             <p class="text-xs text-yellow-500 font-mono">TRX: ${d.trx}</p>
+                            <p class="text-[10px] text-gray-500">Ref: ${d.invitedBy || 'None'}</p>
                             <div class="mt-2 flex gap-2">
                                 <button onclick="approveDep('${child.key}', '${d.uid}', ${d.amount}, '${d.invitedBy}')" class="bg-green-600 px-3 py-1 text-xs font-bold rounded">APPROVE</button>
                                 <button onclick="rejectDep('${child.key}')" class="bg-red-600 px-3 py-1 text-xs rounded">REJECT</button>
@@ -125,23 +126,41 @@
         }
 
         // --- ACTIONS ---
+        
         function approveDep(key, uid, amt, ref) {
             if(!confirm("Confirm Deposit?")) return;
+            
+            // 1. Mark Deposit as Approved
             db.ref('deposits/'+key).update({status: "Approved"});
+            
+            // 2. Add Balance to Depositor (Optional - Usually they buy plans)
+            // But let's add it so they can buy plan
             db.ref('users/'+uid+'/balance').once('value', s => {
                 let curr = s.val() || 0;
                 db.ref('users/'+uid).update({balance: curr + parseInt(amt)});
             });
+
+            // 3. REWARD INVITER (The Logic)
             if(ref && ref !== "Admin") {
                 db.ref('users').orderByChild('myCode').equalTo(ref).once('value', s => {
                     s.forEach(inviter => {
-                        let rate = inviter.val().commissionRate || 0;
-                        if(rate > 0) {
-                            let comm = (parseInt(amt) * rate) / 100;
-                            db.ref('users/'+inviter.key).update({balance: inviter.val().balance + comm});
-                        }
+                        let inviterData = inviter.val();
+                        
+                        // Give 1000 Rs
+                        let newBal = (inviterData.balance || 0) + 1000;
+                        
+                        // Increase Invite Count (Unlock Tasks)
+                        let newCount = (inviterData.inviteCount || 0) + 1;
+
+                        db.ref('users/'+inviter.key).update({
+                            balance: newBal,
+                            inviteCount: newCount
+                        });
+                        alert("Approved! Inviter ("+ref+") rewarded.");
                     });
                 });
+            } else {
+                alert("Deposit Approved! (No Inviter found)");
             }
         }
 
