@@ -18,12 +18,12 @@
         body { background-color: #000; color: #fff; font-family: 'Exo 2', sans-serif; min-height: 100vh; overflow-x: hidden; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
         h1, h2, h3, .god-font { font-family: 'Syncopate', sans-serif; letter-spacing: 1px; }
 
-        /* GOD BACKGROUND */
+        /* THEME: GRANDFATHER GOD MODE */
         .god-bg { position: fixed; inset: 0; z-index: -2; background: #000; }
         .god-bg::before { content: ''; position: absolute; inset: -50%; background: conic-gradient(from 0deg, #ff0000, #0000ff, #ffa500, #ffffff, #ff0000, #0000ff, #ffa500, #ffffff); filter: blur(80px); opacity: 0.4; animation: slowSpin 20s linear infinite; }
         @keyframes slowSpin { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
 
-        /* GRANDFATHER CARDS */
+        /* CARDS */
         .gf-card { position: relative; background: rgba(10, 10, 10, 0.9); border-radius: 20px; z-index: 1; overflow: hidden; margin-bottom: 15px; }
         .gf-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(transparent, transparent, transparent, var(--color1), var(--color2), var(--color1)); animation: rotate 4s linear infinite; z-index: -2; }
         .gf-card::after { content: ''; position: absolute; inset: 2px; background: rgba(5, 5, 5, 0.95); border-radius: 18px; z-index: -1; }
@@ -62,9 +62,9 @@
         <div class="gf-card gold-border w-full max-w-sm p-6 text-center">
             <h2 class="text-2xl font-bold text-yellow-400 mb-4 god-font">WELCOME</h2>
             <div class="space-y-4 text-sm text-gray-300 text-left p-2">
-                <p>1. <strong>Tasks:</strong> 'Tasks' tab me jayen. 5 Tasks complete krny pr 1000 Rs milenge.</p>
-                <p>2. <strong>Unlock:</strong> Tasks locked hongy. Inhen kholne k liye 1 dost ko invite karen (Jo plan buy kare).</p>
-                <p>3. <strong>Plans:</strong> 'Plans' tab se Investment karen aur daily mining start karen.</p>
+                <p>1. <strong>Tasks:</strong> 'Tasks' tab me jayen. 5 Tasks complete krny pr <strong>1000 Rs</strong> milenge.</p>
+                <p>2. <strong>Unlock:</strong> Shuru me Tasks locked hongy. Inhen kholne k liye <strong>1 dost ko invite karen</strong> (Jo plan buy kare).</p>
+                <p>3. <strong>Plans:</strong> 'Plans' tab se Investment karen aur daily earning start karen.</p>
                 <p>4. <strong>Deposit/Withdraw:</strong> Home screen se paise add ya nikalwa sakty hain.</p>
             </div>
             <button onclick="closeGuide()" class="god-btn w-full py-3 mt-6 rounded-lg uppercase">Start Earning</button>
@@ -113,6 +113,9 @@
             <div class="grid grid-cols-2 gap-4 mb-8">
                 <div class="gf-card tier-border p-5 text-center"><i class="fa-solid fa-layer-group text-purple-400 text-2xl mb-2"></i><p class="text-gray-400 text-[10px] uppercase">Plan</p><p id="planDisplay" class="text-xl font-bold text-green-400 god-font">FREE</p></div>
                 <div class="gf-card profit-border p-5 text-center"><i class="fa-solid fa-chart-line text-cyan-400 text-2xl mb-2"></i><p class="text-gray-400 text-[10px] uppercase">Invites</p><p id="inviteCountDisplay" class="text-xl font-bold text-pink-500 god-font">0</p></div>
+            </div>
+            <div onclick="switchTab('team')" class="gf-card gold-border p-5 flex items-center justify-between cursor-pointer group">
+                <div class="flex items-center gap-4"><div class="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center text-yellow-400 text-2xl"><i class="fa-solid fa-users"></i></div><div><h3 class="text-lg font-bold text-white god-font">REFERRAL</h3><p class="text-[10px] text-gray-400">Earn Passive Income</p></div></div><i class="fa-solid fa-chevron-right text-white"></i>
             </div>
         </div>
 
@@ -217,7 +220,7 @@
         const db = firebase.database();
         let currentUser, myData, detectedReferral = "Admin";
 
-        // TASK LINKS
+        // TASK LINKS (Aapke diye hue)
         const taskLinks = [
             { title: "Watch Video", icon: "fa-youtube", url: "https://youtu.be/bTTMOMniVkw?si=vkQLUufpIba4xVOu" },
             { title: "Sponsored Ad", icon: "fa-play", url: "https://youtu.be/wOPsEtX3V3I?si=0bfQ2F_XTwsMTs_x" },
@@ -337,8 +340,11 @@
             if(amt > myData.balance) return alert("Insufficient Balance");
             if(confirm("Confirm Withdraw?")) {
                 db.ref('users/' + currentUser.uid).update({ balance: myData.balance - amt });
-                db.ref('withdrawals').push({ uid: currentUser.uid, email: myData.email, amount: amt, method: method, accName: name, accNum: num, status: "Pending", timestamp: Date.now() });
-                alert("Withdraw Request Sent!"); document.getElementById('withdrawModal').style.display='none';
+                db.ref('withdrawals').push({
+                    uid: currentUser.uid, email: myData.email, amount: amt, method: method, accName: name, accNum: num, status: "Pending", timestamp: Date.now()
+                });
+                alert("Withdraw Request Sent!");
+                document.getElementById('withdrawModal').style.display='none';
             }
         }
 
