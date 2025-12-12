@@ -60,12 +60,11 @@
 
     <div id="guideModal" class="hidden fixed inset-0 z-[110] bg-black/95 flex items-center justify-center p-4 backdrop-blur-md">
         <div class="gf-card gold-border w-full max-w-sm p-6 text-center">
-            <h2 class="text-2xl font-bold text-yellow-400 mb-4 god-font">WELCOME</h2>
+            <h2 class="text-2xl font-bold text-yellow-400 mb-4 god-font">RULES</h2>
             <div class="space-y-4 text-sm text-gray-300 text-left p-2">
-                <p>1. <strong>Tasks:</strong> 'Tasks' tab me 500+ tasks hain. 1 Task = 200 Rs.</p>
-                <p>2. <strong>Unlock:</strong> Tasks locked hain. Inhen kholne k liye <strong>1 dost ko invite karen</strong> (Jo plan buy kare).</p>
-                <p>3. <strong>Plans:</strong> 'Plans' tab se Investment karen aur daily earning start karen.</p>
-                <p>4. <strong>Deposit/Withdraw:</strong> Asaan tariqy se paise add aur withdraw karen.</p>
+                <p>1. <strong>Activation:</strong> Tasks use karne k liye kam se kam <strong>2000 Wala Plan</strong> buy karna zaroori hai.</p>
+                <p>2. <strong>Unlock:</strong> Plan lene ke baad, tasks locked hongy. Inhen kholne k liye <strong>1 dost ko invite karen</strong>.</p>
+                <p>3. <strong>Earning:</strong> Dost ke deposit karte hi 1000 Rs milenge aur tasks unlock honge.</p>
             </div>
             <button onclick="closeGuide()" class="god-btn w-full py-3 mt-6 rounded-lg uppercase">Start Earning</button>
         </div>
@@ -120,31 +119,53 @@
         </div>
 
         <div id="tab-tasks" class="tab-content px-4 pt-4">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl font-bold text-white god-font">MISSIONS</h2>
-                <span class="text-xs text-yellow-400 font-bold bg-yellow-400/10 px-2 py-1 rounded">200 PKR/Task</span>
-            </div>
-            <div id="tasksContainer" class="pb-10 space-y-4">
+            
+            <div id="planLockedView" class="hidden text-center mt-10">
+                <div class="w-32 h-32 mx-auto rounded-full bg-red-900/20 border-2 border-red-500 flex items-center justify-center mb-6 shadow-[0_0_30px_red]">
+                    <i class="fa-solid fa-lock text-5xl text-red-500"></i>
                 </div>
+                <h2 class="text-2xl font-bold text-white god-font mb-4">ACCESS DENIED</h2>
+                <p class="text-gray-400 text-sm mb-8 px-4">
+                    Tasks unlock karne ke liye kam se kam <strong>GOLD PRO (2000)</strong> plan active hona zaroori hai.
+                </p>
+                <button onclick="switchTab('plans')" class="god-btn w-full py-4 rounded-lg text-lg animate-pulse">UPGRADE NOW</button>
+            </div>
+
+            <div id="taskListView" class="hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold text-white god-font">MISSIONS</h2>
+                    <span class="text-xs text-yellow-400 font-bold bg-yellow-400/10 px-2 py-1 rounded">200 PKR/Task</span>
+                </div>
+                <div id="tasksContainer" class="pb-10 space-y-4">
+                    </div>
+            </div>
         </div>
 
         <div id="tab-plans" class="tab-content px-4 pt-4">
             <h2 class="text-2xl font-bold mb-6 text-white god-font text-center">INVESTMENT</h2>
             <div class="space-y-6">
-                <div class="gf-card starter-border p-6">
+                <div class="gf-card starter-border p-6 opacity-50 grayscale">
                     <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-blue-400 god-font">STARTER</h3><span class="text-xl font-bold text-white">500</span></div>
-                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li>Daily: 15 PKR</li><li>Duration: 33 Days</li></ul>
-                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full border border-blue-500 text-blue-400 py-3 rounded font-bold uppercase hover:bg-blue-500 hover:text-white transition">Purchase</button>
+                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li>Does NOT unlock Tasks</li><li>Daily Mining Only</li></ul>
+                    <button onclick="buyPlan(500, 'Starter', 30)" class="w-full border border-blue-500 text-blue-400 py-3 rounded font-bold uppercase">Purchase</button>
                 </div>
-                <div class="gf-card gold-border p-6">
+
+                <div class="gf-card gold-border p-6 transform scale-105 border-2 border-yellow-400">
                     <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-yellow-400 god-font">GOLD PRO</h3><span class="text-xl font-bold text-white">2000</span></div>
-                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li>Daily: 60 PKR</li><li>Duration: 33 Days</li></ul>
-                    <button onclick="buyPlan(2000, 'Pro', 50)" class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-black py-3 rounded font-bold uppercase">Purchase</button>
+                    <ul class="text-xs text-gray-400 space-y-2 mb-4">
+                        <li><i class="fa-solid fa-check text-green-500"></i> <strong>UNLOCKS TASKS</strong></li>
+                        <li><i class="fa-solid fa-check text-green-500"></i> Daily Mining Included</li>
+                    </ul>
+                    <button onclick="buyPlan(2000, 'Gold Pro', 50)" class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-black py-3 rounded font-bold uppercase shadow-[0_0_20px_orange]">Purchase</button>
                 </div>
+
                 <div class="gf-card vip-border p-6">
                     <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-red-500 god-font">VIP GOD</h3><span class="text-xl font-bold text-white">5000</span></div>
-                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li>Daily: 150 PKR</li><li>Duration: 33 Days</li></ul>
-                    <button onclick="buyPlan(5000, 'VIP', 60)" class="w-full border border-red-500 text-red-500 py-3 rounded font-bold uppercase hover:bg-red-500 hover:text-white transition">Purchase</button>
+                    <ul class="text-xs text-gray-400 space-y-2 mb-4">
+                        <li><i class="fa-solid fa-check text-green-500"></i> <strong>UNLOCKS TASKS</strong></li>
+                        <li><i class="fa-solid fa-check text-green-500"></i> Highest Mining Rate</li>
+                    </ul>
+                    <button onclick="buyPlan(5000, 'VIP GOD', 60)" class="w-full border border-red-500 text-red-500 py-3 rounded font-bold uppercase hover:bg-red-500 hover:text-white transition">Purchase</button>
                 </div>
             </div>
         </div>
@@ -203,9 +224,7 @@
     </div>
 
     <script>
-        // ===========================================
-        // ⚠️ PASTE YOUR FIREBASE CONFIG HERE ⚠️
-        // ===========================================
+        // === CONFIG ===
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -226,7 +245,7 @@
             { title: "Watch Video", icon: "fa-youtube", url: "https://youtu.be/bTTMOMniVkw?si=vkQLUufpIba4xVOu" },
             { title: "Sponsored Ad", icon: "fa-play", url: "https://youtu.be/wOPsEtX3V3I?si=0bfQ2F_XTwsMTs_x" },
             { title: "Visit Website", icon: "fa-globe", url: "https://prpwinapk.net/" },
-            { title: "Subscribe Channel", icon: "fa-bell", url: "https://youtube.com/@3pattizainab?si=LqgLi4JzBNPRK2vD" },
+            { title: "Subscribe", icon: "fa-bell", url: "https://youtube.com/@3pattizainab?si=LqgLi4JzBNPRK2vD" },
             { title: "Rate App", icon: "fa-star", url: "https://play.google.com/store/apps" }
         ];
 
@@ -241,26 +260,44 @@
             if (!localStorage.getItem("guideSeen")) setTimeout(() => document.getElementById('guideModal').style.display = 'flex', 1500);
         };
 
-        // --- RENDER TASKS (Optimized Loop) ---
-        function renderTasks(inviteCount) {
+        // --- STRICT TASK RENDER LOGIC ---
+        function renderTasks(inviteCount, currentPlan) {
+            const lockedView = document.getElementById('planLockedView');
+            const taskView = document.getElementById('taskListView');
+            
+            // CHECK PLAN FIRST (Requirement: Must be Gold Pro or VIP)
+            if(currentPlan === "Free" || currentPlan === "Starter") {
+                lockedView.classList.remove('hidden');
+                taskView.classList.add('hidden');
+                return; // Stop here, don't generate tasks
+            }
+
+            // If Plan is Valid, Show Tasks
+            lockedView.classList.add('hidden');
+            taskView.classList.remove('hidden');
+
             const container = document.getElementById('tasksContainer');
             let htmlContent = "";
             const unlockedLimit = inviteCount * 5; 
 
-            for (let i = 0; i < 50; i++) { // Generated 50 for smoother performance
+            for (let i = 0; i < 50; i++) { 
                 const taskData = taskLinks[i % 5];
                 const isUnlocked = i < unlockedLimit;
                 
                 let borderClass = isUnlocked ? "unlocked-border" : "locked-border";
+                
+                // Reward Bright Color Fix (text-yellow-300 font-bold)
+                let rewardText = `<span class="text-yellow-300 font-bold text-xs glow-text">Reward: 200 PKR</span>`;
+
                 let btnHtml = isUnlocked 
-                    ? `<button onclick="doTask('${taskData.url}')" class="bg-green-500 text-black px-4 py-1 rounded font-bold text-xs">CLAIM 200</button>`
+                    ? `<button onclick="doTask('${taskData.url}')" class="bg-green-500 text-black px-4 py-1 rounded font-bold text-xs hover:scale-105 transition">CLAIM</button>`
                     : `<div class="text-red-500 font-bold text-xs flex items-center"><i class="fa-solid fa-lock mr-1"></i> LOCKED</div>`;
 
                 htmlContent += `
                 <div class="gf-card ${borderClass} p-4 flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center text-white"><i class="fa-brands ${taskData.icon}"></i></div>
-                        <div><h4 class="font-bold text-sm text-white">Task #${i+1}: ${taskData.title}</h4><p class="text-[10px] text-gray-400">Reward: 200 PKR</p></div>
+                        <div><h4 class="font-bold text-sm text-white">Task #${i+1}: ${taskData.title}</h4>${rewardText}</div>
                     </div>
                     ${btnHtml}
                 </div>`;
@@ -310,9 +347,13 @@
                         document.getElementById('userNameDisplay').innerText = myData.name;
                         document.getElementById('bigBalance').innerText = myData.balance;
                         document.getElementById('inviteCountDisplay').innerText = myData.inviteCount || 0;
+                        document.getElementById('planDisplay').innerText = myData.plan;
+                        
                         const link = window.location.origin + window.location.pathname + "?ref=" + myData.myCode;
                         document.getElementById('myLinkDisplay').innerText = link;
-                        renderTasks(myData.inviteCount || 0);
+                        
+                        // Pass Plan to Render Logic
+                        renderTasks(myData.inviteCount || 0, myData.plan || "Free");
                     }
                 });
             } else { document.getElementById('authScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; }
@@ -335,7 +376,7 @@
             const amt = document.getElementById('depAmt').value, sender = document.getElementById('senderNum').value;
             if(!amt || !sender) return alert("Fill all details");
             db.ref('deposits').push({ uid: currentUser.uid, email: myData.email, amount: amt, senderNum: sender, method: selectedDepMethod, invitedBy: myData.invitedBy, status: "Pending", timestamp: Date.now() });
-            alert("Deposit Request Sent!"); document.getElementById('depositModal').style.display='none';
+            alert("Request Sent!"); document.getElementById('depositModal').style.display='none';
         }
 
         // --- WITHDRAW ---
@@ -357,11 +398,11 @@
 
         function buyPlan(price, name, rate) {
             if(myData.balance >= price) {
-                if(confirm("Purchase Plan?")) {
+                if(confirm("Purchase " + name + "?")) {
                     db.ref('users/' + currentUser.uid).update({ balance: myData.balance - price, plan: name, commissionRate: rate });
                     alert("Activated!");
                 }
-            } else { alert("Low Balance!"); document.getElementById('depositModal').style.display='flex'; }
+            } else { alert("Insufficient Balance! Please Deposit."); document.getElementById('depositModal').style.display='flex'; }
         }
 
         function shareLink() { 
