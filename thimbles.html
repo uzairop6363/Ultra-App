@@ -21,33 +21,28 @@
             user-select: none;
             height: 100vh;
             touch-action: manipulation;
-            /* Concrete Floor */
             background-image: url('https://www.transparenttextures.com/patterns/concrete-wall.png');
             background-color: #222;
         }
 
-        /* AMBIENCE */
         .vignette {
             position: fixed; inset: 0; z-index: 1; pointer-events: none;
             background: radial-gradient(circle at center, transparent 30%, #000 100%);
         }
         .back-btn { position: absolute; top: 20px; left: 20px; z-index: 60; font-size: 24px; cursor: pointer; color: white; background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; }
 
-        /* HEADER */
         .game-header {
             padding: 20px; padding-top: 80px;
             display: flex; justify-content: space-between; align-items: center;
             z-index: 40; position: relative;
         }
 
-        /* STAGE */
         .street-stage {
             position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%);
             width: 100%; max-width: 600px; height: 300px;
             z-index: 10;
         }
 
-        /* REALISTIC HAND */
         .dealer-hand-container {
             position: absolute; top: -100%; left: 50%; width: 250px; height: 350px;
             transform: translateX(-50%); z-index: 50; pointer-events: none;
@@ -67,7 +62,6 @@
             100% { transform: translateX(-30%) rotate(190deg); }
         }
 
-        /* CANS (CUPS) */
         .can-container {
             position: absolute; top: 50%; width: 100px; height: 120px;
             transform: translate(-50%, -50%); cursor: pointer; z-index: 30;
@@ -90,7 +84,6 @@
         .can-container:active .metal-can { transform: scale(0.95); }
         .lifted .metal-can { transform: translateY(-100px); }
 
-        /* BALL */
         .street-ball {
             position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%) scale(0);
             width: 30px; height: 30px; border-radius: 50%;
@@ -100,7 +93,6 @@
         }
         .ball-visible { transform: translate(-50%, -50%) scale(1); }
 
-        /* CONTROLS */
         .controls-area {
             position: fixed; bottom: 0; width: 100%;
             background: #1a1a1a; border-top: 3px solid #333;
@@ -108,7 +100,6 @@
             box-shadow: 0 -10px 30px black;
         }
 
-        /* Chips */
         .chip-rack { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; }
         .chip {
             width: 55px; height: 55px; border-radius: 50%;
@@ -119,7 +110,6 @@
         }
         .chip.selected { transform: translateY(-10px) scale(1.1); box-shadow: 0 10px 20px rgba(255,170,0,0.3); border-style: solid; color: #ffaa00; border-color: #ffaa00; }
 
-        /* Button */
         .hustle-btn {
             width: 100%; padding: 18px;
             background: linear-gradient(to bottom, #555, #222);
@@ -130,7 +120,6 @@
         }
         .hustle-btn:active { transform: translateY(2px); }
 
-        /* Win Splash */
         .win-reveal {
             position: fixed; inset: 0; pointer-events: none; z-index: 70;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -139,7 +128,6 @@
         .win-reveal.show { opacity: 1; transform: scale(1); }
         .win-title { font-size: 60px; font-weight: 900; color: #ffaa00; text-shadow: 0 0 20px #ffaa00, 0 5px 10px black; }
 
-        /* STATUS */
         .status-text {
             position: absolute; top: 25%; width: 100%; text-align: center;
             font-size: 20px; color: #aaa; font-weight: bold; text-shadow: 0 2px 5px black;
@@ -197,7 +185,6 @@
     </div>
 
     <script>
-        // === FIREBASE ===
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -228,15 +215,13 @@
             }
         });
 
-        // === STATE ===
         const POSITIONS = ['20%', '50%', '80%'];
         let currentBet = 20;
         let isPlaying = false;
         let canPick = false;
-        let ballIndex = 1; // Logical ID
-        let layoutMap = [0, 1, 2]; // Visual Mapping
+        let ballIndex = 1; 
+        let layoutMap = [0, 1, 2]; 
 
-        // === AUDIO ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let audioInit = false;
         function initAudio() { if(!audioInit) { audioCtx.resume(); audioInit = true; } }
@@ -263,7 +248,6 @@
             }
         }
 
-        // === LOGIC ===
         function selectChip(val, el) {
             if(isPlaying) return;
             currentBet = val;
@@ -285,11 +269,9 @@
             document.getElementById('statusText').innerText = "WATCH CLOSELY...";
             document.getElementById('winScreen').classList.remove('show');
 
-            // 1. Hand Enter
             document.getElementById('theHand').classList.add('hand-active');
             await wait(500);
 
-            // 2. Reveal Ball (Center)
             ballIndex = 1;
             moveBall(1);
             await liftAll(true);
@@ -297,28 +279,23 @@
             playSound('lift');
             await wait(1000);
 
-            // 3. Hide
             document.getElementById('theBall').classList.remove('ball-visible');
             await liftAll(false);
             playSound('lift');
             await wait(500);
 
-            // 4. Shuffle
             document.getElementById('theHand').classList.add('hand-shuffling');
             
             for(let i=0; i<12; i++) {
-                // Swap logic
                 let a = Math.floor(Math.random()*3);
                 let b = Math.floor(Math.random()*3);
                 while(a===b) b=Math.floor(Math.random()*3);
 
-                // Swap map
                 let idA = layoutMap[a];
                 let idB = layoutMap[b];
                 layoutMap[a] = idB;
                 layoutMap[b] = idA;
 
-                // Move visual
                 document.getElementById(`can${idA}`).style.left = POSITIONS[b];
                 document.getElementById(`can${idB}`).style.left = POSITIONS[a];
                 
@@ -326,7 +303,6 @@
                 await wait(250);
             }
 
-            // 5. Ready
             document.getElementById('theHand').classList.remove('hand-shuffling');
             await wait(200);
             document.getElementById('theHand').classList.remove('hand-active');
@@ -342,27 +318,25 @@
             if(!canPick) return;
             canPick = false;
 
-            // RISK MANAGEMENT
-            // Decides outcome based on Risk Engine
-            let willWin = true;
-            if(currentBet >= 500 || myStreak >= 3) willWin = false;
-            if(Math.random() > 0.7) willWin = false; // 70% Win rate
-
-            // Manipulate Ball Position
-            // If win: Ball is under `id`.
-            // If lose: Ball is under random OTHER `id`.
+            // RISK MANAGEMENT (30% Win / 70% Lose)
+            let winChance = 0.3; // 30% Chance to Win
             
+            // Extra penalties
+            if (currentBet >= 500) winChance = 0.05; // 5% Win
+            if (myStreak >= 3) winChance = 0; // 0% Win
+
+            let willWin = Math.random() < winChance;
+
+            // Decide Outcome
             let actualBallLoc;
             if(willWin) {
-                actualBallLoc = id;
+                actualBallLoc = id; // User picked correct
             } else {
+                // User picked wrong, ensure ball is elsewhere
                 const others = [0,1,2].filter(x => x !== id);
                 actualBallLoc = others[Math.floor(Math.random()*others.length)];
             }
 
-            // Important: We must move the ball to the visual position of `actualBallLoc`
-            // layoutMap stores which ID is at [0,1,2] visual slots.
-            // We need to find where `actualBallLoc` is visually.
             const visualIdx = layoutMap.indexOf(actualBallLoc);
             document.getElementById('theBall').style.left = POSITIONS[visualIdx];
 
@@ -374,7 +348,7 @@
                 document.getElementById('theBall').classList.add('ball-visible');
                 
                 const win = currentBet * 2.9;
-                const newBal = myBalance + win; // Add profit to deducted bal
+                const newBal = myBalance + win; 
                 const newStreak = myStreak + 1;
                 db.ref('users/' + currentUser.uid).update({ balance: newBal, streak: newStreak });
                 
@@ -390,7 +364,6 @@
                 document.getElementById('theBall').classList.add('ball-visible');
             }
 
-            // Reset
             setTimeout(async () => {
                 document.getElementById('theBall').classList.remove('ball-visible');
                 await liftAll(false);
@@ -398,13 +371,11 @@
                 document.getElementById('playBtn').innerText = "START SHUFFLE";
                 document.getElementById('statusText').innerText = "EYES ON THE PRIZE";
                 
-                // Reset visual positions
                 layoutMap = [0,1,2];
                 for(let i=0; i<3; i++) document.getElementById(`can${i}`).style.left = POSITIONS[i];
             }, 3000);
         }
 
-        // Helpers
         function moveBall(posIdx) { document.getElementById('theBall').style.left = POSITIONS[posIdx]; }
         async function liftAll(up) { await Promise.all([0,1,2].map(i => liftSingle(i,up))); }
         function liftSingle(id, up) {
@@ -417,7 +388,6 @@
         }
         const wait = ms => new Promise(r => setTimeout(r, ms));
 
-        // Init
         layoutMap.forEach((id, i) => document.getElementById(`can${id}`).style.left = POSITIONS[i]);
 
     </script>
