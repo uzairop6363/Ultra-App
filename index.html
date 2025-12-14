@@ -26,6 +26,9 @@
         #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 200; justify-content: center; align-items: center; }
         .pulse-ring { width: 50px; height: 50px; border-radius: 50%; border: 4px solid #fff; animation: ring 1s infinite; }
         @keyframes ring { 0% {transform: scale(0.5); opacity: 1;} 100% {transform: scale(1.5); opacity: 0;} }
+        
+        /* High Z-Index for Modals */
+        .modal-overlay { z-index: 9999 !important; }
     </style>
 </head>
 <body>
@@ -68,7 +71,7 @@
                 <h1 class="text-5xl font-black mb-4">Rs. <span id="bigBalance">0</span></h1>
                 
                 <div class="bg-red-900/30 border border-red-500/50 p-2 rounded mb-6 text-xs text-red-300">
-                    Required Wager: Rs. <span id="wagerDisplay" class="font-bold">0</span>
+                    Wager Remaining: Rs. <span id="wagerDisplay" class="font-bold">0</span>
                 </div>
 
                 <div class="flex gap-4 justify-center">
@@ -110,7 +113,7 @@
             <div id="planLockedView" class="hidden text-center mt-10">
                 <i class="fa-solid fa-lock text-5xl text-red-500 mb-4"></i>
                 <h2 class="text-2xl font-bold">LOCKED</h2>
-                <p class="text-gray-400 text-sm mb-6">Upgrade to <strong>GOLD PRO</strong> to earn rewards.</p>
+                <p class="text-gray-400 text-sm mb-6">Upgrade to <strong>GOLD PRO</strong> (2000) to unlock task rewards.</p>
                 <button onclick="switchTab('plans')" class="god-btn w-full py-3 rounded">UPGRADE</button>
             </div>
             <div id="taskListView" class="hidden">
@@ -141,10 +144,10 @@
         </div>
     </div>
 
-    <div id="depositModal" class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4">
-        <div class="gf-card w-full max-w-sm p-6 border-green-500">
+    <div id="depositModal" class="hidden fixed inset-0 modal-overlay bg-black/95 flex items-center justify-center p-4">
+        <div class="gf-card w-full max-w-sm p-6 border-green-500 relative">
             <h3 class="text-xl font-bold mb-4">DEPOSIT</h3>
-            <button onclick="document.getElementById('depositModal').style.display='none'" class="absolute top-4 right-4 text-gray-500">✕</button>
+            <button onclick="document.getElementById('depositModal').style.display='none'" class="absolute top-4 right-4 text-gray-500 text-xl font-bold">✕</button>
             
             <div class="flex gap-2 mb-4">
                 <button onclick="selMethod('ep')" id="btn-ep" class="flex-1 py-2 rounded border border-green-500 bg-green-900/30">EasyPaisa</button>
@@ -163,16 +166,16 @@
         </div>
     </div>
 
-    <div id="withdrawModal" class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4">
-        <div class="gf-card w-full max-w-sm p-6 border-red-500">
+    <div id="withdrawModal" class="hidden fixed inset-0 modal-overlay bg-black/95 flex items-center justify-center p-4">
+        <div class="gf-card w-full max-w-sm p-6 border-red-500 relative">
             <h3 class="text-xl font-bold mb-4">WITHDRAW</h3>
-            <button onclick="document.getElementById('withdrawModal').style.display='none'" class="absolute top-4 right-4 text-gray-500">✕</button>
+            <button onclick="document.getElementById('withdrawModal').style.display='none'" class="absolute top-4 right-4 text-gray-500 text-xl font-bold">✕</button>
             
             <select id="withMethod" class="god-input w-full p-3 rounded mb-2 bg-black"><option>Easypaisa</option><option>JazzCash</option></select>
             <input type="text" id="withName" placeholder="Account Name" class="god-input w-full p-3 rounded mb-2">
             <input type="number" id="withNum" placeholder="Account Number" class="god-input w-full p-3 rounded mb-2">
             <input type="number" id="withAmt" placeholder="Amount (Min 500)" class="god-input w-full p-3 rounded mb-4">
-            <button onclick="submitWithdraw()" class="god-btn w-full py-3 rounded">SUBMIT REQUEST</button>
+            <button onclick="submitWithdraw()" class="god-btn w-full py-3 rounded font-bold">SUBMIT</button>
         </div>
     </div>
 
@@ -221,10 +224,10 @@
                 
                 let btn = `<div class="text-red-500 font-bold text-xs"><i class="fa-solid fa-lock"></i> LOCKED</div>`;
                 if(isDone) btn = `<div class="text-gray-500 font-bold text-xs">COMPLETED</div>`;
-                else if(isOpen) btn = `<button onclick="claimTask(${i}, '${data.url}')" class="bg-green-500 text-black px-4 py-1 rounded font-bold text-xs">CLAIM 200</button>`;
+                else if(isOpen) btn = `<button onclick="claimTask(${i}, '${data.url}')" class="bg-green-500 text-black px-4 py-1 rounded font-bold text-xs hover:scale-105">CLAIM 200</button>`;
 
                 html += `<div class="gf-card p-3 flex justify-between items-center ${isOpen?'border-green-500/30':'border-red-500/30'}">
-                    <div class="flex gap-3 items-center"><div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"><i class="fa-solid fa-gift"></i></div><div><h4 class="font-bold text-sm">Task #${i+1}</h4><p class="text-[10px] text-gray-400">${data.title}</p></div></div>${btn}</div>`;
+                    <div class="flex gap-3 items-center"><div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"><i class="fa-solid fa-gift"></i></div><div><h4 class="font-bold text-sm">Reward #${i+1}</h4><p class="text-[10px] text-gray-400">${data.title}</p></div></div>${btn}</div>`;
             }
             cont.innerHTML = html;
         }
@@ -235,7 +238,7 @@
                 const nBal = (myData.balance || 0) + 200;
                 const nClm = (myData.claimedTasks || 0) + 1;
                 db.ref('users/'+currentUser.uid).update({ balance: nBal, claimedTasks: nClm });
-                alert("200 Added!");
+                alert("200 PKR Added!");
             }, 2000);
         }
 
@@ -262,37 +265,44 @@
             } else { document.getElementById('authScreen').style.display = 'flex'; }
         });
 
-        function login() { auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPass').value).catch(e=>alert(e.message)); }
+        // Basic Functions
+        function login() { auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPass').value).catch(e => alert(e.message)); }
         function register() {
             const e=document.getElementById('regEmail').value, p=document.getElementById('regPass').value, n=document.getElementById('regName').value;
             const code = "U-" + Math.floor(10000 + Math.random() * 90000);
             auth.createUserWithEmailAndPassword(e, p).then(c => {
-                db.ref('users/'+c.user.uid).set({name:n, email:e, myCode:code, invitedBy:detectedReferral, balance:0, wager:0, plan:"FREE"});
-            }).catch(e=>alert(e.message));
+                db.ref('users/'+c.user.uid).set({name:n, email:e, myCode:code, invitedBy:detectedReferral, balance:0, wager:0, plan:"FREE", unlockedTasks:0, claimedTasks:0});
+            }).catch(e => alert(e.message));
         }
         function logout() { auth.signOut(); location.reload(); }
         function toggleAuth() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('registerForm').classList.toggle('hidden'); }
-        
         function openDeposit() { document.getElementById('depositModal').style.display='flex'; }
-        function selMethod(t) { selectedDepMethod = t==='ep'?"Easypaisa":"JazzCash"; }
+        function selMethod(t) { selectedDepMethod = t==='ep'?"Easypaisa":"JazzCash"; document.querySelectorAll('#depositModal button').forEach(b=>b.classList.remove('border-green-500')); event.target.classList.add('border-green-500'); }
+        
         function submitDeposit() {
-            const amt = document.getElementById('depAmt').value, snd = document.getElementById('senderNum').value;
-            db.ref('deposits').push({ uid: currentUser.uid, amount: amt, senderNum: snd, method: selectedDepMethod, invitedBy: myData.invitedBy, status: "Pending", timestamp: Date.now() });
-            alert("Sent!"); document.getElementById('depositModal').style.display='none';
+            const amt = document.getElementById('depAmt').value, sender = document.getElementById('senderNum').value;
+            db.ref('deposits').push({ uid: currentUser.uid, amount: amt, senderNum: sender, method: selectedDepMethod, invitedBy: myData.invitedBy, status: "Pending", timestamp: Date.now() });
+            alert("Request Sent!"); document.getElementById('depositModal').style.display='none';
         }
-
-        function openWithdraw() {
-            if((myData.wager || 0) > 0) return alert("Complete Wager first: Rs. " + myData.wager);
+        
+        // --- FIXED WITHDRAW FUNCTION ---
+        window.openWithdraw = function() {
+            if(!myData) return alert("Loading...");
+            if((myData.wager || 0) > 0) return alert("Complete Wager First!\nRemaining: Rs. " + myData.wager);
             if(myData.balance < 500) return alert("Min Withdraw 500");
+            
+            // Force Show
+            document.getElementById('withdrawModal').classList.remove('hidden');
             document.getElementById('withdrawModal').style.display='flex';
         }
+
         function submitWithdraw() {
             const amt = parseInt(document.getElementById('withAmt').value);
             if(amt > myData.balance) return alert("Low Balance");
-            if(confirm("Withdraw?")) {
+            if(confirm("Confirm?")) {
                 db.ref('users/'+currentUser.uid).update({balance: myData.balance - amt});
-                db.ref('withdrawals').push({ uid: currentUser.uid, amount: amt, method: document.getElementById('withMethod').value, accNum: document.getElementById('withNum').value, status: "Pending" });
-                alert("Pending!"); document.getElementById('withdrawModal').style.display='none';
+                db.ref('withdrawals').push({uid:currentUser.uid, amount:amt, method:document.getElementById('withMethod').value, accNum:document.getElementById('withNum').value, status:"Pending"});
+                alert("Sent!"); document.getElementById('withdrawModal').style.display='none';
             }
         }
 
@@ -307,8 +317,9 @@
 
         function shareLink() { window.open("https://wa.me/?text=" + encodeURIComponent("Join: " + document.getElementById('myLinkDisplay').innerText), '_blank'); }
         function switchTab(t) {
-            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active-tab'));
+            document.querySelectorAll('.tab-content').forEach(e => { e.classList.remove('active-tab'); e.style.display = 'none'; });
             document.getElementById('tab-'+t).classList.add('active-tab');
+            document.getElementById('tab-'+t).style.display = 'block';
             document.querySelectorAll('.nav-item').forEach(e => {e.classList.remove('text-white'); e.classList.add('text-gray-500');});
             event.currentTarget.classList.add('text-white');
         }
