@@ -26,28 +26,24 @@
             flex-direction: column;
         }
 
-        /* --- BACKGROUND --- */
         .casino-bg {
             position: fixed; inset: 0; z-index: -2;
             background: radial-gradient(circle at center, #1a0f00, #000000);
         }
         
-        /* BACK BUTTON */
         .back-btn { 
             position: absolute; top: 20px; left: 20px; z-index: 60; 
             color: white; font-size: 24px; cursor: pointer; 
             background: rgba(0,0,0,0.5); padding: 10px; border-radius: 50%;
         }
 
-        /* --- HEADER --- */
         .game-header {
             padding: 20px;
-            padding-top: 80px; /* Space for back button */
+            padding-top: 80px; 
             display: flex; justify-content: space-between; align-items: center;
             z-index: 10;
         }
 
-        /* --- 3D COIN --- */
         .coin-wrapper {
             flex: 1;
             display: flex; justify-content: center; align-items: center;
@@ -89,13 +85,11 @@
             transform: rotateY(90deg) translateX(-5px); width: 10px; left: 50%;
         }
 
-        /* ANIMATIONS */
         .toss-anim { animation: toss 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
         .spin-rapid { animation: spin 0.5s linear infinite; }
         @keyframes toss { 0% {transform: translateY(0) scale(1);} 50% {transform: translateY(-300px) scale(0.8);} 100% {transform: translateY(0) scale(1);} }
         @keyframes spin { to { transform: rotateY(3600deg); } }
 
-        /* --- BOTTOM CONTROLS --- */
         .controls-area {
             background: rgba(20, 20, 20, 0.95);
             border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -106,7 +100,6 @@
             box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
         }
 
-        /* Chips */
         .chip-rack {
             display: flex; gap: 15px; justify-content: center; margin-bottom: 20px;
         }
@@ -126,7 +119,6 @@
         .c-100 { background: #ff3333; color: #ffcccc; border-color: #aa0000; }
         .c-500 { background: #222; color: #ffd700; border-color: #ffd700; }
 
-        /* Side Buttons */
         .side-btn {
             flex: 1; padding: 15px; border-radius: 12px;
             background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
@@ -134,7 +126,6 @@
         }
         .side-btn.active { background: rgba(255, 215, 0, 0.2); border-color: gold; box-shadow: 0 0 15px rgba(255, 215, 0, 0.3); }
 
-        /* Flip Button */
         .flip-btn {
             width: 100%; padding: 18px; border-radius: 12px;
             background: linear-gradient(to right, #ffd700, #ffaa00);
@@ -144,7 +135,6 @@
         }
         .flip-btn:active { transform: scale(0.98); }
         
-        /* Win Overlay */
         .win-overlay {
             position: fixed; inset: 0; pointer-events: none; z-index: 100;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -214,7 +204,6 @@
     </div>
 
     <script>
-        // === FIREBASE CONFIG ===
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -231,12 +220,10 @@
         let myBalance = 0;
         let myStreak = 0;
         
-        // Game State
         let currentBet = 20; 
         let selectedSide = null;
         let isFlipping = false;
 
-        // AUTH
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
@@ -252,7 +239,6 @@
             }
         });
 
-        // === SOUND ENGINE ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let audioInit = false;
 
@@ -289,7 +275,6 @@
             }
         }
 
-        // === UI LOGIC ===
         function selectChip(val, el) {
             if(isFlipping) return;
             currentBet = val;
@@ -306,7 +291,6 @@
             playSound('chip');
         }
 
-        // === GAME LOGIC (RISK MANAGEMENT) ===
         function flipCoin() {
             if(isFlipping) return;
             if(!selectedSide) return alert("Select Head or Tail");
@@ -315,19 +299,21 @@
             isFlipping = true;
             initAudio(); 
 
-            // 1. Deduct Balance
+            // 1. DEDUCT
             const newBal = myBalance - currentBet;
             db.ref('users/' + currentUser.uid).update({ balance: newBal });
 
-            // 2. Decide Outcome
-            let winChance = 0.7; // 70% win for small bets
-            if(currentBet >= 500) winChance = 0.1; // 10% win for big bets
-            if(myStreak >= 3) winChance = 0; // Force loss on streak
+            // 2. RISK ENGINE (30% Win / 70% Lose)
+            let winChance = 0.3; // 30% Chance to Win
+            
+            // Extra safety: Big bets or high streaks get lower chance
+            if (currentBet >= 500) winChance = 0.1; // 10%
+            if (myStreak >= 3) winChance = 0; // 0%
 
             const isWin = Math.random() < winChance;
             const result = isWin ? selectedSide : (selectedSide === 'head' ? 'tail' : 'head');
 
-            // 3. Animation
+            // 3. ANIMATION
             const stage = document.getElementById('coinStage');
             const coin = document.getElementById('theCoin');
             const status = document.getElementById('statusText');
@@ -341,7 +327,7 @@
             const finalRot = 3600 + (result === 'head' ? 0 : 180);
             coin.style.transform = `rotateY(${finalRot}deg)`;
 
-            // 4. Result
+            // 4. RESULT
             setTimeout(() => {
                 stage.classList.remove('toss-anim');
                 coin.style.transition = 'none';
