@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CYBER TOWER - PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@600;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <style>
+        :root {
+            --neon-safe: #00ff41;
+            --neon-danger: #ff0033;
+            --neon-blue: #00f3ff;
+            --bg-dark: #050505;
+            --tile-bg: rgba(20, 30, 40, 0.8);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: white;
+            font-family: 'Share Tech Mono', monospace;
+            overflow: hidden;
+            user-select: none;
+            height: 100vh;
+            touch-action: manipulation;
+        }
+
+        /* MATRIX BG */
+        #matrixCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.15; }
+        .back-btn { position: absolute; top: 20px; left: 20px; z-index: 60; color: white; font-size: 24px; cursor: pointer; }
+
+        /* HEADER */
+        .game-header {
+            padding: 20px; padding-top: 80px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 40; position: relative;
+            background: linear-gradient(to bottom, black, transparent);
+        }
+
+        /* TOWER VIEWPORT */
+        .tower-viewport {
+            position: relative;
+            height: 55vh;
+            width: 100%; max-width: 400px;
+            margin: 0 auto;
+            overflow: hidden;
+            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+            -webkit-mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+            border-left: 1px solid rgba(0, 243, 255, 0.1);
+            border-right: 1px solid rgba(0, 243, 255, 0.1);
+            z-index: 10;
+        }
+
+        .tower-stack {
+            display: flex; flex-direction: column-reverse;
+            gap: 8px; padding: 100px 20px;
+            transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        /* LEVELS & TILES */
+        .level-row {
+            display: flex; gap: 10px; opacity: 0.3; filter: blur(2px);
+            transition: 0.3s; pointer-events: none;
+        }
+        .level-row.active {
+            opacity: 1; filter: blur(0); pointer-events: auto;
+            transform: scale(1.05);
+        }
+        .level-row.cleared { opacity: 0.6; filter: blur(0); }
+
+        .tile {
+            flex: 1; height: 55px;
+            background: var(--tile-bg);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 4px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; position: relative; overflow: hidden;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            transition: 0.2s;
+        }
+        .level-row.active .tile:active { transform: scale(0.95); }
+
+        /* Tile States */
+        .tile.safe {
+            background: rgba(0, 255, 65, 0.2); border-color: var(--neon-safe);
+            box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
+        }
+        .tile.virus {
+            background: rgba(255, 0, 51, 0.3); border-color: var(--neon-danger);
+            box-shadow: 0 0 30px rgba(255, 0, 51, 0.6);
+            animation: glitchTile 0.3s infinite;
+        }
+        @keyframes glitchTile { 0% {transform: translate(0);} 25% {transform: translate(-2px, 2px);} 50% {transform: translate(2px, -2px);} 75% {transform: translate(-2px, -2px);} 100% {transform: translate(0);} }
+
+        /* CONTROLS */
+        .controls-area {
+            position: fixed; bottom: 0; width: 100%;
+            background: rgba(10, 10, 15, 0.95);
+            border-top: 1px solid #333;
+            padding: 20px; z-index: 50;
+            border-radius: 20px 20px 0 0;
+            backdrop-filter: blur(10px);
+        }
+
+        /* Chips */
+        .chip-rack { display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; }
+        .chip {
+            width: 55px; height: 55px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 13px; cursor: pointer;
+            border: 3px dashed rgba(255,255,255,0.5);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            transition: 0.2s;
+        }
+        .chip.selected { transform: translateY(-10px) scale(1.1); box-shadow: 0 10px 20px rgba(0, 243, 255, 0.4); border-style: solid; color: var(--neon-blue); border-color: var(--neon-blue); }
+        
+        .c-20 { background: #111; color: #aaa; }
+        .c-50 { background: #111; color: #aaa; }
+        .c-100 { background: #111; color: #aaa; }
+        .c-500 { background: #111; color: #aaa; }
+
+        /* Diff Selector */
+        .diff-bar { display: flex; gap: 10px; margin-bottom: 15px; }
+        .diff-btn {
+            flex: 1; padding: 10px; background: #222; border: 1px solid #444;
+            color: #777; font-weight: bold; font-size: 12px; border-radius: 4px;
+        }
+        .diff-btn.active { background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); border-color: var(--neon-blue); }
+
+        /* Main Button */
+        .cyber-btn {
+            width: 100%; padding: 18px;
+            background: linear-gradient(90deg, #00f3ff, #0066ff);
+            color: black; font-weight: 900; font-size: 20px; letter-spacing: 2px;
+            border: none; border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3);
+            font-family: 'Rajdhani', sans-serif;
+        }
+        .cyber-btn:active { transform: scale(0.98); }
+        .cashout-btn { background: linear-gradient(90deg, #00ff41, #008f24); box-shadow: 0 0 20px rgba(0, 255, 65, 0.3); }
+
+        /* Multiplier Info */
+        .level-info { position: absolute; left: -40px; font-size: 10px; color: #666; top: 18px; }
+        .level-row.active .level-info { color: var(--neon-blue); font-weight: bold; }
+
+    </style>
+</head>
+<body onclick="initAudio()">
+
+    <canvas id="matrixCanvas"></canvas>
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+
+    <div class="game-header">
+        <div>
+            <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">BALANCE</p>
+            <h2 class="text-3xl font-bold font-mono text-[#00f3ff]">Rs. <span id="balance">...</span></h2>
+        </div>
+        <div class="text-right">
+            <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">NEXT PROFIT</p>
+            <h2 class="text-xl font-bold font-mono text-green-400" id="nextProfit">--</h2>
+        </div>
+    </div>
+
+    <div class="tower-viewport">
+        <div id="towerStack" class="tower-stack"></div>
+    </div>
+
+    <div class="controls-area">
+        
+        <div id="setupControls">
+            <div class="diff-bar">
+                <button class="diff-btn active" onclick="setDiff('easy')" id="d-easy">EASY (2 SAFE)</button>
+                <button class="diff-btn" onclick="setDiff('hard')" id="d-hard">HARD (1 SAFE)</button>
+            </div>
+
+            <div class="chip-rack">
+                <div onclick="selectChip(20, this)" class="chip c-20 selected">20</div>
+                <div onclick="selectChip(50, this)" class="chip c-50">50</div>
+                <div onclick="selectChip(100, this)" class="chip c-100">100</div>
+                <div onclick="selectChip(500, this)" class="chip c-500">500</div>
+            </div>
+
+            <button onclick="startGame()" class="cyber-btn">INITIATE HACK</button>
+        </div>
+
+        <div id="playControls" class="hidden">
+            <button onclick="cashout()" id="cashoutBtn" class="cyber-btn cashout-btn">CASHOUT</button>
+        </div>
+
+    </div>
+
+    <script>
+        // === FIREBASE ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
+            authDomain: "ultra-earn-a636a.firebaseapp.com",
+            projectId: "ultra-earn-a636a",
+            storageBucket: "ultra-earn-a636a.firebasestorage.app",
+            messagingSenderId: "185942357584",
+            appId: "1:185942357584:web:1052b94cfecc6576944355"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let currentUser = null;
+        let myBalance = 0;
+        let myStreak = 0;
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                db.ref('users/' + user.uid).on('value', snap => {
+                    const data = snap.val();
+                    myBalance = data.balance || 0;
+                    myStreak = data.streak || 0;
+                    document.getElementById('balance').innerText = myBalance.toFixed(2);
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // === GAME CONFIG ===
+        const LEVELS = 9;
+        const MULTIPLIERS = {
+            easy: [1.42, 2.02, 2.88, 4.11, 5.87, 8.39, 11.98, 17.11, 24.44], // 2/3 Safe
+            hard: [2.85, 8.55, 25.65, 76.95, 230.85, 692.55, 2077.65, 6232.95, 18698.85] // 1/3 Safe
+        };
+
+        // === STATE ===
+        let currentBet = 20;
+        let currentLevel = 0;
+        let difficulty = 'easy';
+        let isPlaying = false;
+        let isRigged = false;
+
+        // === AUDIO ===
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioInit = false;
+        function initAudio() { if(!audioInit) { audioCtx.resume(); audioInit = true; } }
+
+        function playSound(type) {
+            initAudio();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            if (type === 'chip') {
+                osc.frequency.setValueAtTime(800, t); gain.gain.setValueAtTime(0.05, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.1);
+                osc.start(t); osc.stop(t+0.1);
+            } else if (type === 'start') {
+                osc.type='sawtooth'; osc.frequency.setValueAtTime(200, t); osc.frequency.linearRampToValueAtTime(800, t+0.3);
+                gain.gain.setValueAtTime(0.1, t); gain.gain.linearRampToValueAtTime(0, t+0.3);
+                osc.start(t); osc.stop(t+0.3);
+            } else if (type === 'safe') {
+                osc.type='sine'; osc.frequency.setValueAtTime(1200 + (currentLevel*100), t);
+                gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.001, t+0.2);
+                osc.start(t); osc.stop(t+0.2);
+            } else if (type === 'crash') {
+                osc.type='square'; osc.frequency.setValueAtTime(100, t);
+                gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.5);
+                osc.start(t); osc.stop(t+0.5);
+            } else if (type === 'cashout') {
+                osc.type='triangle'; osc.frequency.setValueAtTime(600, t); gain.gain.setValueAtTime(0.2, t); gain.gain.linearRampToValueAtTime(0, t+0.5);
+                osc.start(t); osc.stop(t+0.5);
+            }
+        }
+
+        // === UI LOGIC ===
+        function setDiff(diff) {
+            if(isPlaying) return;
+            difficulty = diff;
+            document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`d-${diff}`).classList.add('active');
+            initTower();
+        }
+
+        function selectChip(val, el) {
+            if(isPlaying) return;
+            currentBet = val;
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            playSound('chip');
+        }
+
+        // === GAME LOGIC ===
+        function initTower() {
+            const stack = document.getElementById('towerStack');
+            stack.innerHTML = '';
+            for(let i=LEVELS-1; i>=0; i--) {
+                stack.innerHTML += `
+                    <div class="level-row" id="row-${i}">
+                        <div class="level-info">${MULTIPLIERS[difficulty][i]}x</div>
+                        <div class="tile" onclick="clickTile(${i}, 0)"><div class="icon"></div></div>
+                        <div class="tile" onclick="clickTile(${i}, 1)"><div class="icon"></div></div>
+                        <div class="tile" onclick="clickTile(${i}, 2)"><div class="icon"></div></div>
+                    </div>`;
+            }
+        }
+        initTower();
+
+        function startGame() {
+            if(myBalance < currentBet) return alert("Low Balance");
+            if(isPlaying) return;
+
+            // 1. DEDUCT
+            const newBal = myBalance - currentBet;
+            db.ref('users/' + currentUser.uid).update({ balance: newBal });
+
+            // 2. RISK LOGIC
+            isRigged = false;
+            if(currentBet >= 500 || myStreak >= 3) isRigged = true;
+
+            isPlaying = true;
+            currentLevel = 0;
+            
+            // UI
+            document.getElementById('setupControls').classList.add('hidden');
+            document.getElementById('playControls').classList.remove('hidden');
+            initTower();
+            activateRow(0);
+            updateInfo();
+            playSound('start');
+        }
+
+        function activateRow(lvl) {
+            document.querySelectorAll('.level-row').forEach(r => r.classList.remove('active'));
+            if(lvl < LEVELS) document.getElementById(`row-${lvl}`).classList.add('active');
+        }
+
+        function clickTile(lvl, col) {
+            if(!isPlaying || lvl !== currentLevel) return;
+
+            const row = document.getElementById(`row-${lvl}`);
+            const tiles = row.querySelectorAll('.tile');
+            const clickedTile = tiles[col];
+
+            // DETERMINE OUTCOME
+            // Easy: 2/3 Safe. Hard: 1/3 Safe.
+            let isSafe = false;
+            let safeChance = difficulty === 'easy' ? 0.66 : 0.33;
+
+            // Apply Rigging
+            if(isRigged) {
+                // Allow level 0, maybe level 1. Crush at level 2+
+                if(lvl >= 2) safeChance = 0.1; // 10% chance to survive
+                else safeChance = 0.5;
+            }
+
+            if(Math.random() < safeChance) isSafe = true;
+
+            // Reveal
+            if(isSafe) {
+                // SAFE
+                clickedTile.classList.add('safe');
+                clickedTile.innerHTML = '<i class="fa-solid fa-code text-green-400"></i>';
+                playSound('safe');
+                
+                row.classList.add('cleared');
+                currentLevel++;
+                
+                if(currentLevel >= LEVELS) {
+                    cashout();
+                } else {
+                    activateRow(currentLevel);
+                    // Scroll down
+                    document.getElementById('towerStack').style.transform = `translateY(${currentLevel * 65}px)`;
+                    updateInfo();
+                }
+            } else {
+                // CRASH
+                clickedTile.classList.add('virus');
+                clickedTile.innerHTML = '<i class="fa-solid fa-skull text-red-500"></i>';
+                playSound('crash');
+                if(navigator.vibrate) navigator.vibrate(400);
+                
+                // Reveal other safe spots
+                gameOver(false);
+            }
+        }
+
+        function cashout() {
+            if(!isPlaying) return;
+            const mult = MULTIPLIERS[difficulty][currentLevel - 1];
+            const win = currentBet * mult;
+            
+            const newBal = myBalance + win;
+            const newStreak = myStreak + 1;
+            db.ref('users/' + currentUser.uid).update({ balance: newBal, streak: newStreak });
+            
+            playSound('cashout');
+            alert("HACK SUCCESS: Rs. " + win.toFixed(0));
+            gameOver(true);
+        }
+
+        function gameOver(win) {
+            isPlaying = false;
+            if(!win) db.ref('users/' + currentUser.uid).update({ streak: 0 });
+            
+            setTimeout(() => {
+                document.getElementById('setupControls').classList.remove('hidden');
+                document.getElementById('playControls').classList.add('hidden');
+                document.getElementById('towerStack').style.transform = `translateY(0)`;
+                document.getElementById('nextProfit').innerText = "--";
+            }, 1500);
+        }
+
+        function updateInfo() {
+            if(currentLevel < LEVELS) {
+                const nextMult = MULTIPLIERS[difficulty][currentLevel];
+                document.getElementById('nextProfit').innerText = "Rs. " + (currentBet * nextMult).toFixed(0);
+                document.getElementById('cashoutBtn').innerText = `CASHOUT (Rs. ${(currentBet * (currentLevel>0 ? MULTIPLIERS[difficulty][currentLevel-1]:1)).toFixed(0)})`;
+            }
+        }
+
+        // === MATRIX BG ===
+        const cvs = document.getElementById('matrixCanvas');
+        const ctx = cvs.getContext('2d');
+        let w, h;
+        function resizeMatrix() { w=cvs.width=window.innerWidth; h=cvs.height=window.innerHeight; }
+        window.addEventListener('resize', resizeMatrix); resizeMatrix();
+        const cols = Math.floor(w/20); const ypos = Array(cols).fill(0);
+        function matrix() {
+            ctx.fillStyle = '#0001'; ctx.fillRect(0,0,w,h);
+            ctx.fillStyle = '#0f0'; ctx.font = '15px monospace';
+            ypos.forEach((y, i) => {
+                const txt = String.fromCharCode(Math.random()*128);
+                const x = i*20;
+                ctx.fillText(txt, x, y);
+                if(y > 100 + Math.random()*10000) ypos[i] = 0;
+                else ypos[i] = y + 20;
+            });
+        }
+        setInterval(matrix, 50);
+
+    </script>
+</body>
+</html>
