@@ -3,86 +3,303 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULTRA ADMIN</title>
+    <title>ULTRA ADMIN - GOD MODE</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <style>
+        body { background: #050505; color: #fff; font-family: 'Rajdhani', sans-serif; }
+        .glass { background: rgba(20, 20, 20, 0.95); border: 1px solid #333; border-radius: 12px; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5); }
+        .btn { font-weight: bold; padding: 5px 15px; border-radius: 5px; transition: 0.2s; text-transform: uppercase; font-size: 12px; }
+        .btn:active { transform: scale(0.95); }
+        .btn-green { background: #00cc00; color: black; }
+        .btn-red { background: #ff0040; color: white; }
+        .btn-blue { background: #0088ff; color: white; }
+        
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #111; }
+        ::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #555; }
+    </style>
 </head>
-<body class="bg-gray-900 text-white p-6">
-    <h1 class="text-3xl font-bold mb-6 text-center text-yellow-400">ADMIN PANEL</h1>
-    <div id="depositList" class="space-y-4 max-w-2xl mx-auto"></div>
+<body class="p-6">
+
+    <div class="flex justify-between items-center mb-8 border-b border-gray-800 pb-4">
+        <h1 class="text-4xl font-bold text-yellow-400 tracking-widest"><i class="fa-solid fa-user-secret mr-2"></i> ADMIN PANEL</h1>
+        <div class="text-right">
+            <p class="text-gray-400 text-xs">Total Users</p>
+            <h2 id="totalUsers" class="text-2xl font-bold text-white">0</h2>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        
+        <div class="glass p-6 h-[500px] flex flex-col">
+            <h2 class="text-xl text-green-400 font-bold mb-4 flex justify-between items-center">
+                <span><i class="fa-solid fa-money-bill-wave mr-2"></i> DEPOSITS REQUESTS</span>
+                <span id="depCount" class="bg-green-900 text-green-300 text-xs px-2 py-1 rounded">0</span>
+            </h2>
+            <div id="depositList" class="space-y-3 overflow-y-auto flex-1 pr-2">
+                <p class="text-gray-600 text-center mt-10">No Pending Deposits</p>
+            </div>
+        </div>
+
+        <div class="glass p-6 h-[500px] flex flex-col">
+            <h2 class="text-xl text-red-400 font-bold mb-4 flex justify-between items-center">
+                <span><i class="fa-solid fa-hand-holding-dollar mr-2"></i> WITHDRAWAL REQUESTS</span>
+                <span id="withCount" class="bg-red-900 text-red-300 text-xs px-2 py-1 rounded">0</span>
+            </h2>
+            <div id="withdrawList" class="space-y-3 overflow-y-auto flex-1 pr-2">
+                <p class="text-gray-600 text-center mt-10">No Pending Withdrawals</p>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="glass p-6">
+        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <h2 class="text-2xl text-blue-400 font-bold"><i class="fa-solid fa-users mr-2"></i> USER MANAGEMENT</h2>
+            <input type="text" id="userSearch" onkeyup="filterUsers()" placeholder="Search Name or Email..." class="bg-black border border-gray-700 text-white px-4 py-2 rounded w-full md:w-1/3 focus:outline-none focus:border-blue-500">
+        </div>
+        
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="text-gray-500 border-b border-gray-700 text-xs uppercase">
+                        <th class="p-3">Name</th>
+                        <th class="p-3">Email</th>
+                        <th class="p-3">Plan</th>
+                        <th class="p-3">Balance</th>
+                        <th class="p-3">Invited By</th>
+                        <th class="p-3 text-right">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTable" class="text-sm text-gray-300">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="editModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
+        <div class="glass p-6 w-96">
+            <h3 class="text-xl font-bold mb-4 text-white">EDIT BALANCE</h3>
+            <p id="editUserName" class="text-gray-400 mb-2 text-sm"></p>
+            <input type="number" id="newBalanceInput" class="w-full bg-black border border-gray-600 p-3 rounded text-white mb-4" placeholder="Enter New Balance">
+            <input type="hidden" id="editUserId">
+            <div class="flex gap-2">
+                <button onclick="saveBalance()" class="btn btn-green flex-1 py-3">SAVE</button>
+                <button onclick="document.getElementById('editModal').style.display='none'" class="btn btn-red flex-1 py-3">CANCEL</button>
+            </div>
+        </div>
+    </div>
 
     <script>
-        const firebaseConfig = { apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54", authDomain: "ultra-earn-a636a.firebaseapp.com", projectId: "ultra-earn-a636a", storageBucket: "ultra-earn-a636a.firebasestorage.app", messagingSenderId: "185942357584", appId: "1:185942357584:web:1052b94cfecc6576944355" };
+        // === FIREBASE CONFIG (Isy Change Mat Karna) ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
+            authDomain: "ultra-earn-a636a.firebaseapp.com",
+            projectId: "ultra-earn-a636a",
+            storageBucket: "ultra-earn-a636a.firebasestorage.app",
+            messagingSenderId: "185942357584",
+            appId: "1:185942357584:web:1052b94cfecc6576944355"
+        };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
+        // ==========================================
+        // 1. DEPOSITS LOGIC (WITH 50% COMMISSION)
+        // ==========================================
         db.ref('deposits').on('value', snap => {
             const list = document.getElementById('depositList');
             list.innerHTML = "";
+            let count = 0;
+            
             snap.forEach(child => {
                 const data = child.val();
                 if(data.status === 'Pending') {
-                    const div = document.createElement('div');
-                    div.className = "bg-gray-800 p-4 rounded border border-gray-700";
-                    div.innerHTML = `
-                        <div class="flex justify-between font-bold mb-2">
-                            <span>${data.method}</span>
-                            <span class="text-green-400">Rs. ${data.amount}</span>
+                    count++;
+                    const card = document.createElement('div');
+                    card.className = "bg-gray-900 p-4 rounded border-l-4 border-green-500 shadow-lg";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-white font-bold">${data.method}</p>
+                                <p class="text-xs text-gray-400">Sender: <span class="text-white select-all">${data.senderNum}</span></p>
+                            </div>
+                            <h3 class="text-xl font-bold text-green-400">Rs. ${data.amount}</h3>
                         </div>
-                        <p class="text-xs text-gray-400">User: ${data.uid}</p>
-                        <p class="text-xs text-yellow-500 mb-4">Invited By: ${data.invitedBy}</p>
+                        <div class="text-xs text-gray-500 mb-3 bg-black p-2 rounded">
+                            <p>User UID: ${data.uid}</p>
+                            <p>Invited By: <span class="text-yellow-500">${data.invitedBy || 'None'}</span></p>
+                        </div>
                         <div class="flex gap-2">
-                            <button onclick="approve('${child.key}', '${data.uid}', ${data.amount}, '${data.invitedBy}')" class="bg-green-600 px-4 py-2 rounded text-sm font-bold flex-1">APPROVE</button>
-                            <button onclick="reject('${child.key}')" class="bg-red-600 px-4 py-2 rounded text-sm font-bold flex-1">REJECT</button>
+                            <button onclick="approveDeposit('${child.key}', '${data.uid}', ${data.amount}, '${data.invitedBy}')" class="btn btn-green flex-1">ACCEPT (50% Com)</button>
+                            <button onclick="rejectDeposit('${child.key}')" class="btn btn-red flex-1">REJECT</button>
                         </div>
                     `;
-                    list.appendChild(div);
+                    list.prepend(card); // Newest first
                 }
             });
+            document.getElementById('depCount').innerText = count;
+            if(count === 0) list.innerHTML = '<p class="text-gray-600 text-center mt-10">No Pending Deposits</p>';
         });
 
-        async function approve(key, uid, amount, inviterCode) {
-            if(!confirm("Approve?")) return;
+        async function approveDeposit(key, uid, amount, inviterCode) {
+            if(!confirm(`Approve Rs. ${amount} for User?\n(Inviter gets Rs. ${amount/2})`)) return;
+            
             const amt = parseInt(amount);
 
-            // 1. Give Balance to User
+            // 1. Credit User
             const uSnap = await db.ref('users/'+uid).once('value');
             if(uSnap.exists()) {
-                let bal = parseInt(uSnap.val().balance || 0);
-                await db.ref('users/'+uid).update({ balance: bal + amt });
+                const curBal = parseInt(uSnap.val().balance || 0);
+                await db.ref('users/'+uid).update({ balance: curBal + amt });
             }
 
-            // 2. Logic for Inviter (Task Unlock)
+            // 2. Credit Inviter (50% Logic)
             if(inviterCode && inviterCode !== 'Admin') {
                 const iQuery = await db.ref('users').orderByChild('myCode').equalTo(inviterCode).once('value');
                 iQuery.forEach(async (child) => {
                     const iData = child.val();
-                    
-                    // ONLY IF INVITER HAS 2000 PLAN
-                    if(iData.plan === "GOLD PRO") {
-                        let rewardTasks = 0;
-                        if(amt >= 2000) rewardTasks = 5;
-                        else if(amt >= 1500) rewardTasks = 4;
-                        else if(amt >= 1000) rewardTasks = 3;
-                        else if(amt >= 800) rewardTasks = 2;
-                        else if(amt >= 400) rewardTasks = 1;
-                        
-                        if(rewardTasks > 0) {
-                            let currentUnlocked = iData.unlockedTasks || 0;
-                            await db.ref('users/'+child.key).update({ unlockedTasks: currentUnlocked + rewardTasks });
-                            console.log("Unlocked " + rewardTasks + " tasks for inviter");
-                        }
-                    }
+                    const iBal = parseInt(iData.balance || 0);
+                    const commission = amt * 0.5; // 50%
+                    await db.ref('users/'+child.key).update({ 
+                        balance: iBal + commission,
+                        inviteCount: (iData.inviteCount || 0) + 1
+                    });
                 });
             }
 
             await db.ref('deposits/'+key).update({ status: 'Approved' });
         }
 
-        function reject(key) {
-            if(confirm("Reject?")) db.ref('deposits/'+key).update({ status: 'Rejected' });
+        function rejectDeposit(key) {
+            if(confirm("Reject this deposit?")) db.ref('deposits/'+key).update({ status: 'Rejected' });
         }
+
+        // ==========================================
+        // 2. WITHDRAWALS LOGIC
+        // ==========================================
+        db.ref('withdrawals').on('value', snap => {
+            const list = document.getElementById('withdrawList');
+            list.innerHTML = "";
+            let count = 0;
+
+            snap.forEach(child => {
+                const data = child.val();
+                if(data.status === 'Pending') {
+                    count++;
+                    const card = document.createElement('div');
+                    card.className = "bg-gray-900 p-4 rounded border-l-4 border-red-500 shadow-lg";
+                    card.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <p class="text-white font-bold">${data.method}</p>
+                                <p class="text-xs text-gray-400">Account: <span class="text-white select-all">${data.accNum || 'N/A'}</span></p>
+                                <p class="text-xs text-gray-400">Name: ${data.accName || 'N/A'}</p>
+                            </div>
+                            <h3 class="text-xl font-bold text-red-400">Rs. ${data.amount}</h3>
+                        </div>
+                        <p class="text-xs text-gray-500 mb-3">User UID: ${data.uid}</p>
+                        <div class="flex gap-2">
+                            <button onclick="approveWithdraw('${child.key}')" class="btn btn-green flex-1">PAID</button>
+                            <button onclick="rejectWithdraw('${child.key}', '${data.uid}', ${data.amount})" class="btn btn-red flex-1">REJECT & REFUND</button>
+                        </div>
+                    `;
+                    list.prepend(card);
+                }
+            });
+            document.getElementById('withCount').innerText = count;
+            if(count === 0) list.innerHTML = '<p class="text-gray-600 text-center mt-10">No Pending Withdrawals</p>';
+        });
+
+        function approveWithdraw(key) {
+            if(confirm("Mark as PAID?")) db.ref('withdrawals/'+key).update({ status: 'Approved' });
+        }
+
+        async function rejectWithdraw(key, uid, amount) {
+            if(confirm("Reject and Refund Rs. " + amount + "?")) {
+                // Refund User
+                const uSnap = await db.ref('users/'+uid).once('value');
+                if(uSnap.exists()) {
+                    const curBal = parseInt(uSnap.val().balance || 0);
+                    await db.ref('users/'+uid).update({ balance: curBal + parseInt(amount) });
+                }
+                await db.ref('withdrawals/'+key).update({ status: 'Rejected' });
+            }
+        }
+
+        // ==========================================
+        // 3. USER MANAGEMENT LOGIC
+        // ==========================================
+        let allUsers = [];
+
+        db.ref('users').on('value', snap => {
+            const tbody = document.getElementById('usersTable');
+            tbody.innerHTML = "";
+            allUsers = [];
+            let count = 0;
+
+            snap.forEach(child => {
+                count++;
+                const u = child.val();
+                const uid = child.key;
+                allUsers.push({ uid, ...u });
+
+                const row = document.createElement('tr');
+                row.className = "border-b border-gray-800 hover:bg-gray-900 transition";
+                row.innerHTML = `
+                    <td class="p-3 font-bold text-white">${u.name || 'No Name'}</td>
+                    <td class="p-3 text-gray-400">${u.email}</td>
+                    <td class="p-3"><span class="bg-gray-800 px-2 py-1 rounded text-xs text-yellow-400">${u.plan || 'Free'}</span></td>
+                    <td class="p-3 font-mono font-bold text-green-400">Rs. ${u.balance || 0}</td>
+                    <td class="p-3 text-xs text-gray-500">${u.invitedBy || '-'}</td>
+                    <td class="p-3 text-right">
+                        <button onclick="openEditModal('${uid}', '${u.name}', ${u.balance || 0})" class="btn btn-blue">EDIT BAL</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+            document.getElementById('totalUsers').innerText = count;
+        });
+
+        // Search Function
+        function filterUsers() {
+            const query = document.getElementById('userSearch').value.toLowerCase();
+            const rows = document.getElementById('usersTable').getElementsByTagName('tr');
+            for(let row of rows) {
+                const name = row.cells[0].innerText.toLowerCase();
+                const email = row.cells[1].innerText.toLowerCase();
+                if(name.includes(query) || email.includes(query)) row.style.display = "";
+                else row.style.display = "none";
+            }
+        }
+
+        // Edit Balance Modal
+        function openEditModal(uid, name, balance) {
+            document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('editUserId').value = uid;
+            document.getElementById('editUserName').innerText = "Editing: " + name;
+            document.getElementById('newBalanceInput').value = balance;
+        }
+
+        function saveBalance() {
+            const uid = document.getElementById('editUserId').value;
+            const newBal = parseInt(document.getElementById('newBalanceInput').value);
+            
+            if(uid && !isNaN(newBal)) {
+                db.ref('users/'+uid).update({ balance: newBal });
+                alert("Balance Updated!");
+                document.getElementById('editModal').style.display = 'none';
+            }
+        }
+
     </script>
 </body>
 </html>
