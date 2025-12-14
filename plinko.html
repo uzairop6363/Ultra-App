@@ -22,17 +22,13 @@
             touch-action: manipulation;
         }
 
-        /* CANVAS */
         #plinkoCanvas { 
             display: block; 
             margin: 0 auto;
-            /* height will be set by JS */
         }
 
-        /* BACK BUTTON */
         .back-btn { position: absolute; top: 20px; left: 20px; z-index: 50; color: white; font-size: 24px; cursor: pointer; }
 
-        /* HUD */
         .hud {
             position: fixed; top: 0; width: 100%; padding: 20px; padding-top: 60px;
             display: flex; justify-content: space-between; z-index: 40;
@@ -40,7 +36,6 @@
             pointer-events: none;
         }
 
-        /* COMPACT CONTROLS */
         .controls-bar {
             position: fixed; bottom: 0; left: 0; width: 100%;
             background: rgba(10, 10, 10, 0.95);
@@ -49,7 +44,6 @@
             padding-bottom: 30px;
         }
 
-        /* SLIM CHIPS DESIGN */
         .chip-group {
             display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px;
         }
@@ -60,12 +54,11 @@
             cursor: pointer; transition: 0.2s; position: relative; overflow: hidden;
         }
         .slim-chip.selected {
-            background: rgba(217, 70, 239, 0.1); /* Pink tint */
+            background: rgba(217, 70, 239, 0.1); 
             border-color: #d946ef; color: white;
             box-shadow: 0 0 10px rgba(217, 70, 239, 0.3);
         }
         
-        /* DROP BUTTON */
         .drop-btn {
             width: 100%; padding: 12px;
             background: linear-gradient(90deg, #d946ef, #8b5cf6);
@@ -76,7 +69,6 @@
         }
         .drop-btn:active { transform: scale(0.98); filter: brightness(1.2); }
 
-        /* WIN POPUP */
         .win-float {
             position: absolute; pointer-events: none;
             font-family: 'Audiowide'; font-weight: bold; color: #ffd700;
@@ -119,7 +111,6 @@
     </div>
 
     <script>
-        // === FIREBASE ===
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -150,22 +141,17 @@
             }
         });
 
-        // === GAME ENGINE ===
         const canvas = document.getElementById('plinkoCanvas');
         const ctx = canvas.getContext('2d');
         
         let width, height;
-        const ROWS = 14; // Standard Plinko rows
+        const ROWS = 14; 
         const PEG_RADIUS = 3;
         const BALL_RADIUS = 5;
         const GRAVITY = 0.2;
         const FRICTION = 0.9;
         
-        // Multipliers (Center is low/loss, Edges are high/win)
-        // [Left ... Center ... Right]
-        // Center index is around 7
         const MULTIPLIERS = [10, 5, 2.5, 1.5, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2, 0.5, 1.5, 2.5, 5, 10]; 
-        // Color mapping for buckets
         const BUCKET_COLORS = [
             '#ff0055', '#ff4400', '#ff8800', '#ffcc00', '#222', '#111', '#111', '#111', '#111', '#111', '#222', '#ffcc00', '#ff8800', '#ff4400', '#ff0055'
         ];
@@ -177,42 +163,33 @@
         }
         window.addEventListener('resize', resize);
 
-        // === STATE ===
         let balls = [];
         let pegs = [];
         let buckets = [];
         let currentBet = 20;
         let autoDropInterval = null;
 
-        // === RISK ENGINE (PHYSICS BIAS) ===
+        // === RISK ENGINE (30% WIN / 70% LOSE) ===
         function decideBias(betAmount) {
-            // Returns a bias value: -1 (Left), 0 (Center/Random), 1 (Right)
-            // Or easier: Return "Force Loss" (Center) or "Allow Win" (Edges)
-            
             let forceLoss = false;
             
-            // 1. High Bet Trap (> 500)
-            if(betAmount >= 500) forceLoss = true;
+            // 70% chance to lose (Center buckets)
+            if (Math.random() > 0.3) forceLoss = true;
             
-            // 2. Streak Trap
-            if(myStreak >= 3) forceLoss = true;
-            
-            // 3. Small Bet Lure (20% chance to lose anyway)
-            if(!forceLoss && Math.random() < 0.2) forceLoss = true;
+            // Extra penalties
+            if (betAmount >= 500) forceLoss = true;
+            if (myStreak >= 3) forceLoss = true;
 
             if(forceLoss) {
-                // Return bias towards center (Indices 5-9)
-                return 'center';
+                return 'center'; // Bias towards low multipliers (0.2x, 0.5x)
             } else {
-                // Return bias towards edges (Indices 0-4 or 10-14)
-                return Math.random() > 0.5 ? 'left' : 'right';
+                return Math.random() > 0.5 ? 'left' : 'right'; // Bias towards high multipliers
             }
         }
 
-        // === CLASSES ===
         class Ball {
             constructor(bias) {
-                this.x = width / 2 + (Math.random() - 0.5) * 5; // Slight jitter start
+                this.x = width / 2 + (Math.random() - 0.5) * 5; 
                 this.y = 20;
                 this.vx = 0;
                 this.vy = 0;
@@ -220,7 +197,7 @@
                 this.color = '#fff';
                 this.value = currentBet;
                 this.dead = false;
-                this.bias = bias; // 'center', 'left', 'right'
+                this.bias = bias;
             }
 
             update() {
@@ -229,9 +206,7 @@
                 this.y += this.vy;
 
                 // Physics Bias Nudge
-                // We gently push the ball horizontally based on risk outcome
                 if(this.bias === 'center') {
-                    // Push towards center width
                     if(this.x < width/2) this.vx += 0.05; 
                     else this.vx -= 0.05;
                 } else if(this.bias === 'left') {
@@ -240,33 +215,27 @@
                     this.vx += 0.08;
                 }
 
-                // Peg Collision
                 for (let p of pegs) {
                     const dx = this.x - p.x;
                     const dy = this.y - p.y;
                     const dist = Math.sqrt(dx*dx + dy*dy);
                     
                     if (dist < this.r + p.r) {
-                        // Bounce
                         const angle = Math.atan2(dy, dx);
-                        const force = 0.6; // Bounciness
-                        
-                        // Add randomness so it doesn't look too robotic
+                        const force = 0.6; 
                         const jitter = (Math.random() - 0.5) * 0.5;
                         
                         this.vx = Math.cos(angle) * force + jitter; 
                         this.vy = Math.abs(Math.sin(angle) * force * 0.5); 
                         
-                        // Prevent sticking
                         this.x = p.x + Math.cos(angle) * (this.r + p.r + 1);
                         this.y = p.y + Math.sin(angle) * (this.r + p.r + 1);
 
-                        p.glow = 1; // Visual hit
+                        p.glow = 1; 
                         playSound('hit');
                     }
                 }
 
-                // Bucket Collision
                 if (this.y > buckets[0].y - 10) {
                     for (let b of buckets) {
                         if (this.x > b.x && this.x < b.x + b.w) {
@@ -282,14 +251,12 @@
                 this.dead = true;
                 const win = this.value * bucket.val;
                 
-                // Server Update
-                const newBal = myBalance + win; // Balance was deducted on drop
+                const newBal = myBalance + win; 
                 let isWin = bucket.val >= 1;
                 let newStreak = isWin ? myStreak + 1 : 0;
                 
                 db.ref('users/' + currentUser.uid).update({ balance: newBal, streak: newStreak });
 
-                // UI
                 bucket.flash = 10;
                 showFloatText(bucket.val + "x", this.x, this.y, bucket.val > 1);
                 
@@ -314,7 +281,6 @@
             const spacing = width / (ROWS + 2);
             const startY = 50;
 
-            // Pegs
             for (let r = 0; r < ROWS; r++) {
                 for (let c = 0; c <= r; c++) {
                     const x = (width / 2) - (r * spacing / 2) + (c * spacing);
@@ -323,12 +289,10 @@
                 }
             }
 
-            // Buckets
             const bottomY = startY + (ROWS * spacing) + 20;
             const bucketW = spacing;
             
             for (let i = 0; i < MULTIPLIERS.length; i++) {
-                // Center alignment calculation
                 const x = (width / 2) - ((MULTIPLIERS.length) * spacing / 2) + (i * spacing);
                 buckets.push({
                     x: x, y: bottomY, w: bucketW, h: 30,
@@ -338,11 +302,9 @@
             }
         }
 
-        // === LOOP ===
         function loop() {
             ctx.clearRect(0, 0, width, height);
 
-            // Draw Buckets
             buckets.forEach(b => {
                 ctx.fillStyle = b.flash > 0 ? '#fff' : b.color;
                 if(b.flash > 0) b.flash--;
@@ -354,7 +316,6 @@
                 ctx.fillText(b.val + 'x', b.x + b.w/2, b.y + 18);
             });
 
-            // Draw Pegs
             pegs.forEach(p => {
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
@@ -363,7 +324,6 @@
                 ctx.fill();
             });
 
-            // Balls
             for (let i = balls.length - 1; i >= 0; i--) {
                 balls[i].update();
                 balls[i].draw();
@@ -374,7 +334,6 @@
             requestAnimationFrame(loop);
         }
 
-        // === CONTROLS ===
         function selectChip(val, el) {
             currentBet = val;
             document.querySelectorAll('.slim-chip').forEach(c => c.classList.remove('selected'));
@@ -385,11 +344,9 @@
         function dropOne() {
             if(myBalance < currentBet) return;
             
-            // Deduct
             const newBal = myBalance - currentBet;
             db.ref('users/' + currentUser.uid).update({ balance: newBal });
 
-            // Decide Physics Bias
             const bias = decideBias(currentBet);
             balls.push(new Ball(bias));
         }
@@ -397,7 +354,7 @@
         function startDropping() {
             if(autoDropInterval) return;
             dropOne();
-            autoDropInterval = setInterval(dropOne, 200); // 5 balls/sec
+            autoDropInterval = setInterval(dropOne, 200); 
         }
 
         function stopDropping() {
@@ -405,7 +362,6 @@
             autoDropInterval = null;
         }
 
-        // === UI FX ===
         function showFloatText(txt, x, y, good) {
             const el = document.createElement('div');
             el.className = 'win-float';
@@ -417,7 +373,6 @@
             setTimeout(() => el.remove(), 1000);
         }
 
-        // === AUDIO ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let audioInit = false;
         function initAudio() { if(!audioInit) { audioCtx.resume(); audioInit = true; } }
@@ -444,7 +399,6 @@
             }
         }
 
-        // Init
         resize();
         loop();
 
