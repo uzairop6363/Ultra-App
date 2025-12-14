@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DRAGON TIGER - UNDERWORLD</title>
+    <title>DRAGON TIGER - PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,136 +13,45 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
     <style>
-        :root {
-            --dragon: #ff3300;
-            --tiger: #00ccff;
-            --gold: #d4af37;
-            --dark: #050505;
-        }
-
-        body {
-            background: var(--dark);
-            font-family: 'Cinzel', serif;
-            color: white;
-            overflow: hidden;
-            user-select: none;
-            height: 100vh;
-        }
-
-        /* CANVAS & BG */
+        :root { --dragon: #ff3300; --tiger: #00ccff; --gold: #d4af37; --dark: #050505; }
+        body { background: var(--dark); font-family: 'Cinzel', serif; color: white; overflow: hidden; user-select: none; height: 100vh; touch-action: manipulation; }
         #fxCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 50; }
-        .bg-texture {
-            position: fixed; inset: 0; z-index: -1;
-            background: radial-gradient(circle at center, #1a0b0b, #000);
-            opacity: 0.8;
-        }
-        .back-btn { position: absolute; top: 20px; left: 20px; z-index: 60; font-size: 24px; cursor: pointer; }
-
-        /* HEADER */
-        .game-header {
-            padding: 20px; padding-top: 80px;
-            display: flex; justify-content: space-between; align-items: center;
-            z-index: 40; position: relative;
-        }
-
-        /* VS CENTER */
-        .vs-logo {
-            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 60px; font-weight: 900; font-family: 'Montserrat';
-            background: linear-gradient(to right, var(--dragon), var(--gold), var(--tiger));
-            -webkit-background-clip: text; color: transparent;
-            z-index: 5; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2));
-        }
-
-        /* CARD SLOTS */
-        .card-stage {
-            position: absolute; top: 35%; width: 120px; height: 170px;
-            border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px;
-            perspective: 1000px; z-index: 10;
-        }
+        .bg-texture { position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at center, #1a0b0b, #000); opacity: 0.8; }
+        .back-btn { position: absolute; top: 20px; left: 20px; z-index: 60; font-size: 24px; cursor: pointer; color: white; }
+        .game-header { padding: 20px; padding-top: 80px; display: flex; justify-content: space-between; align-items: center; z-index: 40; position: relative; }
+        .vs-logo { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 60px; font-weight: 900; font-family: 'Montserrat'; background: linear-gradient(to right, var(--dragon), var(--gold), var(--tiger)); -webkit-background-clip: text; color: transparent; z-index: 5; filter: drop-shadow(0 0 20px rgba(255,255,255,0.2)); }
+        .card-stage { position: absolute; top: 35%; width: 120px; height: 170px; border: 2px dashed rgba(255,255,255,0.1); border-radius: 10px; perspective: 1000px; z-index: 10; }
         .stage-d { left: 20%; box-shadow: 0 0 30px rgba(255, 50, 0, 0.1); }
         .stage-t { right: 20%; box-shadow: 0 0 30px rgba(0, 200, 255, 0.1); }
-        
-        .slot-label {
-            position: absolute; top: -30px; width: 100%; text-align: center;
-            font-weight: bold; letter-spacing: 2px;
-        }
-
-        /* 3D CARD */
-        .card {
-            width: 100%; height: 100%; position: relative;
-            transform-style: preserve-3d;
-            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            opacity: 0; transform: translateY(-500px) rotateY(180deg);
-        }
+        .slot-label { position: absolute; top: -30px; width: 100%; text-align: center; font-weight: bold; letter-spacing: 2px; }
+        .card { width: 100%; height: 100%; position: relative; transform-style: preserve-3d; transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275); opacity: 0; transform: translateY(-500px) rotateY(180deg); }
         .card.dealt { opacity: 1; transform: translateY(0) rotateY(180deg); }
         .card.flipped { transform: translateY(0) rotateY(0deg); }
-
-        .face {
-            position: absolute; inset: 0; backface-visibility: hidden;
-            border-radius: 8px; border: 2px solid var(--gold);
-            background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        }
-        .face-back {
-            transform: rotateY(180deg); background: #111;
-            background-image: repeating-linear-gradient(45deg, #222 0, #222 10px, #111 10px, #111 20px);
-            display: flex; align-items: center; justify-content: center;
-        }
+        .face { position: absolute; inset: 0; backface-visibility: hidden; border-radius: 8px; border: 2px solid var(--gold); background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .face-back { transform: rotateY(180deg); background: #111; background-image: repeating-linear-gradient(45deg, #222 0, #222 10px, #111 10px, #111 20px); display: flex; align-items: center; justify-content: center; }
         .face-back::after { content: '⚜'; font-size: 50px; color: var(--gold); opacity: 0.5; }
-
         .card-val { font-family: 'Montserrat'; font-size: 50px; font-weight: bold; line-height: 1; }
         .card-suit { font-size: 40px; }
         .red { color: #d00; } .black { color: #111; }
-
-        /* CONTROLS */
-        .controls-area {
-            position: fixed; bottom: 0; width: 100%;
-            background: rgba(10,10,10,0.95); border-top: 1px solid #333;
-            padding: 20px; z-index: 50; border-radius: 20px 20px 0 0;
-        }
-
-        /* BETTING BOXES */
+        .controls-area { position: fixed; bottom: 0; width: 100%; background: rgba(10,10,10,0.95); border-top: 1px solid #333; padding: 20px; z-index: 50; border-radius: 20px 20px 0 0; }
         .bet-grid { display: flex; gap: 10px; margin-bottom: 20px; }
-        .bet-box {
-            flex: 1; height: 100px; background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 10px;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            cursor: pointer; position: relative; overflow: hidden; transition: 0.2s;
-        }
+        .bet-box { flex: 1; height: 100px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; transition: 0.2s; }
         .bet-box:active { transform: scale(0.95); }
         .bet-box.selected { border-width: 2px; box-shadow: inset 0 0 20px rgba(0,0,0,0.5); }
-        
         .box-d.selected { border-color: var(--dragon); background: rgba(255,50,0,0.1); }
         .box-t.selected { border-color: var(--tiger); background: rgba(0,200,255,0.1); }
         .box-tie.selected { border-color: #0f0; background: rgba(0,255,0,0.1); }
-
         .my-bet { font-family: 'Montserrat'; font-size: 14px; margin-top: 5px; color: white; }
-
-        /* CHIPS */
         .chip-rack { display: flex; gap: 15px; justify-content: center; margin-bottom: 10px; }
-        .chip {
-            width: 55px; height: 55px; border-radius: 50%;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            font-weight: 900; font-size: 13px; cursor: pointer; font-family: 'Montserrat';
-            border: 3px dashed rgba(255,255,255,0.5); box-shadow: 0 5px 10px rgba(0,0,0,0.5);
-            transition: 0.2s;
-        }
+        .chip { width: 55px; height: 55px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-weight: 900; font-size: 13px; cursor: pointer; font-family: 'Montserrat'; border: 3px dashed rgba(255,255,255,0.5); box-shadow: 0 5px 10px rgba(0,0,0,0.5); transition: 0.2s; }
         .chip.selected { transform: translateY(-10px) scale(1.1); box-shadow: 0 10px 20px rgba(0,0,0,0.8); border-style: solid; color: white; border-width: 3px; }
-        
         .c-20 { background: #0088ff; border-color: #0055aa; }
         .c-50 { background: #00cc44; border-color: #008822; }
         .c-100 { background: #ff3333; border-color: #aa0000; }
         .c-500 { background: #222; color: #ffd700; border-color: #ffd700; }
-
-        /* WIN MODAL */
-        .win-overlay {
-            position: fixed; inset: 0; z-index: 100; pointer-events: none;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 0; transition: 0.3s; transform: scale(0.8);
-        }
+        .win-overlay { position: fixed; inset: 0; z-index: 100; pointer-events: none; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; transform: scale(0.8); }
         .win-overlay.show { opacity: 1; transform: scale(1); }
         .win-title { font-size: 60px; font-weight: 900; text-transform: uppercase; text-shadow: 0 0 30px currentColor; }
-
     </style>
 </head>
 <body onclick="initAudio()">
@@ -187,7 +96,6 @@
     </div>
 
     <div class="controls-area">
-        
         <div class="bet-grid">
             <div class="bet-box box-d" onclick="placeBet('dragon')">
                 <span class="text-xl font-bold text-red-500">DRAGON</span>
@@ -212,7 +120,6 @@
             <div onclick="selectChip(100, this)" class="chip c-100">100</div>
             <div onclick="selectChip(500, this)" class="chip c-500">500</div>
         </div>
-
     </div>
 
     <script>
@@ -251,7 +158,6 @@
         // === GAME STATE ===
         const SUITS = ['♠', '♥', '♦', '♣'];
         const VALUES = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
-        // Score Map (A=1, K=13)
         const SCORES = {'A':1,'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13};
 
         let currentChip = 20;
@@ -303,28 +209,24 @@
             const boxClass = side === 'dragon' ? 'box-d' : (side === 'tiger' ? 'box-t' : 'box-tie');
             document.querySelector('.' + boxClass).classList.add('selected');
             
-            // Text
             const betId = side === 'dragon' ? 'betD' : (side === 'tiger' ? 'betT' : 'betTie');
             document.getElementById(betId).innerText = "Rs. " + currentChip;
 
-            // 1. DEDUCT
+            // 1. DEDUCT BALANCE
             const newBal = myBalance - currentChip;
             db.ref('users/' + currentUser.uid).update({ balance: newBal });
 
-            // 2. DECIDE OUTCOME (Risk Engine)
-            // Rules:
-            // - Bet > 500 = Lose
-            // - Streak > 3 = Lose
-            // - Small Bet = 70% Win
+            // 2. RISK LOGIC (30% WIN / 70% LOSS)
+            let winChance = 0.3; // 30% User Wins
             
-            let winChance = 0.7;
-            if(currentChip >= 500) winChance = 0.1;
-            if(myStreak >= 3) winChance = 0;
+            // Extra Penalties
+            if(currentChip >= 500) winChance = 0.05; // 5% Win
+            if(myStreak >= 3) winChance = 0; // 0% Win
 
             const isWin = Math.random() < winChance;
             
-            // Generate Cards based on Outcome
-            let dVal, tVal; // 1 to 13
+            // 3. GENERATE CARDS
+            let dVal, tVal;
             
             if(side === 'tie') {
                 if(isWin) { dVal = Math.floor(Math.random()*13)+1; tVal = dVal; }
@@ -333,65 +235,57 @@
                     do { tVal = Math.floor(Math.random()*13)+1; } while(tVal === dVal);
                 }
             } else if (side === 'dragon') {
-                if(isWin) {
-                    dVal = Math.floor(Math.random()*12)+2; // 2 to 13
-                    tVal = Math.floor(Math.random()*(dVal-1))+1; // < dVal
-                } else {
+                if(isWin) { // Dragon Wins
+                    dVal = Math.floor(Math.random()*12)+2; 
+                    tVal = Math.floor(Math.random()*(dVal-1))+1; 
+                } else { // Dragon Loses
                     tVal = Math.floor(Math.random()*12)+2;
                     dVal = Math.floor(Math.random()*(tVal-1))+1;
                 }
-            } else { // tiger
-                if(isWin) {
+            } else { // Tiger
+                if(isWin) { // Tiger Wins
                     tVal = Math.floor(Math.random()*12)+2;
                     dVal = Math.floor(Math.random()*(tVal-1))+1;
-                } else {
+                } else { // Tiger Loses
                     dVal = Math.floor(Math.random()*12)+2;
                     tVal = Math.floor(Math.random()*(dVal-1))+1;
                 }
             }
 
-            // Create Cards Data
             const cardD = createCardData(dVal);
             const cardT = createCardData(tVal);
 
-            // Render Faces
             renderFace('D', cardD);
             renderFace('T', cardT);
 
-            // 3. ANIMATE DEAL
+            // 4. ANIMATION
             const cD = document.getElementById('cardD');
             const cT = document.getElementById('cardT');
 
             setTimeout(() => { cD.classList.add('dealt'); playSound('deal'); }, 500);
             setTimeout(() => { cT.classList.add('dealt'); playSound('deal'); }, 1000);
 
-            // 4. REVEAL
             setTimeout(() => { cD.classList.add('flipped'); playSound('deal'); }, 2000);
             setTimeout(() => { cT.classList.add('flipped'); playSound('deal'); }, 2500);
 
             // 5. RESULT
             setTimeout(() => {
                 let winner = dVal > tVal ? 'dragon' : (tVal > dVal ? 'tiger' : 'tie');
-                let wonAmt = 0;
-
+                
                 if(winner === side) {
-                    // Win Logic
-                    let mult = side === 'tie' ? 9 : 2; // 8:1 payout = 9x return, 1:1 = 2x
-                    wonAmt = currentChip * mult;
+                    let mult = side === 'tie' ? 9 : 2; 
+                    let profit = currentChip * mult;
                     
                     db.ref('users/' + currentUser.uid).update({ 
-                        balance: myBalance + wonAmt, 
+                        balance: myBalance + profit, 
                         streak: myStreak + 1 
                     });
                     
-                    showWin(winner, wonAmt);
+                    showWin(winner, profit);
                 } else {
-                    // Loss
                     db.ref('users/' + currentUser.uid).update({ streak: 0 });
-                    // No UI change, just reset later
                 }
 
-                // Cleanup
                 setTimeout(() => {
                     isDealing = false;
                     cD.classList.remove('dealt', 'flipped');
@@ -405,7 +299,6 @@
         }
 
         function createCardData(score) {
-            // score 1..13 -> Value string
             const valStr = Object.keys(SCORES).find(key => SCORES[key] === score);
             const suit = SUITS[Math.floor(Math.random()*4)];
             return { val: valStr, suit: suit, isRed: (suit==='♥'||suit==='♦') };
@@ -423,18 +316,16 @@
         function showWin(winner, amt) {
             const el = document.getElementById('winScreen');
             const title = document.getElementById('winTitle');
-            
             title.innerText = winner.toUpperCase();
             title.style.color = winner === 'dragon' ? '#ff3300' : (winner === 'tiger' ? '#00ccff' : '#0f0');
             document.getElementById('winAmt').innerText = "+ Rs. " + amt;
-            
             el.classList.add('show');
             playSound('win');
             fireParticles(winner);
             if(navigator.vibrate) navigator.vibrate(200);
         }
 
-        // === PARTICLES ===
+        // PARTICLES
         const canvas = document.getElementById('fxCanvas');
         const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth; canvas.height = window.innerHeight;
@@ -443,7 +334,6 @@
         function fireParticles(winner) {
             const color = winner === 'dragon' ? '#ff3300' : (winner === 'tiger' ? '#00ccff' : '#0f0');
             const x = winner === 'dragon' ? window.innerWidth * 0.25 : (winner === 'tiger' ? window.innerWidth * 0.75 : window.innerWidth/2);
-            
             for(let i=0; i<50; i++) {
                 particles.push({
                     x: x, y: window.innerHeight/2,
@@ -468,7 +358,6 @@
             }
             requestAnimationFrame(animateFx);
         }
-
     </script>
 </body>
 </html>
