@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>HEAD TAIL - TABAHI EDITION</title>
+    <title>HEAD TAIL - PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,46 +13,34 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
     <style>
-        :root { --gold: #ffd700; --gold-dark: #b8860b; --felt: #0a3622; }
+        :root { --gold: #ffd700; --gold-dark: #b8860b; }
         body { 
             background: #000; 
             font-family: 'Montserrat', sans-serif; 
             color: white; 
             overflow: hidden; 
             perspective: 1000px;
+            touch-action: manipulation;
         }
 
-        /* --- CASINO BACKGROUND --- */
+        /* --- BACKGROUND --- */
         .casino-bg {
             position: fixed; inset: 0; z-index: -2;
             background: radial-gradient(circle at center, #1a0f00, #000000);
-            overflow: hidden;
         }
-        .bokeh {
-            position: absolute; width: 100%; height: 100%;
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(255, 215, 0, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 80% 70%, rgba(255, 0, 85, 0.2) 0%, transparent 50%);
-            filter: blur(30px);
-            animation: moveBokeh 20s infinite alternate ease-in-out;
-        }
-        @keyframes moveBokeh { 0% {transform: scale(1) rotate(0deg);} 100% {transform: scale(1.2) rotate(5deg);} }
-        .felt-table {
-            position: absolute; bottom: 0; left:0; width: 100%; height: 50%;
-            background: radial-gradient(ellipse at bottom, var(--felt), #051a10);
-            border-top: 2px solid var(--gold-dark);
-            box-shadow: inset 0 10px 30px rgba(0,0,0,0.5);
-            z-index: -1;
-            transform: rotateX(20deg); origin-top;
+        .felt-pattern {
+            position: fixed; inset: 0; opacity: 0.1;
+            background-image: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+            pointer-events: none;
         }
 
-        /* --- PRO 3D COIN PHYSICS --- */
+        /* --- 3D COIN --- */
         .coin-stage {
             width: 180px; height: 180px; margin: 0 auto;
             position: relative; transform-style: preserve-3d;
-            animation: hoverCoin 3s ease-in-out infinite alternate;
+            animation: float 3s ease-in-out infinite;
         }
-        @keyframes hoverCoin { from {transform: translateY(0);} to {transform: translateY(-10px);} }
+        @keyframes float { 0%, 100% {transform: translateY(0);} 50% {transform: translateY(-10px);} }
         
         .coin {
             width: 100%; height: 100%; position: absolute;
@@ -63,159 +51,141 @@
             position: absolute; width: 100%; height: 100%; rounded-full;
             backface-visibility: hidden; display: flex; align-items: center; justify-content: center;
             border-radius: 50%;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 5px 15px rgba(0,0,0,0.5);
             border: 8px solid var(--gold);
-            background: linear-gradient(135deg, var(--gold), var(--gold-dark), var(--gold));
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 30px rgba(255, 215, 0, 0.3);
         }
         .face-inner {
             width: 85%; height: 85%; border-radius: 50%; border: 2px dashed rgba(0,0,0,0.3);
             display: flex; align-items: center; justify-content: center;
             background: radial-gradient(circle, #fff7cc, var(--gold));
         }
-        .heads { transform: rotateY(0deg) translateZ(5px); color: #4a3b00; }
-        .tails { transform: rotateY(180deg) translateZ(5px); color: #333; background: linear-gradient(135deg, #e0e0e0, #a0a0a0, #e0e0e0); border-color: #c0c0c0;}
-        .tails .face-inner { background: radial-gradient(circle, #fff, #c0c0c0); }
+        .heads { transform: rotateY(0deg) translateZ(5px); }
+        .tails { transform: rotateY(180deg) translateZ(5px); background: linear-gradient(135deg, #e0e0e0, #999); border-color: #ccc; }
+        .tails .face-inner { background: radial-gradient(circle, #fff, #bbb); }
         
-        /* The metallic edge */
         .coin::before {
             content: ''; position: absolute; width: 100%; height: 100%; border-radius: 50%;
-            background: linear-gradient(to right, var(--gold-dark), var(--gold), var(--gold-dark));
+            background: #886600;
             transform: rotateY(90deg) translateX(-5px); width: 10px; left: 50%;
         }
 
-        /* Dynamic Shine */
-        .shine {
-            position: absolute; inset: 0; border-radius: 50%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.8), transparent);
-            animation: shineMove 2s linear infinite; opacity: 0.5;
-        }
-        @keyframes shineMove { 0% {transform: translateX(-100%);} 100% {transform: translateX(100%);} }
+        /* --- ANIMATIONS --- */
+        .toss-anim { animation: toss 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        .spin-anim { animation: spin 0.5s linear infinite; }
+        @keyframes toss { 0% {transform: translateY(0) scale(1);} 50% {transform: translateY(-300px) scale(0.8);} 100% {transform: translateY(0) scale(1);} }
+        @keyframes spin { to { transform: rotateY(3600deg); } }
 
-        /* Coin Shadow on Table */
-        .coin-shadow {
-            position: absolute; bottom: -60px; left: 50%; width: 150px; height: 20px;
-            background: rgba(0,0,0,0.6); filter: blur(15px); border-radius: 50%;
-            transform: translateX(-50%) rotateX(90deg);
-            transition: all 0.5s;
+        /* --- UI ELEMENTS --- */
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.8); backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.8);
         }
 
-        /* --- PHYSICS ANIMATIONS CLASSES (Applied by JS) --- */
-        .toss-up { animation: tossUp 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-        .fall-down { animation: fallDown 1s cubic-bezier(0.55, 0.055, 0.675, 0.19) forwards; }
-        .spin-rapid { animation: spinRapid 0.5s linear infinite; }
-        .land-bounce { animation: landBounce 0.3s ease-out; }
-        .screen-shake { animation: shake 0.3s cubic-bezier(.36,.07,.19,.97) both; }
-
-        @keyframes tossUp { to { transform: translateY(-400px) scale(0.8); } }
-        @keyframes fallDown { from { transform: translateY(-400px) scale(0.8); } to { transform: translateY(0) scale(1); } }
-        @keyframes spinRapid { to { transform: rotateY(3600deg); } }
-        @keyframes landBounce { 0% {transform: scale(1, 0.8);} 40% {transform: scale(0.9, 1.1) translateY(-20px);} 100% {transform: scale(1, 1) translateY(0);} }
-        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 2px, 0); } 20%, 80% { transform: translate3d(4px, -4px, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 6px, 0); } 40%, 60% { transform: translate3d(6px, -6px, 0); } }
-
-        /* --- UI --- */
-        .glass-card {
-            background: rgba(20, 20, 20, 0.7); backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 215, 0, 0.2);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        /* Chips */
+        .chip-rack {
+            display: flex; gap: 10px; justify-content: center; margin-bottom: 20px;
         }
-        .gold-btn {
-            background: linear-gradient(to bottom, #ffd700, #b8860b); color: black; font-weight: 900;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.5);
-            text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+        .chip {
+            width: 60px; height: 60px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 14px; cursor: pointer;
+            border: 4px dashed rgba(255,255,255,0.5);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            transition: 0.2s; position: relative;
         }
-        .gold-btn:active { transform: translateY(2px); box-shadow: 0 2px 5px rgba(0,0,0,0.5); }
-
-        /* Canvas Overlay for Particles */
-        #particleCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 100; }
+        .chip:active { transform: scale(0.9); }
+        .chip.selected { transform: translateY(-10px) scale(1.1); box-shadow: 0 15px 20px rgba(0,0,0,0.6); border-style: solid; color: white; }
         
-        /* BACK BUTTON */
-        .back-btn { position: absolute; top: 20px; left: 20px; z-index: 50; color: white; font-size: 24px; cursor: pointer; }
+        .c-20 { background: #0088ff; color: #cceeff; border-color: #0055aa; }
+        .c-50 { background: #00cc44; color: #ccffdd; border-color: #008822; }
+        .c-100 { background: #ff3333; color: #ffcccc; border-color: #aa0000; }
+        .c-500 { background: #222; color: #ffd700; border-color: #ffd700; }
+
+        /* Side Buttons */
+        .side-btn {
+            flex: 1; padding: 15px; border-radius: 12px;
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            transition: 0.2s; display: flex; flex-direction: column; align-items: center;
+        }
+        .side-btn.active { background: rgba(255, 215, 0, 0.2); border-color: gold; box-shadow: 0 0 20px rgba(255, 215, 0, 0.2); }
+
+        /* Flip Button */
+        .flip-btn {
+            width: 100%; padding: 20px; border-radius: 12px;
+            background: linear-gradient(to right, #ffd700, #ffaa00);
+            color: black; font-weight: 900; font-size: 24px; letter-spacing: 2px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+            transition: 0.2s; margin-top: 10px;
+        }
+        .flip-btn:active { transform: scale(0.98); }
+        .flip-btn:disabled { filter: grayscale(1); opacity: 0.5; }
+
+        .back-btn { position: absolute; top: 20px; left: 20px; color: white; font-size: 24px; z-index: 50; }
+        
+        /* Win Splash */
+        .win-overlay {
+            position: fixed; inset: 0; pointer-events: none; z-index: 100;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: 0.3s; transform: scale(0.8);
+        }
+        .win-overlay.show { opacity: 1; transform: scale(1); }
+        .win-msg { font-size: 60px; font-weight: 900; color: #0f0; text-shadow: 0 0 20px #0f0; }
+
     </style>
 </head>
-<body class="flex flex-col min-h-screen">
-
-    <div class="casino-bg"><div class="bokeh"></div></div>
-    <div class="felt-table"></div>
-    <canvas id="particleCanvas"></canvas>
-
+<body onclick="initAudio()"> <div class="casino-bg"></div>
+    <div class="felt-pattern"></div>
     <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
 
-    <div class="p-4 flex justify-between items-center glass-card m-4 rounded-2xl z-10 relative mt-16">
-        <div class="flex items-center gap-3">
-            <div class="w-12 h-12 bg-black/50 rounded-full flex items-center justify-center border-2 border-yellow-500 shadow-[0_0_15px_gold]">
-                <i class="fa-solid fa-wallet text-yellow-400 text-2xl"></i>
-            </div>
-            <div>
-                <p class="text-[10px] text-gray-300 uppercase tracking-widest font-bold">Balance</p>
-                <h2 class="text-2xl font-black tracking-wider text-yellow-400 drop-shadow-[0_2px_2px_rgba(0,0,0,0.8)]">Rs. <span id="balanceDisplay">...</span></h2>
-            </div>
+    <div class="p-6 flex justify-between items-center relative z-10 mt-10">
+        <div>
+            <p class="text-xs text-gray-400 font-bold tracking-widest uppercase">Your Balance</p>
+            <h2 class="text-3xl font-black text-white drop-shadow-md">Rs. <span id="balanceDisplay">...</span></h2>
         </div>
         <div class="text-right">
-            <div class="bg-red-900/50 px-3 py-1 rounded-full border border-red-500 flex items-center gap-2">
-                <i class="fa-solid fa-fire text-orange-500 animate-pulse"></i>
-                <span id="streakDisplay" class="font-bold">0</span> Win Streak
+            <div class="bg-white/10 px-4 py-1 rounded-full border border-white/20">
+                <i class="fa-solid fa-fire text-orange-500"></i> <span id="streakDisplay">0</span>
             </div>
         </div>
     </div>
 
-    <div class="flex-1 flex flex-col items-center justify-start pt-10 relative z-0 perspective-[1000px]">
+    <div class="flex-1 flex flex-col items-center justify-center relative z-0 perspective-[1000px] mb-40">
+        <div id="coinStage" class="coin-stage">
+            <div id="theCoin" class="coin">
+                <div class="face heads"><div class="face-inner"><i class="fa-solid fa-crown text-6xl text-yellow-900"></i></div></div>
+                <div class="face tails"><div class="face-inner"><i class="fa-solid fa-dragon text-6xl text-gray-800"></i></div></div>
+            </div>
+        </div>
+        <p id="statusText" class="text-gray-500 font-bold tracking-widest mt-10 text-sm">SELECT YOUR SIDE</p>
+    </div>
+
+    <div id="winScreen" class="win-overlay">
+        <h1 class="win-msg">YOU WON!</h1>
+    </div>
+
+    <div class="fixed bottom-0 w-full glass-card p-6 rounded-t-3xl z-50">
         
-        <div class="relative mb-24 z-20">
-            <div id="coinStage" class="coin-stage">
-                <div id="theCoin" class="coin">
-                    <div class="face heads">
-                        <div class="face-inner"><i class="fa-solid fa-crown text-6xl drop-shadow-lg"></i></div>
-                        <div class="shine"></div>
-                    </div>
-                    <div class="face tails">
-                        <div class="face-inner"><i class="fa-solid fa-skull-crossbones text-6xl drop-shadow-lg"></i></div>
-                        <div class="shine"></div>
-                    </div>
-                </div>
-            </div>
-            <div id="coinShadow" class="coin-shadow"></div>
+        <div class="chip-rack">
+            <div onclick="selectChip(20, this)" class="chip c-20 selected">20</div>
+            <div onclick="selectChip(50, this)" class="chip c-50">50</div>
+            <div onclick="selectChip(100, this)" class="chip c-100">100</div>
+            <div onclick="selectChip(500, this)" class="chip c-500">500</div>
         </div>
 
-        <div class="w-full max-w-md glass-card p-6 rounded-t-3xl fixed bottom-0 z-30 border-b-0 pb-10">
-            
-            <div id="statusPanel" class="text-center mb-6 hidden">
-                 <h3 class="text-yellow-400 font-black text-2xl animate-pulse tracking-widest">FLIPPING...</h3>
+        <div class="flex gap-4 mb-4">
+            <div onclick="pickSide('head')" id="btn-head" class="side-btn">
+                <i class="fa-solid fa-crown text-3xl mb-1 text-yellow-500"></i>
+                <span class="font-bold text-xs">HEADS</span>
             </div>
-
-            <div id="bettingPanel">
-                <div class="flex gap-4 mb-6">
-                    <button onclick="pickSide('head')" id="btn-head" class="flex-1 glass-card p-4 rounded-xl flex items-center justify-between group border-2 border-transparent transition-all relative overflow-hidden">
-                        <div class="z-10"><h3 class="font-bold text-lg">HEADS</h3><p class="text-xs text-yellow-400">x2 Payout</p></div>
-                        <i class="fa-solid fa-crown text-4xl text-gray-500 group-hover:text-yellow-400 transition z-10"></i>
-                        <div class="absolute inset-0 bg-yellow-500/10 opacity-0 group-hover:opacity-100 transition"></div>
-                    </button>
-                    <button onclick="pickSide('tail')" id="btn-tail" class="flex-1 glass-card p-4 rounded-xl flex items-center justify-between group border-2 border-transparent transition-all relative overflow-hidden">
-                        <div class="z-10"><h3 class="font-bold text-lg">TAILS</h3><p class="text-xs text-gray-400">x2 Payout</p></div>
-                        <i class="fa-solid fa-skull-crossbones text-4xl text-gray-500 group-hover:text-white transition z-10"></i>
-                         <div class="absolute inset-0 bg-gray-500/10 opacity-0 group-hover:opacity-100 transition"></div>
-                    </button>
-                </div>
-
-                <div class="mb-6">
-                    <div class="relative bg-black/40 rounded-xl p-2 border border-white/10 flex items-center">
-                        <span class="text-yellow-400 font-bold text-xl ml-4 mr-2">Rs.</span>
-                        <input type="number" id="betInput" value="100" class="w-full bg-transparent font-black text-2xl focus:outline-none text-white" placeholder="BET AMOUNT">
-                        <button onclick="setBet('max')" class="bg-red-600 text-xs font-bold px-3 py-2 rounded-lg ml-2 hover:bg-red-700">MAX</button>
-                    </div>
-                    <div class="flex justify-between mt-3 gap-2">
-                         <button onclick="adjustBet(100)" class="glass-card px-4 py-2 rounded-lg font-bold text-sm hover:border-yellow-400">+100</button>
-                         <button onclick="adjustBet(500)" class="glass-card px-4 py-2 rounded-lg font-bold text-sm hover:border-yellow-400">+500</button>
-                         <button onclick="adjustBet(1000)" class="glass-card px-4 py-2 rounded-lg font-bold text-sm hover:border-yellow-400">+1K</button>
-                         <button onclick="adjustBet(myBalance/2)" class="glass-card px-4 py-2 rounded-lg font-bold text-sm hover:border-yellow-400 text-yellow-400">HALF</button>
-                    </div>
-                </div>
-
-                <button onclick="flipCoinPro()" id="flipBtn" class="gold-btn w-full py-6 rounded-xl text-3xl font-black italic tracking-[0.2em] uppercase relative overflow-hidden group disabled:opacity-50 disabled:grayscale">
-                    <span class="relative z-10 drop-shadow">TOSS COIN!</span>
-                    <div class="absolute inset-0 bg-white/30 skew-x-12 -translate-x-full group-hover:translate-x-full transition duration-700"></div>
-                </button>
+            <div onclick="pickSide('tail')" id="btn-tail" class="side-btn">
+                <i class="fa-solid fa-dragon text-3xl mb-1 text-gray-400"></i>
+                <span class="font-bold text-xs">TAILS</span>
             </div>
         </div>
+
+        <button onclick="flipCoin()" id="flipBtn" class="flip-btn">FLIP NOW</button>
     </div>
 
     <script>
@@ -235,10 +205,13 @@
         let currentUser = null;
         let myBalance = 0;
         let myStreak = 0;
+        
+        // Game State
+        let currentBet = 20; // Default Chip
         let selectedSide = null;
-        let isProcessing = false;
+        let isFlipping = false;
 
-        // AUTH LISTENER
+        // AUTH
         auth.onAuthStateChanged(user => {
             if (user) {
                 currentUser = user;
@@ -250,248 +223,145 @@
                     document.getElementById('streakDisplay').innerText = myStreak;
                 });
             } else {
-                window.location.href = 'index.html'; // Redirect to login if not auth
+                window.location.href = 'index.html';
             }
         });
 
-        // === RISK ENGINE (THE LALACH TRAP) ===
-        function decideOutcome(betAmount) {
-            // 1. High Bet Trap: > 500 PKR = 90% chance to lose
-            if (betAmount >= 500) {
-                return Math.random() > 0.9; // Only 10% chance to win
-            }
-            // 2. Streak Trap: If wins > 3, force loss
-            if (myStreak >= 3) {
-                return false; 
-            }
-            // 3. Lure: Small bets = 70% Win rate
-            return Math.random() < 0.7;
-        }
-
-        // === ADVANCED SOUND ENGINE ===
+        // === SOUND ENGINE (FIXED) ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const masterGain = audioCtx.createGain();
-        masterGain.gain.value = 0.8; 
-        masterGain.connect(audioCtx.destination);
+        let audioInit = false;
+
+        function initAudio() {
+            if (!audioInit) {
+                audioCtx.resume();
+                audioInit = true;
+            }
+        }
 
         function playSound(type) {
-            if (audioCtx.state === 'suspended') audioCtx.resume();
-            const now = audioCtx.currentTime;
+            initAudio();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
 
-            if (type === 'toss') {
-                let osc = audioCtx.createOscillator(); osc.type = 'sine';
-                let gain = audioCtx.createGain();
-                osc.connect(gain); gain.connect(masterGain);
-                osc.frequency.setValueAtTime(2000, now); osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
-                gain.gain.setValueAtTime(0.5, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-                osc.start(now); osc.stop(now + 0.2);
-            } 
-            else if (type === 'impact') {
-                let osc = audioCtx.createOscillator(); osc.type = 'triangle'; osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.2);
-                let gain = audioCtx.createGain(); gain.gain.setValueAtTime(1, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                osc.connect(gain); gain.connect(masterGain); osc.start(now); osc.stop(now + 0.3);
-            }
-            else if (type === 'win') {
-                [523.25, 659.25, 783.99, 1046.50].forEach((freq, i) => {
-                    let osc = audioCtx.createOscillator(); osc.type = 'square'; osc.frequency.value = freq;
-                    let gain = audioCtx.createGain(); gain.gain.setValueAtTime(0.1, now + i*0.1); gain.gain.exponentialRampToValueAtTime(0.01, now + i*0.1 + 0.3);
-                    osc.connect(gain); gain.connect(masterGain); osc.start(now + i*0.1); osc.stop(now + i*0.1 + 0.3);
-                });
-            }
-            else if (type === 'lose') {
-                [150, 142, 135].forEach((freq, i) => {
-                     let osc = audioCtx.createOscillator(); osc.type = 'sawtooth'; osc.frequency.value = freq;
-                     let gain = audioCtx.createGain(); gain.gain.setValueAtTime(0.2, now + i*0.2); gain.gain.linearRampToValueAtTime(0, now + i*0.2 + 0.4);
-                     osc.connect(gain); gain.connect(masterGain); osc.start(now + i*0.2); osc.stop(now + i*0.2 + 0.5);
-                });
-            }
-             else if (type === 'click') {
-                let osc = audioCtx.createOscillator(); osc.frequency.setValueAtTime(1200, now);
-                let gain = audioCtx.createGain(); gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.01, now+0.05);
-                osc.connect(gain); gain.connect(masterGain); osc.start(now); osc.stop(now+0.05);
+            if (type === 'chip') {
+                osc.frequency.setValueAtTime(1500, t);
+                gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+                osc.start(t); osc.stop(t + 0.1);
+            } else if (type === 'spin') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(200, t); osc.frequency.linearRampToValueAtTime(400, t+0.5);
+                gain.gain.setValueAtTime(0.2, t); gain.gain.linearRampToValueAtTime(0, t+0.5);
+                osc.start(t); osc.stop(t+0.5);
+            } else if (type === 'win') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(400, t); 
+                gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.5);
+                osc.start(t); osc.stop(t+0.5);
+            } else if (type === 'lose') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, t); 
+                gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.3);
+                osc.start(t); osc.stop(t+0.3);
             }
         }
 
-        // === UI CONTROLS ===
+        // === UI LOGIC ===
+        function selectChip(val, el) {
+            if(isFlipping) return;
+            currentBet = val;
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            playSound('chip');
+        }
+
         function pickSide(side) {
-            if(isProcessing) return;
-            playSound('click');
+            if(isFlipping) return;
             selectedSide = side;
-            document.querySelectorAll('#bettingPanel button').forEach(b => b.classList.remove('border-yellow-400', 'bg-yellow-500/20'));
-            const btn = document.getElementById('btn-' + side);
-            btn.classList.add('border-yellow-400', 'bg-yellow-500/20');
+            document.querySelectorAll('.side-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('btn-' + side).classList.add('active');
+            playSound('chip');
         }
 
-        function adjustBet(amount) {
-             if(isProcessing) return;
-             playSound('click');
-             let current = parseInt(document.getElementById('betInput').value) || 0;
-             document.getElementById('betInput').value = current + parseInt(amount);
-        }
-        function setBet(type) {
-             if(isProcessing) return;
-             playSound('click');
-             if(type === 'max') document.getElementById('betInput').value = myBalance;
-        }
+        // === GAME LOGIC (RISK MANAGEMENT) ===
+        function flipCoin() {
+            if(isFlipping) return;
+            if(!selectedSide) return alert("Select Head or Tail");
+            if(myBalance < currentBet) return alert("Insufficient Balance");
 
-        // === THE TABAHI FLIP LOGIC ===
-        async function flipCoinPro() {
-            if (isProcessing) return;
-            const betInput = document.getElementById('betInput');
-            const betAmount = parseInt(betInput.value);
+            isFlipping = true;
+            initAudio(); // Ensure sound works
 
-            if (!currentUser) return alert("Please Login First");
-            if (!selectedSide) return alert("SELECT HEADS OR TAILS!");
-            if (isNaN(betAmount) || betAmount <= 0) return alert("INVALID BET!");
-            if (betAmount > myBalance) return alert("INSUFFICIENT FUNDS!");
-
-            // 1. DEDUCT BALANCE IMMEDIATELY
-            isProcessing = true;
-            const newBal = myBalance - betAmount;
-            // Optimistic update
+            // 1. Deduct Balance
+            const newBal = myBalance - currentBet;
             db.ref('users/' + currentUser.uid).update({ balance: newBal });
 
-            // 2. DECIDE OUTCOME (Risk Management)
-            const willWin = decideOutcome(betAmount);
-            const outcome = willWin ? selectedSide : (selectedSide === 'head' ? 'tail' : 'head');
+            // 2. Decide Outcome (Risk Management)
+            // Rule 1: High Bet (> 500) -> 90% Loss
+            // Rule 2: Streak > 3 -> Force Loss
+            // Rule 3: Small Bet -> 70% Win
+            
+            let winChance = 0.7; 
+            if(currentBet >= 500) winChance = 0.1;
+            if(myStreak >= 3) winChance = 0;
 
-            // UI Changes
-            const coinStage = document.getElementById('coinStage');
+            const isWin = Math.random() < winChance;
+            const result = isWin ? selectedSide : (selectedSide === 'head' ? 'tail' : 'head');
+
+            // 3. Animation
+            const stage = document.getElementById('coinStage');
             const coin = document.getElementById('theCoin');
-            const shadow = document.getElementById('coinShadow');
-            const betPanel = document.getElementById('bettingPanel');
-            const statusPanel = document.getElementById('statusPanel');
-            const body = document.body;
+            const status = document.getElementById('statusText');
+            
+            status.innerText = "FLIPPING...";
+            playSound('spin');
+            
+            stage.classList.add('toss-anim');
+            coin.classList.add('spin-rapid'); // CSS spin
+            
+            // Set final rotation
+            // 3600 (10 spins) + (0 for head, 180 for tail)
+            const finalRot = 3600 + (result === 'head' ? 0 : 180);
+            coin.style.transform = `rotateY(${finalRot}deg)`;
 
-            betPanel.classList.add('hidden');
-            statusPanel.classList.remove('hidden');
-            coinStage.style.animation = 'none'; 
-            betInput.blur();
-
-            playSound('toss');
-
-            // Toss UP
-            coinStage.classList.add('toss-up');
-            coin.classList.add('spin-rapid');
-            shadow.style.transform = 'translateX(-50%) rotateX(90deg) scale(0.5)';
-            shadow.style.opacity = '0.3';
-
-            const finalRot = outcome === 'head' ? 3600 : (3600 + 180);
-
-            // Fall Down
+            // 4. Result
             setTimeout(() => {
-                 coinStage.classList.remove('toss-up');
-                 coinStage.classList.add('fall-down');
-                 coin.classList.remove('spin-rapid');
-                 coin.style.transition = 'transform 1s cubic-bezier(0.25, 1, 0.5, 1)';
-                 coin.style.transform = `rotateY(${finalRot + 720}deg)`; 
-            }, 1000);
-
-            // IMPACT
-            setTimeout(() => {
-                coinStage.classList.remove('fall-down');
-                coin.style.transition = 'transform 0.2s ease-out';
-                coin.style.transform = `rotateY(${outcome === 'head' ? 0 : 180}deg)`;
+                stage.classList.remove('toss-anim');
+                // Reset rotation to simple 0 or 180 but keep visual
+                coin.style.transition = 'none';
+                coin.style.transform = result === 'head' ? 'rotateY(0deg)' : 'rotateY(180deg)';
                 
-                playSound('impact');
-                if(navigator.vibrate) navigator.vibrate(50);
-                coinStage.classList.add('land-bounce');
-                body.classList.add('screen-shake');
-                shadow.style.transform = 'translateX(-50%) rotateX(90deg) scale(1)';
-                shadow.style.opacity = '0.8';
+                if(isWin) {
+                    const profit = currentBet * 2;
+                    db.ref('users/' + currentUser.uid).update({ 
+                        balance: myBalance + profit, // Add profit to the ALREADY deducted balance
+                        streak: myStreak + 1
+                    });
+                    showWin();
+                } else {
+                    db.ref('users/' + currentUser.uid).update({ streak: 0 });
+                    playSound('lose');
+                    status.innerText = "YOU LOST";
+                    status.classList.add('text-red-500');
+                }
 
+                // Cleanup
                 setTimeout(() => {
-                    body.classList.remove('screen-shake');
-                    coinStage.classList.remove('land-bounce');
-                    showResult(outcome, betAmount, willWin);
-                }, 500);
+                    isFlipping = false;
+                    coin.style.transition = 'transform 3s'; // Restore anim
+                    status.classList.remove('text-red-500');
+                    status.innerText = "PLAY AGAIN";
+                }, 1500);
 
-            }, 2000);
+            }, 1000);
         }
 
-        function showResult(outcome, betAmount, isWin) {
-            const statusPanel = document.getElementById('statusPanel');
-            
-            if (isWin) {
-                const profit = betAmount * 2;
-                const newBal = myBalance + profit; // Balance was already deducted, so add win amount
-                const newStreak = myStreak + 1;
-                
-                // Update Firebase with Win
-                db.ref('users/' + currentUser.uid).update({ balance: newBal, streak: newStreak });
-
-                playSound('win');
-                if(navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 200]);
-                statusPanel.innerHTML = `<h3 class="text-green-400 font-black text-4xl drop-shadow-[0_0_10px_green]">BIG WIN!</h3><p class="text-xl font-bold">Rs. ${profit}</p>`;
-                fireParticles(); 
-            } else {
-                // Streak Reset
-                db.ref('users/' + currentUser.uid).update({ streak: 0 });
-                
-                playSound('lose');
-                if(navigator.vibrate) navigator.vibrate(300);
-                 statusPanel.innerHTML = `<h3 class="text-red-500 font-black text-4xl drop-shadow-[0_0_10px_red]">YOU LOST</h3><p class="text-xl font-bold">- Rs. ${betAmount}</p>`;
-            }
-            
-            // Reset
-            setTimeout(() => {
-                document.getElementById('bettingPanel').classList.remove('hidden');
-                statusPanel.classList.add('hidden');
-                document.getElementById('coinStage').style.animation = 'hoverCoin 3s ease-in-out infinite alternate';
-                isProcessing = false;
-            }, 3000);
+        function showWin() {
+            const el = document.getElementById('winScreen');
+            el.classList.add('show');
+            playSound('win');
+            if(navigator.vibrate) navigator.vibrate(200);
+            setTimeout(() => el.classList.remove('show'), 1500);
         }
 
-        // === PARTICLES ===
-        const canvas = document.getElementById('particleCanvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        let particles = [];
-
-        function fireParticles() {
-            particles = [];
-            for (let i = 0; i < 300; i++) {
-                particles.push({
-                    x: canvas.width / 2,
-                    y: canvas.height / 2,
-                    vx: (Math.random() - 0.5) * 30,
-                    vy: (Math.random() - 0.5) * 30,
-                    size: Math.random() * 15 + 5,
-                    color: Math.random() > 0.5 ? '#ffd700' : '#fff',
-                    rotation: Math.random() * 360,
-                    spin: (Math.random() - 0.5) * 10,
-                    gravity: 0.5,
-                    life: 100
-                });
-            }
-            animateParticles();
-        }
-
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            particles.forEach((p, index) => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.vy += p.gravity;
-                p.rotation += p.spin;
-                p.life--;
-
-                ctx.save();
-                ctx.translate(p.x, p.y);
-                ctx.rotate(p.rotation * Math.PI / 180);
-                ctx.fillStyle = p.color;
-                ctx.beginPath(); ctx.arc(0, 0, p.size/2, 0, Math.PI*2); ctx.fill();
-                ctx.strokeStyle = '#b8860b'; ctx.lineWidth = 2; ctx.stroke();
-                ctx.restore();
-
-                if (p.life <= 0 || p.y > canvas.height) particles.splice(index, 1);
-            });
-
-            if (particles.length > 0) requestAnimationFrame(animateParticles);
-        }
-
-        window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
     </script>
 </body>
 </html>
