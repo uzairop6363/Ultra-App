@@ -14,36 +14,17 @@
 
     <style>
         body { background-color: #000; color: #fff; font-family: 'Exo 2', sans-serif; min-height: 100vh; overflow-x: hidden; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
-        h1, h2, h3, .god-font { font-family: 'Syncopate', sans-serif; letter-spacing: 1px; }
-        
         .god-bg { position: fixed; inset: 0; z-index: -2; background: #000; }
         .god-bg::before { content: ''; position: absolute; inset: -50%; background: conic-gradient(from 0deg, #ff0000, #0000ff, #ffa500, #ffffff, #ff0000, #0000ff, #ffa500, #ffffff); filter: blur(80px); opacity: 0.4; animation: slowSpin 20s linear infinite; }
         @keyframes slowSpin { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
-
-        .gf-card { position: relative; background: rgba(10, 10, 10, 0.9); border-radius: 20px; z-index: 1; overflow: hidden; margin-bottom: 15px; }
-        .gf-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(transparent, transparent, transparent, var(--color1), var(--color2), var(--color1)); animation: rotate 4s linear infinite; z-index: -2; }
-        .gf-card::after { content: ''; position: absolute; inset: 2px; background: rgba(5, 5, 5, 0.95); border-radius: 18px; z-index: -1; }
-        @keyframes rotate { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
-
-        .gold-border { --color1: #ffd700; --color2: #ff8c00; }
-        .balance-border { --color1: #ffffff; --color2: #00ffea; }
-        .locked-border { --color1: #ff0000; --color2: #550000; }
-        .unlocked-border { --color1: #00ff00; --color2: #00ffff; }
-        .game-border { --color1: #ff0055; --color2: #00f3ff; }
-        .done-border { --color1: #555; --color2: #333; }
-
-        .god-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; font-weight: 800; box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); transition: 0.3s; position: relative; overflow: hidden; }
-        .god-btn:active { transform: scale(0.95); }
-        .god-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-family: 'Exo 2', sans-serif; }
-        
-        .tab-content { display: none; animation: blastIn 0.5s; } .active-tab { display: block; }
-        @keyframes blastIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        
-        .game-thumb { height: 100px; background-size: cover; background-position: center; border-radius: 12px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
-        .game-overlay { position: absolute; bottom: 0; width: 100%; padding: 5px; background: linear-gradient(to top, black, transparent); font-family: 'Orbitron'; font-weight: bold; font-size: 10px; text-align: center; }
-        
+        .gf-card { background: rgba(10, 10, 10, 0.9); border-radius: 20px; margin-bottom: 15px; border: 1px solid #333; }
+        .god-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; font-weight: 800; box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); }
+        .god-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; }
+        .tab-content { display: none; } .active-tab { display: block; }
+        .game-thumb { height: 100px; background-size: cover; border-radius: 12px; position: relative; border: 1px solid #333; }
+        .game-overlay { position: absolute; bottom: 0; width: 100%; padding: 5px; background: rgba(0,0,0,0.8); font-size: 10px; text-align: center; font-weight: bold; }
         #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 200; justify-content: center; align-items: center; }
-        .pulse-ring { width: 80px; height: 80px; border-radius: 50%; border: 4px solid #fff; animation: ring 1.5s infinite; }
+        .pulse-ring { width: 50px; height: 50px; border-radius: 50%; border: 4px solid #fff; animation: ring 1s infinite; }
         @keyframes ring { 0% {transform: scale(0.5); opacity: 1;} 100% {transform: scale(1.5); opacity: 0;} }
     </style>
 </head>
@@ -53,141 +34,154 @@
     <div id="loader"><div class="pulse-ring"></div></div>
 
     <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 bg-black/90 backdrop-blur-md">
-        <div class="gf-card balance-border p-8 w-full max-w-sm mx-auto text-center">
-            <h1 class="text-4xl mb-4 font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 god-font">ULTRA</h1>
+        <div class="gf-card p-8 w-full max-w-sm mx-auto text-center border-white/20">
+            <h1 class="text-4xl mb-4 font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">ULTRA</h1>
             <div id="loginForm" class="space-y-4">
-                <input type="email" id="loginEmail" placeholder="EMAIL" class="god-input w-full p-3 rounded">
-                <input type="password" id="loginPass" placeholder="PASSWORD" class="god-input w-full p-3 rounded">
-                <button onclick="login()" class="god-btn w-full py-3 rounded tracking-widest">LOGIN</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-400 cursor-pointer mt-2">CREATE ACCOUNT</p>
+                <input type="email" id="loginEmail" placeholder="EMAIL" class="god-input w-full p-3 rounded text-center">
+                <input type="password" id="loginPass" placeholder="PASSWORD" class="god-input w-full p-3 rounded text-center">
+                <button onclick="login()" class="god-btn w-full py-3 rounded">LOGIN</button>
+                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-2 cursor-pointer">Create Account</p>
             </div>
             <div id="registerForm" class="hidden space-y-4">
-                <div id="autoRefBadge" class="hidden text-yellow-400 text-xs uppercase mb-2">Referred By: <span id="inviterId">...</span></div>
-                <input type="text" id="regName" placeholder="NAME" class="god-input w-full p-3 rounded">
-                <input type="email" id="regEmail" placeholder="EMAIL" class="god-input w-full p-3 rounded">
-                <input type="password" id="regPass" placeholder="PASSWORD" class="god-input w-full p-3 rounded">
-                <button onclick="register()" class="god-btn w-full py-3 rounded tracking-widest">JOIN</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-400 cursor-pointer mt-2">BACK TO LOGIN</p>
+                <div id="autoRefBadge" class="hidden text-yellow-400 text-xs mb-2">Referred By: <span id="inviterId">...</span></div>
+                <input type="text" id="regName" placeholder="NAME" class="god-input w-full p-3 rounded text-center">
+                <input type="email" id="regEmail" placeholder="EMAIL" class="god-input w-full p-3 rounded text-center">
+                <input type="password" id="regPass" placeholder="PASSWORD" class="god-input w-full p-3 rounded text-center">
+                <button onclick="register()" class="god-btn w-full py-3 rounded">JOIN</button>
+                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-2 cursor-pointer">Back to Login</p>
             </div>
         </div>
     </div>
 
     <div id="mainApp" style="display:none;" class="max-w-md mx-auto">
-        
         <div class="flex justify-between items-center p-6">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_0_20px_white]"><i class="fa-solid fa-crown text-black text-xl"></i></div>
-                <div><h2 class="text-lg font-bold text-white god-font" id="userNameDisplay">USER</h2><p class="text-[10px] text-gray-400 uppercase">System Online</p></div>
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center"><i class="fa-solid fa-crown text-black text-xl"></i></div>
+                <div><h2 class="text-lg font-bold" id="userNameDisplay">USER</h2><p class="text-[10px] text-green-400">ONLINE</p></div>
             </div>
-            <button onclick="logout()" class="text-white hover:text-red-500"><i class="fa-solid fa-power-off text-2xl"></i></button>
+            <button onclick="logout()" class="text-white"><i class="fa-solid fa-power-off text-xl"></i></button>
         </div>
 
-        <div id="tab-home" class="tab-content px-4 pt-4">
-            <div class="gf-card balance-border p-8 mb-8 text-center">
-                <p class="text-gray-400 text-xs tracking-[0.4em] uppercase mb-4">Total Balance</p>
-                <h1 class="text-5xl font-black mb-8 text-white"><span class="text-2xl text-gray-500">Rs.</span><span id="bigBalance">0</span></h1>
+        <div id="tab-home" class="tab-content active-tab px-4 pt-4">
+            <div class="gf-card p-8 mb-8 text-center border-white">
+                <p class="text-gray-400 text-xs tracking-widest uppercase mb-4">Balance</p>
+                <h1 class="text-5xl font-black mb-4">Rs. <span id="bigBalance">0</span></h1>
+                
+                <div class="bg-red-900/30 border border-red-500/50 p-2 rounded mb-6 text-xs text-red-300">
+                    Required Wager: Rs. <span id="wagerDisplay" class="font-bold">0</span>
+                </div>
+
                 <div class="flex gap-4 justify-center">
-                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="bg-white text-black px-8 py-3 rounded-full font-bold uppercase">Deposit</button>
-                    <button onclick="openWithdrawModal()" class="border border-white text-white px-8 py-3 rounded-full font-bold uppercase">Withdraw</button>
+                    <button onclick="openDeposit()" class="bg-white text-black px-8 py-3 rounded font-bold uppercase w-full">Deposit</button>
+                    <button onclick="openWithdraw()" class="border border-white text-white px-8 py-3 rounded font-bold uppercase w-full">Withdraw</button>
                 </div>
             </div>
-            <div class="grid grid-cols-2 gap-4 mb-8">
-                <div class="gf-card gold-border p-5 text-center"><p class="text-gray-400 text-[10px]">PLAN</p><p id="planDisplay" class="text-xl font-bold text-yellow-400 god-font">FREE</p></div>
-                <div class="gf-card game-border p-5 text-center"><p class="text-gray-400 text-[10px]">TASKS</p><p id="taskCountDisplay" class="text-xl font-bold text-cyan-400 god-font">0</p></div>
+
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div class="gf-card p-4 text-center border-yellow-500/50"><p class="text-[10px]">PLAN</p><p id="planDisplay" class="text-xl font-bold text-yellow-400">FREE</p></div>
+                <div class="gf-card p-4 text-center border-cyan-500/50"><p class="text-[10px]">TASKS</p><p id="taskCountDisplay" class="text-xl font-bold text-cyan-400">0</p></div>
             </div>
-            <div onclick="switchTab('games')" class="gf-card game-border p-5 flex items-center justify-between cursor-pointer mb-4">
-                <div class="flex items-center gap-4"><div class="w-10 h-10 bg-pink-500/20 rounded-full flex items-center justify-center text-pink-400"><i class="fa-solid fa-gamepad"></i></div><h3 class="font-bold">PLAY GAMES</h3></div><i class="fa-solid fa-chevron-right"></i>
+            
+            <div onclick="switchTab('games')" class="gf-card p-4 flex items-center justify-between cursor-pointer border-pink-500/50">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-pink-500 rounded-full flex items-center justify-center text-white"><i class="fa-solid fa-gamepad"></i></div>
+                    <h3 class="font-bold">PLAY GAMES</h3>
+                </div>
+                <i class="fa-solid fa-chevron-right"></i>
             </div>
         </div>
 
         <div id="tab-games" class="tab-content px-4 pt-4">
-            <h2 class="text-2xl font-bold mb-6 text-white god-font text-center">CASINO ZONE</h2>
+            <h2 class="text-2xl font-bold mb-6 text-center">CASINO ZONE</h2>
             <div class="grid grid-cols-3 gap-3 pb-20">
-                <div onclick="window.location.href='headtail.html'" class="game-thumb bg-gray-900 text-center flex flex-col justify-center items-center"><i class="fa-solid fa-coins text-2xl text-yellow-400 mb-1"></i><div class="game-overlay">HEAD TAIL</div></div>
-                <div onclick="window.location.href='roulette.html'" class="game-thumb bg-gray-900 text-center flex flex-col justify-center items-center"><i class="fa-solid fa-dharmachakra text-2xl text-red-500 mb-1"></i><div class="game-overlay">ROULETTE</div></div>
-                <div onclick="window.location.href='mines.html'" class="game-thumb bg-gray-900 text-center flex flex-col justify-center items-center"><i class="fa-solid fa-bomb text-2xl text-gray-400 mb-1"></i><div class="game-overlay">MINES</div></div>
-                <div onclick="window.location.href='aviator.html'" class="game-thumb bg-gray-900 text-center flex flex-col justify-center items-center"><i class="fa-solid fa-plane-departure text-2xl text-red-600 mb-1"></i><div class="game-overlay">AVIATOR</div></div>
-                <div onclick="window.location.href='plinko.html'" class="game-thumb bg-gray-900 text-center flex flex-col justify-center items-center"><i class="fa-solid fa-bowling-ball text-2xl text-pink-500 mb-1"></i><div class="game-overlay">PLINKO</div></div>
-                <div onclick="window.location.href='dragontiger.html'" class="game-thumb bg-gray-900 text-center flex flex-col justify-center items-center"><i class="fa-solid fa-dragon text-2xl text-orange-500 mb-1"></i><div class="game-overlay">D. TIGER</div></div>
-                <div onclick="window.location.href='tower.html'" class="game-thumb bg-gray-900 text-center flex flex-col justify-center items-center"><i class="fa-solid fa-dungeon text-2xl text-green-500 mb-1"></i><div class="game-overlay">TOWER</div></div>
-                <div onclick="window.location.href='limbo.html'" class="game-thumb bg-gray-900 text-center flex flex-col justify-center items-center"><i class="fa-solid fa-rocket text-2xl text-purple-500 mb-1"></i><div class="game-overlay">LIMBO</div></div>
-                <div onclick="window.location.href='thimbles.html'" class="game-thumb bg-gray-900 text-center flex flex-col justify-center items-center"><i class="fa-solid fa-hat-wizard text-2xl text-blue-500 mb-1"></i><div class="game-overlay">THIMBLES</div></div>
+                <div onclick="window.location.href='headtail.html'" class="game-thumb bg-gray-900 flex flex-col justify-center items-center"><i class="fa-solid fa-coins text-2xl text-yellow-400"></i><div class="game-overlay">HEAD TAIL</div></div>
+                <div onclick="window.location.href='roulette.html'" class="game-thumb bg-gray-900 flex flex-col justify-center items-center"><i class="fa-solid fa-dharmachakra text-2xl text-red-500"></i><div class="game-overlay">ROULETTE</div></div>
+                <div onclick="window.location.href='mines.html'" class="game-thumb bg-gray-900 flex flex-col justify-center items-center"><i class="fa-solid fa-bomb text-2xl text-gray-400"></i><div class="game-overlay">MINES</div></div>
+                <div onclick="window.location.href='aviator.html'" class="game-thumb bg-gray-900 flex flex-col justify-center items-center"><i class="fa-solid fa-plane-departure text-2xl text-red-600"></i><div class="game-overlay">AVIATOR</div></div>
+                <div onclick="window.location.href='plinko.html'" class="game-thumb bg-gray-900 flex flex-col justify-center items-center"><i class="fa-solid fa-bowling-ball text-2xl text-pink-500"></i><div class="game-overlay">PLINKO</div></div>
+                <div onclick="window.location.href='dragontiger.html'" class="game-thumb bg-gray-900 flex flex-col justify-center items-center"><i class="fa-solid fa-dragon text-2xl text-orange-500"></i><div class="game-overlay">D. TIGER</div></div>
+                <div onclick="window.location.href='tower.html'" class="game-thumb bg-gray-900 flex flex-col justify-center items-center"><i class="fa-solid fa-dungeon text-2xl text-green-500"></i><div class="game-overlay">TOWER</div></div>
+                <div onclick="window.location.href='limbo.html'" class="game-thumb bg-gray-900 flex flex-col justify-center items-center"><i class="fa-solid fa-rocket text-2xl text-purple-500"></i><div class="game-overlay">LIMBO</div></div>
+                <div onclick="window.location.href='thimbles.html'" class="game-thumb bg-gray-900 flex flex-col justify-center items-center"><i class="fa-solid fa-hat-wizard text-2xl text-blue-500"></i><div class="game-overlay">THIMBLES</div></div>
             </div>
         </div>
 
         <div id="tab-tasks" class="tab-content px-4 pt-4">
             <div id="planLockedView" class="hidden text-center mt-10">
                 <i class="fa-solid fa-lock text-5xl text-red-500 mb-4"></i>
-                <h2 class="text-2xl font-bold text-white mb-4">LOCKED</h2>
-                <p class="text-gray-400 text-sm mb-8">Upgrade to <strong>GOLD PRO</strong> (2000) to unlock task rewards.</p>
-                <button onclick="switchTab('plans')" class="god-btn w-full py-4 rounded-lg">UPGRADE PLAN</button>
+                <h2 class="text-2xl font-bold">LOCKED</h2>
+                <p class="text-gray-400 text-sm mb-6">Upgrade to <strong>GOLD PRO</strong> to earn rewards.</p>
+                <button onclick="switchTab('plans')" class="god-btn w-full py-3 rounded">UPGRADE</button>
             </div>
-            
             <div id="taskListView" class="hidden">
-                <h2 class="text-xl font-bold text-white god-font mb-4">MISSIONS</h2>
-                <div id="tasksContainer" class="pb-20 space-y-4"></div>
+                <h2 class="text-xl font-bold mb-4">YOUR MISSIONS</h2>
+                <div id="tasksContainer" class="space-y-3 pb-20"></div>
             </div>
         </div>
 
         <div id="tab-plans" class="tab-content px-4 pt-4">
-            <h2 class="text-2xl font-bold mb-6 text-white god-font text-center">MEMBERSHIP</h2>
-            <div class="gf-card gold-border p-6 transform scale-105 border-2 border-yellow-400">
-                <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-yellow-400 god-font">GOLD PRO</h3><span class="text-xl font-bold text-white">2000</span></div>
+            <h2 class="text-2xl font-bold mb-6 text-center">MEMBERSHIP</h2>
+            <div class="gf-card p-6 border-2 border-yellow-400">
+                <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-yellow-400">GOLD PRO</h3><span class="text-xl font-bold">2000</span></div>
                 <ul class="text-xs text-gray-400 space-y-2 mb-4">
                     <li><i class="fa-solid fa-check text-green-500"></i> Unlock Team Rewards</li>
                     <li><i class="fa-solid fa-check text-green-500"></i> Fast Withdraw</li>
                 </ul>
-                <button onclick="buyPlan(2000, 'GOLD PRO')" class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-black py-3 rounded font-bold uppercase shadow-[0_0_20px_orange]">PURCHASE</button>
+                <button onclick="buyPlan(2000, 'GOLD PRO')" class="god-btn w-full py-3 rounded">PURCHASE</button>
             </div>
         </div>
 
         <div id="tab-me" class="tab-content px-4 pt-10 text-center">
-            <div class="w-32 h-32 mx-auto rounded-full bg-black border-2 border-white flex items-center justify-center mb-8 shadow-[0_0_30px_white] animate-pulse"><i class="fa-solid fa-network-wired text-5xl text-white"></i></div>
-            <h2 class="text-3xl font-bold text-white mb-2 god-font">MY NETWORK</h2>
-            <div class="gf-card balance-border p-4 mb-8 flex items-center justify-between rounded">
-                <code id="myLinkDisplay" class="text-xs text-cyan-400 truncate select-all">GENERATING...</code><i class="fa-solid fa-copy text-white"></i>
+            <h2 class="text-2xl font-bold mb-4">INVITE & EARN</h2>
+            <div class="gf-card p-4 mb-4 flex justify-between items-center">
+                <code id="myLinkDisplay" class="text-xs text-cyan-400 truncate">...</code>
+                <i class="fa-solid fa-copy cursor-pointer"></i>
             </div>
-            <button onclick="shareLink()" class="god-btn w-full py-4 rounded-lg font-bold flex items-center justify-center gap-3 text-lg"><i class="fa-brands fa-whatsapp text-2xl"></i> SHARE LINK</button>
+            <button onclick="shareLink()" class="god-btn w-full py-3 rounded">SHARE LINK</button>
         </div>
     </div>
 
-    <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-        <div class="gf-card gold-border w-full max-w-sm p-6 bg-[#050505]">
-            <h3 class="text-xl font-bold text-white mb-4">DEPOSIT</h3>
+    <div id="depositModal" class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4">
+        <div class="gf-card w-full max-w-sm p-6 border-green-500">
+            <h3 class="text-xl font-bold mb-4">DEPOSIT</h3>
             <button onclick="document.getElementById('depositModal').style.display='none'" class="absolute top-4 right-4 text-gray-500">✕</button>
-            <div class="flex gap-2 mb-6">
-                <button onclick="selectMethod('ep')" id="btn-ep" class="flex-1 py-3 rounded border border-green-500 bg-green-900/20 text-green-400 font-bold text-xs">EASYPAISA</button>
-                <button onclick="selectMethod('jc')" id="btn-jc" class="flex-1 py-3 rounded border border-gray-700 bg-gray-800 text-gray-500 font-bold text-xs">JAZZCASH</button>
+            
+            <div class="flex gap-2 mb-4">
+                <button onclick="selMethod('ep')" id="btn-ep" class="flex-1 py-2 rounded border border-green-500 bg-green-900/30">EasyPaisa</button>
+                <button onclick="selMethod('jc')" id="btn-jc" class="flex-1 py-2 rounded border border-gray-600">JazzCash</button>
             </div>
-            <div class="bg-gray-900 border border-gray-700 p-4 rounded text-center mb-6">
-                <p class="text-[10px] text-gray-400 uppercase tracking-widest mb-1">Send Money To</p>
-                <p class="text-2xl font-mono font-bold text-white tracking-wider">03111813896</p>
-                <p class="text-xs font-bold text-yellow-400 uppercase mt-1">OBAID ALI</p>
+            
+            <div class="bg-gray-800 p-3 rounded text-center mb-4 border border-gray-700">
+                <p class="text-gray-400 text-xs">Send To:</p>
+                <p class="text-xl font-bold text-white">03111813896</p>
+                <p class="text-xs text-yellow-500">OBAID ALI</p>
             </div>
+
             <input type="number" id="depAmt" placeholder="Amount (e.g 2000)" class="god-input w-full p-3 rounded mb-2 text-center">
             <input type="text" id="senderNum" placeholder="Sender Number" class="god-input w-full p-3 rounded mb-4 text-center">
-            <button onclick="submitDeposit()" class="god-btn w-full py-3 rounded font-bold tracking-widest">VERIFY PAYMENT</button>
+            <button onclick="submitDeposit()" class="god-btn w-full py-3 rounded">VERIFY</button>
         </div>
     </div>
 
-    <div id="withdrawModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
-        <div class="gf-card game-border w-full max-w-sm p-6">
-            <h3 class="text-xl font-bold text-white mb-4">WITHDRAW</h3>
+    <div id="withdrawModal" class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4">
+        <div class="gf-card w-full max-w-sm p-6 border-red-500">
+            <h3 class="text-xl font-bold mb-4">WITHDRAW</h3>
             <button onclick="document.getElementById('withdrawModal').style.display='none'" class="absolute top-4 right-4 text-gray-500">✕</button>
+            
             <select id="withMethod" class="god-input w-full p-3 rounded mb-2 bg-black"><option>Easypaisa</option><option>JazzCash</option></select>
             <input type="text" id="withName" placeholder="Account Name" class="god-input w-full p-3 rounded mb-2">
             <input type="number" id="withNum" placeholder="Account Number" class="god-input w-full p-3 rounded mb-2">
             <input type="number" id="withAmt" placeholder="Amount (Min 500)" class="god-input w-full p-3 rounded mb-4">
-            <button onclick="submitWithdraw()" class="god-btn w-full py-3 rounded font-bold">SUBMIT</button>
+            <button onclick="submitWithdraw()" class="god-btn w-full py-3 rounded">SUBMIT REQUEST</button>
         </div>
     </div>
 
     <div class="fixed bottom-0 left-0 w-full bg-black/95 border-t border-white/10 p-3 flex justify-around z-40 backdrop-blur-md">
-        <div onclick="switchTab('home')" class="text-center cursor-pointer text-white nav-item"><i class="fa-solid fa-house text-xl mb-1"></i><p class="text-[10px]">HOME</p></div>
-        <div onclick="switchTab('games')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-gamepad text-xl mb-1"></i><p class="text-[10px]">GAMES</p></div>
-        <div onclick="switchTab('tasks')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-list-check text-xl mb-1"></i><p class="text-[10px]">TASKS</p></div>
-        <div onclick="switchTab('plans')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-cube text-xl mb-1"></i><p class="text-[10px]">PLANS</p></div>
-        <div onclick="switchTab('me')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-user text-xl mb-1"></i><p class="text-[10px]">TEAM</p></div>
+        <div onclick="switchTab('home')" class="text-center cursor-pointer text-white nav-item"><i class="fa-solid fa-house text-xl"></i><p class="text-[9px]">HOME</p></div>
+        <div onclick="switchTab('games')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-gamepad text-xl"></i><p class="text-[9px]">GAMES</p></div>
+        <div onclick="switchTab('tasks')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-list-check text-xl"></i><p class="text-[9px]">TASKS</p></div>
+        <div onclick="switchTab('plans')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-cube text-xl"></i><p class="text-[9px]">PLANS</p></div>
+        <div onclick="switchTab('me')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-user text-xl"></i><p class="text-[9px]">TEAM</p></div>
     </div>
 
     <script>
@@ -204,80 +198,44 @@
             { title: "Rate App", url: "https://play.google.com/store/apps" }
         ];
 
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            if (urlParams.get('ref')) {
-                detectedReferral = urlParams.get('ref');
-                document.getElementById('autoRefBadge').classList.remove('hidden');
-                document.getElementById('inviterId').innerText = detectedReferral;
-                toggleAuth();
-            }
+        window.onload = () => {
+            const p = new URLSearchParams(window.location.search);
+            if(p.get('ref')) { detectedReferral = p.get('ref'); document.getElementById('inviterId').innerText = detectedReferral; toggleAuth(); }
         };
 
-        // --- CORE: RENDER & CLAIM TASKS ---
-        function renderTasks(unlockedCount, claimedCount, currentPlan) {
-            const lockedView = document.getElementById('planLockedView');
-            const taskView = document.getElementById('taskListView');
-            
-            if(currentPlan !== "GOLD PRO") {
-                lockedView.classList.remove('hidden');
-                taskView.classList.add('hidden');
+        function renderTasks(unlocked, claimed, plan) {
+            if(plan !== "GOLD PRO") {
+                document.getElementById('planLockedView').classList.remove('hidden');
+                document.getElementById('taskListView').classList.add('hidden');
                 return;
             }
+            document.getElementById('planLockedView').classList.add('hidden');
+            document.getElementById('taskListView').classList.remove('hidden');
 
-            lockedView.classList.add('hidden');
-            taskView.classList.remove('hidden');
-
-            const container = document.getElementById('tasksContainer');
-            let htmlContent = "";
-            
-            // Show up to 50 potential slots, but mostly they are locked
-            for (let i = 0; i < 50; i++) {
-                const taskData = taskLinks[i % 5];
+            const cont = document.getElementById('tasksContainer');
+            let html = "";
+            for(let i=0; i<50; i++) {
+                const data = taskLinks[i%5];
+                const isOpen = i < unlocked;
+                const isDone = i < claimed;
                 
-                const isUnlocked = i < unlockedCount;
-                const isClaimed = i < claimedCount;
-                
-                let borderClass = "locked-border";
-                let btnHtml = "";
+                let btn = `<div class="text-red-500 font-bold text-xs"><i class="fa-solid fa-lock"></i> LOCKED</div>`;
+                if(isDone) btn = `<div class="text-gray-500 font-bold text-xs">COMPLETED</div>`;
+                else if(isOpen) btn = `<button onclick="claimTask(${i}, '${data.url}')" class="bg-green-500 text-black px-4 py-1 rounded font-bold text-xs">CLAIM 200</button>`;
 
-                if (isClaimed) {
-                    borderClass = "done-border opacity-50";
-                    btnHtml = `<div class="text-gray-500 font-bold text-xs">COMPLETED</div>`;
-                } else if (isUnlocked) {
-                    borderClass = "unlocked-border";
-                    btnHtml = `<button onclick="claimTask(${i}, '${taskData.url}')" class="bg-green-500 text-black px-4 py-1 rounded font-bold text-xs hover:scale-105">CLAIM 200</button>`;
-                } else {
-                    borderClass = "locked-border";
-                    btnHtml = `<div class="text-red-500 font-bold text-xs"><i class="fa-solid fa-lock"></i> LOCKED</div>`;
-                }
-
-                htmlContent += `
-                <div class="gf-card ${borderClass} p-4 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white"><i class="fa-solid fa-check"></i></div>
-                        <div><h4 class="font-bold text-sm text-white">Reward #${i+1}</h4><span class="text-xs text-gray-400">${taskData.title}</span></div>
-                    </div>
-                    ${btnHtml}
-                </div>`;
+                html += `<div class="gf-card p-3 flex justify-between items-center ${isOpen?'border-green-500/30':'border-red-500/30'}">
+                    <div class="flex gap-3 items-center"><div class="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"><i class="fa-solid fa-gift"></i></div><div><h4 class="font-bold text-sm">Task #${i+1}</h4><p class="text-[10px] text-gray-400">${data.title}</p></div></div>${btn}</div>`;
             }
-            container.innerHTML = htmlContent;
+            cont.innerHTML = html;
         }
 
-        // --- CLAIM MONEY LOGIC ---
-        function claimTask(index, url) {
+        function claimTask(idx, url) {
             window.open(url, '_blank');
-            
-            // Wait 2 seconds then credit
             setTimeout(() => {
-                const newBal = (myData.balance || 0) + 200;
-                const newClaimed = (myData.claimedTasks || 0) + 1;
-                
-                db.ref('users/' + currentUser.uid).update({
-                    balance: newBal,
-                    claimedTasks: newClaimed
-                });
-                alert("200 PKR Added to Balance!");
+                const nBal = (myData.balance || 0) + 200;
+                const nClm = (myData.claimedTasks || 0) + 1;
+                db.ref('users/'+currentUser.uid).update({ balance: nBal, claimedTasks: nClm });
+                alert("200 Added!");
             }, 2000);
         }
 
@@ -291,67 +249,68 @@
                     myData = snap.val();
                     if(myData) {
                         document.getElementById('userNameDisplay').innerText = myData.name;
-                        document.getElementById('bigBalance').innerText = myData.balance;
+                        document.getElementById('bigBalance').innerText = myData.balance.toFixed(2);
+                        document.getElementById('wagerDisplay').innerText = (myData.wager || 0).toFixed(2);
                         document.getElementById('planDisplay').innerText = myData.plan || "FREE";
-                        
-                        const unlocked = myData.unlockedTasks || 0;
-                        const claimed = myData.claimedTasks || 0;
-                        document.getElementById('taskCountDisplay').innerText = unlocked - claimed; // Shows available
-                        
-                        document.getElementById('myLinkDisplay').innerText = window.location.origin + window.location.pathname + "?ref=" + myData.myCode;
-                        
-                        renderTasks(unlocked, claimed, myData.plan || "FREE");
+                        const un = myData.unlockedTasks || 0;
+                        const cl = myData.claimedTasks || 0;
+                        document.getElementById('taskCountDisplay').innerText = un - cl;
+                        document.getElementById('myLinkDisplay').innerText = window.location.origin + "?ref=" + myData.myCode;
+                        renderTasks(un, cl, myData.plan || "FREE");
                     }
                 });
-            } else { document.getElementById('authScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; }
+            } else { document.getElementById('authScreen').style.display = 'flex'; }
         });
 
-        // Basic Functions
-        function login() { auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPass').value).catch(e => alert(e.message)); }
+        function login() { auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPass').value).catch(e=>alert(e.message)); }
         function register() {
             const e=document.getElementById('regEmail').value, p=document.getElementById('regPass').value, n=document.getElementById('regName').value;
             const code = "U-" + Math.floor(10000 + Math.random() * 90000);
             auth.createUserWithEmailAndPassword(e, p).then(c => {
-                db.ref('users/'+c.user.uid).set({name:n, email:e, myCode:code, invitedBy:detectedReferral, balance:0, plan:"FREE", unlockedTasks:0, claimedTasks:0});
-            }).catch(e => alert(e.message));
+                db.ref('users/'+c.user.uid).set({name:n, email:e, myCode:code, invitedBy:detectedReferral, balance:0, wager:0, plan:"FREE"});
+            }).catch(e=>alert(e.message));
         }
         function logout() { auth.signOut(); location.reload(); }
         function toggleAuth() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('registerForm').classList.toggle('hidden'); }
-        function selectMethod(t) { selectedDepMethod = t==='ep'?"Easypaisa":"JazzCash"; document.querySelectorAll('#depositModal button').forEach(b=>b.classList.remove('border-green-500')); event.target.classList.add('border-green-500'); }
         
+        function openDeposit() { document.getElementById('depositModal').style.display='flex'; }
+        function selMethod(t) { selectedDepMethod = t==='ep'?"Easypaisa":"JazzCash"; }
         function submitDeposit() {
-            const amt = document.getElementById('depAmt').value, sender = document.getElementById('senderNum').value;
-            if(!amt || !sender) return alert("Fill all details");
-            db.ref('deposits').push({ uid: currentUser.uid, amount: amt, senderNum: sender, method: selectedDepMethod, invitedBy: myData.invitedBy, status: "Pending", timestamp: Date.now() });
-            alert("Request Sent!"); document.getElementById('depositModal').style.display='none';
+            const amt = document.getElementById('depAmt').value, snd = document.getElementById('senderNum').value;
+            db.ref('deposits').push({ uid: currentUser.uid, amount: amt, senderNum: snd, method: selectedDepMethod, invitedBy: myData.invitedBy, status: "Pending", timestamp: Date.now() });
+            alert("Sent!"); document.getElementById('depositModal').style.display='none';
         }
-        
+
+        function openWithdraw() {
+            if((myData.wager || 0) > 0) return alert("Complete Wager first: Rs. " + myData.wager);
+            if(myData.balance < 500) return alert("Min Withdraw 500");
+            document.getElementById('withdrawModal').style.display='flex';
+        }
         function submitWithdraw() {
             const amt = parseInt(document.getElementById('withAmt').value);
             if(amt > myData.balance) return alert("Low Balance");
-            if(confirm("Confirm?")) {
+            if(confirm("Withdraw?")) {
                 db.ref('users/'+currentUser.uid).update({balance: myData.balance - amt});
-                db.ref('withdrawals').push({uid:currentUser.uid, amount:amt, method:document.getElementById('withMethod').value, accNum:document.getElementById('withNum').value, status:"Pending"});
-                alert("Sent!"); document.getElementById('withdrawModal').style.display='none';
+                db.ref('withdrawals').push({ uid: currentUser.uid, amount: amt, method: document.getElementById('withMethod').value, accNum: document.getElementById('withNum').value, status: "Pending" });
+                alert("Pending!"); document.getElementById('withdrawModal').style.display='none';
             }
         }
 
-        function buyPlan(price, name) {
-            if(myData.balance >= price) {
-                if(confirm("Buy "+name+"?")) {
-                    db.ref('users/'+currentUser.uid).update({balance: myData.balance - price, plan: name});
+        function buyPlan(p, n) {
+            if(myData.balance >= p) {
+                if(confirm("Buy "+n+"?")) {
+                    db.ref('users/'+currentUser.uid).update({balance: myData.balance - p, plan: n});
                     alert("Activated!");
                 }
-            } else { alert("Insufficient Balance"); document.getElementById('depositModal').style.display='flex'; }
+            } else alert("Recharge Balance");
         }
 
-        function shareLink() { window.open("https://wa.me/?text=" + encodeURIComponent("🚀 Join: " + document.getElementById('myLinkDisplay').innerText), '_blank'); }
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
-            document.getElementById('tab-' + tab).classList.add('active-tab');
-            document.querySelectorAll('.nav-item').forEach(el => { el.classList.remove('text-white'); el.classList.add('text-gray-500'); });
+        function shareLink() { window.open("https://wa.me/?text=" + encodeURIComponent("Join: " + document.getElementById('myLinkDisplay').innerText), '_blank'); }
+        function switchTab(t) {
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active-tab'));
+            document.getElementById('tab-'+t).classList.add('active-tab');
+            document.querySelectorAll('.nav-item').forEach(e => {e.classList.remove('text-white'); e.classList.add('text-gray-500');});
             event.currentTarget.classList.add('text-white');
-            event.currentTarget.classList.remove('text-gray-500');
         }
     </script>
 </body>
