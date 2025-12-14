@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PLINKO - PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <style>
+        body { 
+            background: #050505; 
+            font-family: 'Rajdhani', sans-serif; 
+            color: white; 
+            overflow: hidden; 
+            user-select: none;
+            touch-action: manipulation;
+        }
+
+        /* CANVAS */
+        #plinkoCanvas { 
+            display: block; 
+            margin: 0 auto;
+            /* height will be set by JS */
+        }
+
+        /* BACK BUTTON */
+        .back-btn { position: absolute; top: 20px; left: 20px; z-index: 50; color: white; font-size: 24px; cursor: pointer; }
+
+        /* HUD */
+        .hud {
+            position: fixed; top: 0; width: 100%; padding: 20px; padding-top: 60px;
+            display: flex; justify-content: space-between; z-index: 40;
+            background: linear-gradient(to bottom, #000, transparent);
+            pointer-events: none;
+        }
+
+        /* COMPACT CONTROLS */
+        .controls-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(10, 10, 10, 0.95);
+            border-top: 1px solid #333;
+            padding: 10px 20px; z-index: 50;
+            padding-bottom: 30px;
+        }
+
+        /* SLIM CHIPS DESIGN */
+        .chip-group {
+            display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px;
+        }
+        .slim-chip {
+            flex: 1; padding: 10px 0;
+            background: #111; border: 1px solid #333; border-radius: 4px;
+            color: #666; font-family: 'Audiowide'; font-size: 12px; text-align: center;
+            cursor: pointer; transition: 0.2s; position: relative; overflow: hidden;
+        }
+        .slim-chip.selected {
+            background: rgba(217, 70, 239, 0.1); /* Pink tint */
+            border-color: #d946ef; color: white;
+            box-shadow: 0 0 10px rgba(217, 70, 239, 0.3);
+        }
+        
+        /* DROP BUTTON */
+        .drop-btn {
+            width: 100%; padding: 12px;
+            background: linear-gradient(90deg, #d946ef, #8b5cf6);
+            color: white; font-family: 'Audiowide'; font-size: 18px; letter-spacing: 2px;
+            border: none; border-radius: 6px;
+            box-shadow: 0 0 20px rgba(217, 70, 239, 0.4);
+            transition: 0.1s;
+        }
+        .drop-btn:active { transform: scale(0.98); filter: brightness(1.2); }
+
+        /* WIN POPUP */
+        .win-float {
+            position: absolute; pointer-events: none;
+            font-family: 'Audiowide'; font-weight: bold; color: #ffd700;
+            text-shadow: 0 0 5px black; animation: floatUp 1s forwards;
+        }
+        @keyframes floatUp { to { transform: translateY(-50px); opacity: 0; } }
+
+    </style>
+</head>
+<body onclick="initAudio()">
+
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+
+    <div class="hud">
+        <div>
+            <p class="text-[10px] text-fuchsia-400 uppercase tracking-widest font-bold">Balance</p>
+            <h2 class="text-2xl font-bold font-mono">Rs. <span id="balance">...</span></h2>
+        </div>
+        <div class="text-right">
+            <p class="text-[10px] text-purple-400 uppercase tracking-widest font-bold">Active Balls</p>
+            <h2 class="text-xl font-bold text-white"><span id="activeBalls">0</span></h2>
+        </div>
+    </div>
+
+    <div class="flex-1 w-full h-screen bg-[#050505] flex flex-col justify-center">
+        <canvas id="plinkoCanvas"></canvas>
+    </div>
+
+    <div class="controls-bar">
+        <div class="chip-group">
+            <div onclick="selectChip(20, this)" class="slim-chip selected">20</div>
+            <div onclick="selectChip(50, this)" class="slim-chip">50</div>
+            <div onclick="selectChip(100, this)" class="slim-chip">100</div>
+            <div onclick="selectChip(500, this)" class="slim-chip">500</div>
+        </div>
+
+        <button onmousedown="startDropping()" onmouseup="stopDropping()" onmouseleave="stopDropping()" ontouchstart="startDropping()" ontouchend="stopDropping()" class="drop-btn">
+            DROP BALL
+        </button>
+    </div>
+
+    <script>
+        // === FIREBASE ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
+            authDomain: "ultra-earn-a636a.firebaseapp.com",
+            projectId: "ultra-earn-a636a",
+            storageBucket: "ultra-earn-a636a.firebasestorage.app",
+            messagingSenderId: "185942357584",
+            appId: "1:185942357584:web:1052b94cfecc6576944355"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let currentUser = null;
+        let myBalance = 0;
+        let myStreak = 0;
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                db.ref('users/' + user.uid).on('value', snap => {
+                    const data = snap.val();
+                    myBalance = data.balance || 0;
+                    myStreak = data.streak || 0;
+                    document.getElementById('balance').innerText = myBalance.toFixed(2);
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // === GAME ENGINE ===
+        const canvas = document.getElementById('plinkoCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        const ROWS = 14; // Standard Plinko rows
+        const PEG_RADIUS = 3;
+        const BALL_RADIUS = 5;
+        const GRAVITY = 0.2;
+        const FRICTION = 0.9;
+        
+        // Multipliers (Center is low/loss, Edges are high/win)
+        // [Left ... Center ... Right]
+        // Center index is around 7
+        const MULTIPLIERS = [10, 5, 2.5, 1.5, 0.5, 0.2, 0.2, 0.2, 0.2, 0.2, 0.5, 1.5, 2.5, 5, 10]; 
+        // Color mapping for buckets
+        const BUCKET_COLORS = [
+            '#ff0055', '#ff4400', '#ff8800', '#ffcc00', '#222', '#111', '#111', '#111', '#111', '#111', '#222', '#ffcc00', '#ff8800', '#ff4400', '#ff0055'
+        ];
+
+        function resize() { 
+            width = canvas.width = Math.min(window.innerWidth, 500); 
+            height = canvas.height = window.innerHeight * 0.75; 
+            initBoard();
+        }
+        window.addEventListener('resize', resize);
+
+        // === STATE ===
+        let balls = [];
+        let pegs = [];
+        let buckets = [];
+        let currentBet = 20;
+        let autoDropInterval = null;
+
+        // === RISK ENGINE (PHYSICS BIAS) ===
+        function decideBias(betAmount) {
+            // Returns a bias value: -1 (Left), 0 (Center/Random), 1 (Right)
+            // Or easier: Return "Force Loss" (Center) or "Allow Win" (Edges)
+            
+            let forceLoss = false;
+            
+            // 1. High Bet Trap (> 500)
+            if(betAmount >= 500) forceLoss = true;
+            
+            // 2. Streak Trap
+            if(myStreak >= 3) forceLoss = true;
+            
+            // 3. Small Bet Lure (20% chance to lose anyway)
+            if(!forceLoss && Math.random() < 0.2) forceLoss = true;
+
+            if(forceLoss) {
+                // Return bias towards center (Indices 5-9)
+                return 'center';
+            } else {
+                // Return bias towards edges (Indices 0-4 or 10-14)
+                return Math.random() > 0.5 ? 'left' : 'right';
+            }
+        }
+
+        // === CLASSES ===
+        class Ball {
+            constructor(bias) {
+                this.x = width / 2 + (Math.random() - 0.5) * 5; // Slight jitter start
+                this.y = 20;
+                this.vx = 0;
+                this.vy = 0;
+                this.r = BALL_RADIUS;
+                this.color = '#fff';
+                this.value = currentBet;
+                this.dead = false;
+                this.bias = bias; // 'center', 'left', 'right'
+            }
+
+            update() {
+                this.vy += GRAVITY;
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Physics Bias Nudge
+                // We gently push the ball horizontally based on risk outcome
+                if(this.bias === 'center') {
+                    // Push towards center width
+                    if(this.x < width/2) this.vx += 0.05; 
+                    else this.vx -= 0.05;
+                } else if(this.bias === 'left') {
+                    this.vx -= 0.08;
+                } else if(this.bias === 'right') {
+                    this.vx += 0.08;
+                }
+
+                // Peg Collision
+                for (let p of pegs) {
+                    const dx = this.x - p.x;
+                    const dy = this.y - p.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < this.r + p.r) {
+                        // Bounce
+                        const angle = Math.atan2(dy, dx);
+                        const force = 0.6; // Bounciness
+                        
+                        // Add randomness so it doesn't look too robotic
+                        const jitter = (Math.random() - 0.5) * 0.5;
+                        
+                        this.vx = Math.cos(angle) * force + jitter; 
+                        this.vy = Math.abs(Math.sin(angle) * force * 0.5); 
+                        
+                        // Prevent sticking
+                        this.x = p.x + Math.cos(angle) * (this.r + p.r + 1);
+                        this.y = p.y + Math.sin(angle) * (this.r + p.r + 1);
+
+                        p.glow = 1; // Visual hit
+                        playSound('hit');
+                    }
+                }
+
+                // Bucket Collision
+                if (this.y > buckets[0].y - 10) {
+                    for (let b of buckets) {
+                        if (this.x > b.x && this.x < b.x + b.w) {
+                            this.finish(b);
+                            break;
+                        }
+                    }
+                    if (!this.dead && this.y > height) this.dead = true;
+                }
+            }
+
+            finish(bucket) {
+                this.dead = true;
+                const win = this.value * bucket.val;
+                
+                // Server Update
+                const newBal = myBalance + win; // Balance was deducted on drop
+                let isWin = bucket.val >= 1;
+                let newStreak = isWin ? myStreak + 1 : 0;
+                
+                db.ref('users/' + currentUser.uid).update({ balance: newBal, streak: newStreak });
+
+                // UI
+                bucket.flash = 10;
+                showFloatText(bucket.val + "x", this.x, this.y, bucket.val > 1);
+                
+                if(bucket.val >= 2) playSound('win');
+                else playSound('clack');
+            }
+
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.r, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.shadowBlur = 10;
+                ctx.shadowColor = '#d946ef';
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+        }
+
+        function initBoard() {
+            pegs = [];
+            buckets = [];
+            const spacing = width / (ROWS + 2);
+            const startY = 50;
+
+            // Pegs
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c <= r; c++) {
+                    const x = (width / 2) - (r * spacing / 2) + (c * spacing);
+                    const y = startY + (r * spacing);
+                    pegs.push({ x, y, r: PEG_RADIUS, glow: 0 });
+                }
+            }
+
+            // Buckets
+            const bottomY = startY + (ROWS * spacing) + 20;
+            const bucketW = spacing;
+            
+            for (let i = 0; i < MULTIPLIERS.length; i++) {
+                // Center alignment calculation
+                const x = (width / 2) - ((MULTIPLIERS.length) * spacing / 2) + (i * spacing);
+                buckets.push({
+                    x: x, y: bottomY, w: bucketW, h: 30,
+                    val: MULTIPLIERS[i],
+                    color: BUCKET_COLORS[i]
+                });
+            }
+        }
+
+        // === LOOP ===
+        function loop() {
+            ctx.clearRect(0, 0, width, height);
+
+            // Draw Buckets
+            buckets.forEach(b => {
+                ctx.fillStyle = b.flash > 0 ? '#fff' : b.color;
+                if(b.flash > 0) b.flash--;
+                ctx.fillRect(b.x + 1, b.y, b.w - 2, b.h);
+                
+                ctx.fillStyle = b.val >= 2 ? '#fff' : '#777';
+                ctx.font = '10px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(b.val + 'x', b.x + b.w/2, b.y + 18);
+            });
+
+            // Draw Pegs
+            pegs.forEach(p => {
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+                ctx.fillStyle = p.glow > 0 ? '#fff' : '#444';
+                if(p.glow > 0) p.glow -= 0.1;
+                ctx.fill();
+            });
+
+            // Balls
+            for (let i = balls.length - 1; i >= 0; i--) {
+                balls[i].update();
+                balls[i].draw();
+                if (balls[i].dead) balls.splice(i, 1);
+            }
+            document.getElementById('activeBalls').innerText = balls.length;
+
+            requestAnimationFrame(loop);
+        }
+
+        // === CONTROLS ===
+        function selectChip(val, el) {
+            currentBet = val;
+            document.querySelectorAll('.slim-chip').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            playSound('clack');
+        }
+
+        function dropOne() {
+            if(myBalance < currentBet) return;
+            
+            // Deduct
+            const newBal = myBalance - currentBet;
+            db.ref('users/' + currentUser.uid).update({ balance: newBal });
+
+            // Decide Physics Bias
+            const bias = decideBias(currentBet);
+            balls.push(new Ball(bias));
+        }
+
+        function startDropping() {
+            if(autoDropInterval) return;
+            dropOne();
+            autoDropInterval = setInterval(dropOne, 200); // 5 balls/sec
+        }
+
+        function stopDropping() {
+            clearInterval(autoDropInterval);
+            autoDropInterval = null;
+        }
+
+        // === UI FX ===
+        function showFloatText(txt, x, y, good) {
+            const el = document.createElement('div');
+            el.className = 'win-float';
+            el.style.left = x + 'px';
+            el.style.top = y + 'px';
+            el.innerText = txt;
+            el.style.color = good ? '#0f0' : '#555';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
+
+        // === AUDIO ===
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioInit = false;
+        function initAudio() { if(!audioInit) { audioCtx.resume(); audioInit = true; } }
+
+        function playSound(type) {
+            initAudio();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            if(type === 'hit') {
+                osc.frequency.setValueAtTime(800 + Math.random()*200, t);
+                gain.gain.setValueAtTime(0.05, t); gain.gain.exponentialRampToValueAtTime(0.001, t+0.05);
+                osc.start(t); osc.stop(t+0.05);
+            } else if(type === 'win') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(400, t);
+                gain.gain.setValueAtTime(0.1, t); gain.gain.linearRampToValueAtTime(0, t+0.2);
+                osc.start(t); osc.stop(t+0.2);
+            } else if(type === 'clack') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(200, t);
+                gain.gain.setValueAtTime(0.05, t); gain.gain.exponentialRampToValueAtTime(0.001, t+0.05);
+                osc.start(t); osc.stop(t+0.05);
+            }
+        }
+
+        // Init
+        resize();
+        loop();
+
+    </script>
+</body>
+</html>
