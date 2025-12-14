@@ -29,14 +29,12 @@
             touch-action: manipulation;
         }
 
-        /* BG */
         .hazard-bg {
             position: fixed; inset: 0; pointer-events: none; z-index: -1;
             background: repeating-linear-gradient(45deg, #050505, #050505 10px, #0a0a0a 10px, #0a0a0a 20px);
         }
         .back-btn { position: absolute; top: 20px; left: 20px; z-index: 60; font-size: 24px; cursor: pointer; color: white; }
 
-        /* HEADER */
         .game-header {
             padding: 20px; padding-top: 80px;
             display: flex; justify-content: space-between; align-items: center;
@@ -44,7 +42,6 @@
             background: linear-gradient(to bottom, black, transparent);
         }
 
-        /* MAIN MONITOR */
         .monitor-stage {
             position: relative; height: 40vh; margin-top: 20px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -66,14 +63,12 @@
         .fire-wave { animation: shock 0.5s linear infinite; border-color: var(--toxic); }
         @keyframes shock { 0% {width: 10px; height: 10px; opacity: 1; border-width: 5px;} 100% {width: 300px; height: 300px; opacity: 0; border-width: 0px;} }
 
-        /* CONTROLS */
         .controls-area {
             position: fixed; bottom: 0; width: 100%;
             background: rgba(10,10,10,0.95); border-top: 1px solid #333;
             padding: 20px; z-index: 50; border-radius: 20px 20px 0 0;
         }
 
-        /* Chips */
         .chip-rack { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; }
         .chip {
             width: 55px; height: 55px; border-radius: 50%;
@@ -90,7 +85,6 @@
         .c-100 { background: #111; color: #aaa; }
         .c-500 { background: #111; color: #aaa; }
 
-        /* Target Input */
         .target-box {
             display: flex; align-items: center; justify-content: space-between;
             background: #000; border: 1px solid #333; padding: 10px 20px;
@@ -101,7 +95,6 @@
             color: var(--toxic); font-size: 24px; font-weight: bold; width: 100px; text-align: right;
         }
 
-        /* Launch Button */
         .launch-btn {
             width: 100%; padding: 18px;
             background: repeating-linear-gradient(45deg, #111, #111 10px, #222 10px, #222 20px);
@@ -158,7 +151,6 @@
     </div>
 
     <script>
-        // === FIREBASE ===
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -189,11 +181,9 @@
             }
         });
 
-        // === GAME STATE ===
         let currentBet = 20;
         let isRunning = false;
 
-        // === AUDIO ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let audioInit = false;
         function initAudio() { if(!audioInit) { audioCtx.resume(); audioInit = true; } }
@@ -221,7 +211,6 @@
             }
         }
 
-        // === LOGIC ===
         function selectChip(val, el) {
             if(isRunning) return;
             currentBet = val;
@@ -240,26 +229,22 @@
             const newBal = myBalance - currentBet;
             db.ref('users/' + currentUser.uid).update({ balance: newBal });
 
-            // 2. RISK ENGINE
-            // Rule 1: Bet > 500 = Crash
-            // Rule 2: Streak > 3 = Crash
-            // Rule 3: Small Bet = Win
+            // 2. RISK ENGINE (30% WIN / 70% LOSE)
+            let winChance = 0.3; // 30% Chance to Win
             
-            let winChance = 0.7;
-            if(currentBet >= 500) winChance = 0.1;
-            if(myStreak >= 3) winChance = 0;
+            // Penalties
+            if(currentBet >= 500) winChance = 0.05; // 5% Win
+            if(myStreak >= 3) winChance = 0; // 0% Win
 
             const isWin = Math.random() < winChance;
             
             // Calculate Result
-            // If Win: Result > Target. If Loss: Result < Target.
             let result;
             if(isWin) {
-                // Generate a random number between Target and Target * 2
+                // Win: Result > Target
                 result = (target + (Math.random() * target)).toFixed(2);
             } else {
-                // Crash just before target to induce rage (e.g. Target 2.0 -> Crash 1.89)
-                // Or random low crash
+                // Lose: Result < Target
                 if(Math.random() > 0.5) result = (target * 0.9).toFixed(2); // Near miss
                 else result = (1.00 + Math.random()).toFixed(2); // Early crash
                 
@@ -285,14 +270,13 @@
             // Count Up
             let current = 1.00;
             const max = parseFloat(result);
-            const duration = 2000; // 2s max animation
+            const duration = 2000; 
             const start = performance.now();
 
             function animate(time) {
                 const elapsed = time - start;
                 const progress = Math.min(elapsed / duration, 1);
                 
-                // Exponential visual curve
                 current = 1.00 + (max - 1.00) * progress;
                 counter.innerText = current.toFixed(2) + "x";
 
@@ -316,7 +300,7 @@
                 const profit = currentBet * target;
                 
                 db.ref('users/' + currentUser.uid).update({ 
-                    balance: myBalance + profit, // Balance already deducted, add win
+                    balance: myBalance + profit, 
                     streak: myStreak + 1
                 });
                 
