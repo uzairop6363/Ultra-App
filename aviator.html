@@ -35,7 +35,7 @@
             width: 100%; height: 100%;
         }
 
-        /* PLANE ANIMATION ELEMENT (Icon overlay) */
+        /* PLANE ANIMATION ELEMENT */
         .plane-obj {
             position: absolute; bottom: 10px; left: 10px;
             font-size: 40px; color: #ff0040;
@@ -114,7 +114,7 @@
             z-index: 15;
         }
         .pill { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; background: #222; border: 1px solid #333; }
-        .p-bad { color: #00aaff; } /* Blue for low (Stake style) */
+        .p-bad { color: #00aaff; } /* Blue for low */
         .p-good { color: #aa00ff; } /* Purple for mid */
         .p-hot { color: #ff0055; } /* Pink for high */
 
@@ -155,7 +155,7 @@
     </div>
 
     <script>
-        // === FIREBASE ===
+        // === FIREBASE CONFIG ===
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -170,7 +170,6 @@
 
         let currentUser = null;
         let myBalance = 0;
-        let myStreak = 0;
 
         auth.onAuthStateChanged(user => {
             if (user) {
@@ -178,7 +177,6 @@
                 db.ref('users/' + user.uid).on('value', snap => {
                     const data = snap.val();
                     myBalance = data.balance || 0;
-                    myStreak = data.streak || 0;
                     document.getElementById('balance').innerText = myBalance.toFixed(2);
                 });
             } else {
@@ -188,7 +186,7 @@
 
         // === GAME STATE ===
         let currentBet = 20;
-        let gameState = 'IDLE'; // IDLE, BET_PLACED, FLYING, CRASHED
+        let gameState = 'IDLE'; // IDLE, WAIT, FLYING, CRASHED
         let hasBet = false;
         let cashedOut = false;
         let multiplier = 1.00;
@@ -252,16 +250,14 @@
         }
 
         function handleAction() {
-            if (gameState === 'IDLE' || gameState === 'WAITING') {
+            if (gameState === 'IDLE' || gameState === 'WAIT') {
                 // PLACE BET
                 if (hasBet) {
-                    // Cancel
-                    hasBet = false;
+                    hasBet = false; // Cancel
                     updateBtn();
                 } else {
-                    // Place
-                    if(myBalance < currentBet) return alert("Low Balance");
-                    hasBet = true;
+                    if(myBalance < currentBet) return alert("Insufficient Balance");
+                    hasBet = true; // Place
                     updateBtn();
                     playSound('click');
                 }
@@ -285,7 +281,7 @@
                     btn.innerText = "WAIT FOR ROUND";
                 } else {
                     btn.className = "action-btn btn-wait";
-                    btn.innerText = "WAITING...";
+                    btn.innerText = "PLANE FLYING...";
                 }
             } else {
                 if(hasBet) {
@@ -304,8 +300,7 @@
 
         // === GAME LOOP ===
         function startRoundCycle() {
-            // 5 seconds Countdown
-            gameState = 'WAITING';
+            gameState = 'WAIT';
             let cd = 5;
             const cdInt = setInterval(() => {
                 document.getElementById('countDown').innerText = cd + "s";
@@ -318,31 +313,27 @@
         }
 
         function launchPlane() {
-            // 1. DEDUCT
+            // 1. DEDUCT BALANCE (If bet placed)
             if (hasBet) {
                 const newBal = myBalance - currentBet;
                 db.ref('users/' + currentUser.uid).update({ balance: newBal });
             }
 
-            // 2. CALCULATE CRASH POINT (RISK MANAGEMENT)
-            // Rule 1: High Bet (> 500) = Crash Early (1.00x - 1.20x)
-            // Rule 2: Streak > 3 = Crash Early
-            // Rule 3: Small Bet = Let it fly (1.5x - 4.0x)
+            // === 2. CRASH LOGIC (THE 30/70 RULE) ===
             
-            let isRigged = false;
-            if(currentBet >= 500 || myStreak >= 3) isRigged = true;
-            if(Math.random() > 0.7) isRigged = true; // Random trap
-
-            if(isRigged) {
-                // Crash between 1.00 and 1.20
-                crashPoint = 1.00 + Math.random() * 0.20;
-            } else {
-                // Good flight between 1.50 and 4.00
-                crashPoint = 1.50 + Math.random() * 2.50;
+            let winChance = Math.random(); // 0.0 to 1.0
+            
+            // 70% chance that system wins (User loses)
+            if (winChance > 0.30) {
+                // FORCE LOSS: Crash very early (1.00x - 1.20x)
+                // It's extremely hard to cashout here
+                crashPoint = 1.00 + Math.random() * 0.20; 
+            } 
+            // 30% chance that user *can* win
+            else {
+                // ALLOW WIN: Crash later (1.50x - 5.50x)
+                crashPoint = 1.50 + Math.random() * 4.00;
             }
-            
-            // Allow occasional instant crash 1.00x if rigged
-            if(isRigged && Math.random() > 0.8) crashPoint = 1.00;
 
             gameState = 'FLYING';
             multiplier = 1.00;
@@ -361,7 +352,7 @@
             flyInterval = setInterval(() => {
                 const elapsed = (Date.now() - startTime) / 1000;
                 
-                // Exponential Growth
+                // Growth Curve
                 multiplier = 1.00 + (elapsed * elapsed * 0.1);
                 
                 // Update UI
@@ -370,16 +361,16 @@
                 // Audio Pitch
                 if(engineOsc) engineOsc.frequency.value = 50 + (multiplier * 50);
 
-                // Move Plane (CSS)
-                const progress = Math.min(elapsed / 5, 1); // 5 sec to reach corner
+                // Move Plane
+                const progress = Math.min(elapsed / 6, 1); 
                 const x = progress * (width - 60);
                 const y = progress * (height - 60);
                 
                 plane.style.left = 10 + x + 'px';
                 plane.style.bottom = 10 + y + 'px';
-                plane.style.transform = `rotate(${-10 + (progress*30)}deg)`; // Tilt up
+                plane.style.transform = `rotate(${-10 + (progress*30)}deg)`;
 
-                // Update Cashout Button Value
+                // Update Cashout Button
                 if(hasBet && !cashedOut) updateBtn();
 
                 // CHECK CRASH
@@ -387,7 +378,7 @@
                     doCrash();
                 }
 
-            }, 50); // 20 FPS Update
+            }, 50); 
         }
 
         function doCrash() {
@@ -399,17 +390,12 @@
             document.getElementById('mainNumber').innerText = "CRASHED @ " + crashPoint.toFixed(2) + "x";
             document.getElementById('mainNumber').classList.add('crashed-text');
             
-            // Logic
-            if(hasBet && !cashedOut) {
-                // User lost
-                db.ref('users/' + currentUser.uid).update({ streak: 0 });
-            }
-            
+            // If user didn't cash out, they lost (balance already deducted)
             hasBet = false;
             updateBtn();
             addHistory(crashPoint);
             
-            // Reset Pos
+            // Reset Pos after delay
             setTimeout(() => {
                 document.getElementById('thePlane').style.left = '10px';
                 document.getElementById('thePlane').style.bottom = '10px';
@@ -422,15 +408,10 @@
             cashedOut = true;
             const profit = currentBet * multiplier;
             
-            // Credit
-            // Note: Balance was deducted at start. So we add back (Bet * Mult)
+            // CREDIT PROFIT
+            // We deducted bet at start, so we add the total win amount now
             const newBal = myBalance + profit;
-            const newStreak = myStreak + 1;
-            
-            db.ref('users/' + currentUser.uid).update({ 
-                balance: newBal, 
-                streak: newStreak 
-            });
+            db.ref('users/' + currentUser.uid).update({ balance: newBal });
             
             playSound('cash');
             if(navigator.vibrate) navigator.vibrate(200);
@@ -440,7 +421,6 @@
         function addHistory(val) {
             const bar = document.getElementById('historyBar');
             const p = document.createElement('div');
-            // Style based on val
             let cls = 'p-bad';
             if(val >= 2.0) cls = 'p-good';
             if(val >= 10.0) cls = 'p-hot';
@@ -452,7 +432,7 @@
             if(bar.children.length > 5) bar.lastChild.remove();
         }
 
-        // Start Loop
+        // Start Game Loop
         startRoundCycle();
 
     </script>
