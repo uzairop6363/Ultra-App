@@ -31,11 +31,9 @@
             touch-action: manipulation;
         }
 
-        /* MATRIX BG */
         #matrixCanvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: 0.15; }
         .back-btn { position: absolute; top: 20px; left: 20px; z-index: 60; color: white; font-size: 24px; cursor: pointer; }
 
-        /* HEADER */
         .game-header {
             padding: 20px; padding-top: 80px;
             display: flex; justify-content: space-between; align-items: center;
@@ -43,7 +41,6 @@
             background: linear-gradient(to bottom, black, transparent);
         }
 
-        /* TOWER VIEWPORT */
         .tower-viewport {
             position: relative;
             height: 55vh;
@@ -63,7 +60,6 @@
             transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        /* LEVELS & TILES */
         .level-row {
             display: flex; gap: 10px; opacity: 0.3; filter: blur(2px);
             transition: 0.3s; pointer-events: none;
@@ -86,7 +82,6 @@
         }
         .level-row.active .tile:active { transform: scale(0.95); }
 
-        /* Tile States */
         .tile.safe {
             background: rgba(0, 255, 65, 0.2); border-color: var(--neon-safe);
             box-shadow: 0 0 20px rgba(0, 255, 65, 0.4);
@@ -98,7 +93,6 @@
         }
         @keyframes glitchTile { 0% {transform: translate(0);} 25% {transform: translate(-2px, 2px);} 50% {transform: translate(2px, -2px);} 75% {transform: translate(-2px, -2px);} 100% {transform: translate(0);} }
 
-        /* CONTROLS */
         .controls-area {
             position: fixed; bottom: 0; width: 100%;
             background: rgba(10, 10, 15, 0.95);
@@ -108,7 +102,6 @@
             backdrop-filter: blur(10px);
         }
 
-        /* Chips */
         .chip-rack { display: flex; gap: 15px; justify-content: center; margin-bottom: 15px; }
         .chip {
             width: 55px; height: 55px; border-radius: 50%;
@@ -125,7 +118,6 @@
         .c-100 { background: #111; color: #aaa; }
         .c-500 { background: #111; color: #aaa; }
 
-        /* Diff Selector */
         .diff-bar { display: flex; gap: 10px; margin-bottom: 15px; }
         .diff-btn {
             flex: 1; padding: 10px; background: #222; border: 1px solid #444;
@@ -133,7 +125,6 @@
         }
         .diff-btn.active { background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); border-color: var(--neon-blue); }
 
-        /* Main Button */
         .cyber-btn {
             width: 100%; padding: 18px;
             background: linear-gradient(90deg, #00f3ff, #0066ff);
@@ -145,7 +136,6 @@
         .cyber-btn:active { transform: scale(0.98); }
         .cashout-btn { background: linear-gradient(90deg, #00ff41, #008f24); box-shadow: 0 0 20px rgba(0, 255, 65, 0.3); }
 
-        /* Multiplier Info */
         .level-info { position: absolute; left: -40px; font-size: 10px; color: #666; top: 18px; }
         .level-row.active .level-info { color: var(--neon-blue); font-weight: bold; }
 
@@ -196,7 +186,6 @@
     </div>
 
     <script>
-        // === FIREBASE ===
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -227,21 +216,17 @@
             }
         });
 
-        // === GAME CONFIG ===
         const LEVELS = 9;
         const MULTIPLIERS = {
-            easy: [1.42, 2.02, 2.88, 4.11, 5.87, 8.39, 11.98, 17.11, 24.44], // 2/3 Safe
-            hard: [2.85, 8.55, 25.65, 76.95, 230.85, 692.55, 2077.65, 6232.95, 18698.85] // 1/3 Safe
+            easy: [1.42, 2.02, 2.88, 4.11, 5.87, 8.39, 11.98, 17.11, 24.44], 
+            hard: [2.85, 8.55, 25.65, 76.95, 230.85, 692.55, 2077.65, 6232.95, 18698.85] 
         };
 
-        // === STATE ===
         let currentBet = 20;
         let currentLevel = 0;
         let difficulty = 'easy';
         let isPlaying = false;
-        let isRigged = false;
 
-        // === AUDIO ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let audioInit = false;
         function initAudio() { if(!audioInit) { audioCtx.resume(); audioInit = true; } }
@@ -274,7 +259,6 @@
             }
         }
 
-        // === UI LOGIC ===
         function setDiff(diff) {
             if(isPlaying) return;
             difficulty = diff;
@@ -291,7 +275,6 @@
             playSound('chip');
         }
 
-        // === GAME LOGIC ===
         function initTower() {
             const stack = document.getElementById('towerStack');
             stack.innerHTML = '';
@@ -311,18 +294,12 @@
             if(myBalance < currentBet) return alert("Low Balance");
             if(isPlaying) return;
 
-            // 1. DEDUCT
             const newBal = myBalance - currentBet;
             db.ref('users/' + currentUser.uid).update({ balance: newBal });
-
-            // 2. RISK LOGIC
-            isRigged = false;
-            if(currentBet >= 500 || myStreak >= 3) isRigged = true;
 
             isPlaying = true;
             currentLevel = 0;
             
-            // UI
             document.getElementById('setupControls').classList.add('hidden');
             document.getElementById('playControls').classList.remove('hidden');
             initTower();
@@ -343,19 +320,22 @@
             const tiles = row.querySelectorAll('.tile');
             const clickedTile = tiles[col];
 
-            // DETERMINE OUTCOME
-            // Easy: 2/3 Safe. Hard: 1/3 Safe.
+            // === RISK MANAGEMENT (30% Win / 70% Lose) ===
             let isSafe = false;
-            let safeChance = difficulty === 'easy' ? 0.66 : 0.33;
+            
+            // 70% Chance to LOSE (Crash)
+            let winChance = 0.3; 
+            if(currentBet >= 500) winChance = 0.05; // 5%
+            if(myStreak >= 3) winChance = 0; // 0%
 
-            // Apply Rigging
-            if(isRigged) {
-                // Allow level 0, maybe level 1. Crush at level 2+
-                if(lvl >= 2) safeChance = 0.1; // 10% chance to survive
-                else safeChance = 0.5;
+            // If system decides "User Wins", they get Safe tile
+            // If system decides "User Loses", they get Virus tile
+            
+            if(Math.random() < winChance) {
+                isSafe = true; // Win
+            } else {
+                isSafe = false; // Lose
             }
-
-            if(Math.random() < safeChance) isSafe = true;
 
             // Reveal
             if(isSafe) {
@@ -371,7 +351,6 @@
                     cashout();
                 } else {
                     activateRow(currentLevel);
-                    // Scroll down
                     document.getElementById('towerStack').style.transform = `translateY(${currentLevel * 65}px)`;
                     updateInfo();
                 }
@@ -382,7 +361,6 @@
                 playSound('crash');
                 if(navigator.vibrate) navigator.vibrate(400);
                 
-                // Reveal other safe spots
                 gameOver(false);
             }
         }
@@ -421,7 +399,6 @@
             }
         }
 
-        // === MATRIX BG ===
         const cvs = document.getElementById('matrixCanvas');
         const ctx = cvs.getContext('2d');
         let w, h;
