@@ -31,6 +31,7 @@
         .balance-border { --color1: #ffffff; --color2: #00ffea; }
         .locked-border { --color1: #ff0000; --color2: #550000; }
         .unlocked-border { --color1: #00ff00; --color2: #00ffff; }
+        .game-border { --color1: #ff0055; --color2: #00f3ff; }
 
         .god-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; font-weight: 800; box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); transition: 0.3s; }
         .god-btn:active { transform: scale(0.95); }
@@ -54,7 +55,7 @@
             <div class="space-y-4 text-sm text-gray-300 text-left p-2">
                 <p>1. <strong>Tasks:</strong> 500+ Tasks. Har task ka 200 Rs.</p>
                 <p>2. <strong>Unlock:</strong> Tasks locked hain. Inhen kholne k liye <strong>1 dost ko invite karen</strong>.</p>
-                <p>3. <strong>Earning:</strong> Dost ke deposit krne par tasks unlock honge.</p>
+                <p>3. <strong>Games:</strong> Casino games khel kar maza len.</p>
             </div>
             <button onclick="closeGuide()" class="god-btn w-full py-3 mt-6 rounded-lg uppercase">Start</button>
         </div>
@@ -64,8 +65,8 @@
         <div class="gf-card unlocked-border w-full max-w-sm p-8 text-center animate-bounce">
             <i class="fa-solid fa-gift text-5xl text-yellow-400 mb-4 drop-shadow-[0_0_15px_gold]"></i>
             <h2 class="text-3xl font-bold text-white mb-2 god-font">TASK COMPLETE</h2>
-            <p class="text-gray-300 text-sm mb-6">Your reward is ready!</p>
-            <h1 class="text-4xl font-bold text-[#00ffff] mb-8 drop-shadow-[0_0_10px_cyan]">+200 PKR</h1>
+            <p class="text-gray-300 text-sm mb-6">Reward ready hai!</p>
+            <h1 class="text-4xl font-bold text-[#00ffff] mb-8">+200 PKR</h1>
             <button onclick="confirmClaim()" class="god-btn w-full py-4 rounded-lg font-bold text-xl tracking-widest shadow-[0_0_20px_green] border-green-500 text-green-400">CLAIM NOW</button>
         </div>
     </div>
@@ -93,7 +94,10 @@
 
     <div id="mainApp" style="display:none;" class="max-w-md mx-auto">
         <div class="flex justify-between items-center p-6">
-            <h2 class="text-lg font-bold text-white god-font" id="userNameDisplay">USER</h2>
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_0_20px_white]"><i class="fa-solid fa-crown text-black text-xl"></i></div>
+                <div><h2 class="text-lg font-bold text-white god-font" id="userNameDisplay">USER</h2><p class="text-[10px] text-gray-400 uppercase tracking-widest">Online</p></div>
+            </div>
             <button onclick="logout()" class="text-white hover:text-red-500"><i class="fa-solid fa-power-off text-2xl"></i></button>
         </div>
 
@@ -110,27 +114,32 @@
                 <div class="gf-card tier-border p-5 text-center"><p class="text-gray-400 text-[10px] uppercase">Plan</p><p id="planDisplay" class="text-xl font-bold text-green-400 god-font">FREE</p></div>
                 <div class="gf-card profit-border p-5 text-center"><p class="text-gray-400 text-[10px] uppercase">Invites</p><p id="inviteCountDisplay" class="text-xl font-bold text-pink-500 god-font">0</p></div>
             </div>
-            <div onclick="switchTab('team')" class="gf-card gold-border p-5 flex items-center justify-between cursor-pointer group">
-                <div class="flex items-center gap-4"><div class="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center text-yellow-400 text-2xl"><i class="fa-solid fa-users"></i></div><div><h3 class="text-lg font-bold text-white god-font">REFERRAL</h3><p class="text-[10px] text-gray-400">Unlock Tasks</p></div></div><i class="fa-solid fa-chevron-right text-white"></i>
+            <div onclick="switchTab('games')" class="gf-card game-border p-5 flex items-center justify-between cursor-pointer group bg-gray-900/50">
+                <div class="flex items-center gap-4"><div class="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center text-pink-400 text-2xl"><i class="fa-solid fa-gamepad"></i></div><div><h3 class="text-lg font-bold text-white god-font">PLAY GAMES</h3><p class="text-[10px] text-gray-400">Win Real Money</p></div></div><i class="fa-solid fa-chevron-right text-white"></i>
+            </div>
+        </div>
+
+        <div id="tab-games" class="tab-content px-4 pt-4">
+            <h2 class="text-2xl font-bold mb-6 text-white god-font text-center">CASINO ZONE</h2>
+            <div class="grid grid-cols-2 gap-4 pb-20">
+                <div onclick="window.location.href='headtail.html'" class="gf-card game-border p-4 text-center cursor-pointer hover:bg-white/5 transition"><i class="fa-solid fa-coins text-4xl text-yellow-400 mb-2"></i><h3 class="font-bold text-sm">HEAD TAIL</h3></div>
+                <div onclick="window.location.href='roulette.html'" class="gf-card game-border p-4 text-center cursor-pointer hover:bg-white/5 transition"><i class="fa-solid fa-dharmachakra text-4xl text-red-500 mb-2"></i><h3 class="font-bold text-sm">ROULETTE</h3></div>
+                <div onclick="window.location.href='mines.html'" class="gf-card game-border p-4 text-center cursor-pointer hover:bg-white/5 transition"><i class="fa-solid fa-bomb text-4xl text-gray-400 mb-2"></i><h3 class="font-bold text-sm">MINES</h3></div>
+                <div onclick="window.location.href='aviator.html'" class="gf-card game-border p-4 text-center cursor-pointer hover:bg-white/5 transition"><i class="fa-solid fa-plane-departure text-4xl text-red-600 mb-2"></i><h3 class="font-bold text-sm">AVIATOR</h3></div>
+                <div onclick="window.location.href='plinko.html'" class="gf-card game-border p-4 text-center cursor-pointer hover:bg-white/5 transition"><i class="fa-solid fa-bowling-ball text-4xl text-pink-500 mb-2"></i><h3 class="font-bold text-sm">PLINKO</h3></div>
+                <div onclick="window.location.href='dragontiger.html'" class="gf-card game-border p-4 text-center cursor-pointer hover:bg-white/5 transition"><i class="fa-solid fa-dragon text-4xl text-orange-500 mb-2"></i><h3 class="font-bold text-sm">DRAGON TIGER</h3></div>
             </div>
         </div>
 
         <div id="tab-tasks" class="tab-content px-4 pt-4">
-            
             <div id="planLockedView" class="hidden text-center mt-10">
-                <div class="w-32 h-32 mx-auto rounded-full bg-red-900/20 border-2 border-red-500 flex items-center justify-center mb-6 shadow-[0_0_30px_red]">
-                    <i class="fa-solid fa-lock text-5xl text-red-500"></i>
-                </div>
+                <div class="w-32 h-32 mx-auto rounded-full bg-red-900/20 border-2 border-red-500 flex items-center justify-center mb-6 shadow-[0_0_30px_red]"><i class="fa-solid fa-lock text-5xl text-red-500"></i></div>
                 <h2 class="text-2xl font-bold text-white god-font mb-4">ACCESS DENIED</h2>
-                <p class="text-gray-400 text-sm mb-8 px-4">Tasks use karne k liye kam se kam <strong>GOLD PRO (2000)</strong> plan active hona zaroori hai.</p>
+                <p class="text-gray-400 text-sm mb-8 px-4">Tasks unlock karne ke liye kam se kam <strong>GOLD PRO (2000)</strong> plan active hona zaroori hai.</p>
                 <button onclick="switchTab('plans')" class="god-btn w-full py-4 rounded-lg text-lg animate-pulse">UPGRADE NOW</button>
             </div>
-
             <div id="taskListView" class="hidden">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-bold text-white god-font">MISSIONS</h2>
-                    <span class="text-xs text-yellow-400 font-bold bg-yellow-400/10 px-2 py-1 rounded">200 PKR/Task</span>
-                </div>
+                <div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-white god-font">MISSIONS</h2><span class="text-xs text-yellow-400 font-bold bg-yellow-400/10 px-2 py-1 rounded">200 PKR/Task</span></div>
                 <div id="tasksContainer" class="pb-10 space-y-4"></div>
             </div>
         </div>
@@ -140,17 +149,17 @@
             <div class="space-y-6">
                 <div class="gf-card starter-border p-6 opacity-50 grayscale">
                     <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-blue-400 god-font">STARTER</h3><span class="text-xl font-bold text-white">500</span></div>
-                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li>Mining Only (No Tasks)</li></ul>
+                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li>Does NOT unlock Tasks</li><li>Daily Mining Only</li></ul>
                     <button onclick="buyPlan(500, 'Starter', 30)" class="w-full border border-blue-500 text-blue-400 py-3 rounded font-bold uppercase">Purchase</button>
                 </div>
                 <div class="gf-card gold-border p-6 transform scale-105 border-2 border-yellow-400">
                     <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-yellow-400 god-font">GOLD PRO</h3><span class="text-xl font-bold text-white">2000</span></div>
-                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li><i class="fa-solid fa-check text-green-500"></i> <strong>UNLOCKS TASKS</strong></li><li>Withdraw Unlocked</li></ul>
+                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li><i class="fa-solid fa-check text-green-500"></i> <strong>UNLOCKS TASKS</strong></li><li>Daily Mining Included</li></ul>
                     <button onclick="buyPlan(2000, 'Gold Pro', 50)" class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-black py-3 rounded font-bold uppercase shadow-[0_0_20px_orange]">Purchase</button>
                 </div>
                 <div class="gf-card vip-border p-6">
                     <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-red-500 god-font">VIP GOD</h3><span class="text-xl font-bold text-white">5000</span></div>
-                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li><i class="fa-solid fa-check text-green-500"></i> <strong>UNLOCKS TASKS</strong></li><li>Priority Support</li></ul>
+                    <ul class="text-xs text-gray-400 space-y-2 mb-4"><li><i class="fa-solid fa-check text-green-500"></i> <strong>UNLOCKS TASKS</strong></li><li>Highest Mining Rate</li></ul>
                     <button onclick="buyPlan(5000, 'VIP GOD', 60)" class="w-full border border-red-500 text-red-500 py-3 rounded font-bold uppercase hover:bg-red-500 hover:text-white transition">Purchase</button>
                 </div>
             </div>
@@ -200,6 +209,7 @@
 
     <div class="fixed bottom-0 left-0 w-full bg-black/95 border-t border-white/10 p-4 flex justify-around z-40 backdrop-blur-md">
         <div onclick="switchTab('home')" class="text-center cursor-pointer text-white nav-item"><i class="fa-solid fa-house text-xl mb-1"></i><p class="text-[10px]">HOME</p></div>
+        <div onclick="switchTab('games')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-gamepad text-xl mb-1"></i><p class="text-[10px]">GAMES</p></div>
         <div onclick="switchTab('tasks')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-list-check text-xl mb-1"></i><p class="text-[10px]">TASKS</p></div>
         <div onclick="switchTab('plans')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-cube text-xl mb-1"></i><p class="text-[10px]">PLANS</p></div>
         <div onclick="switchTab('me')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-user text-xl mb-1"></i><p class="text-[10px]">TEAM</p></div>
@@ -220,9 +230,8 @@
         const db = firebase.database();
         let currentUser, myData, detectedReferral = "Admin";
         let selectedDepMethod = "Easypaisa";
-        let pendingClaim = null; // Store info for popup
+        let pendingClaim = null;
 
-        // LINKS
         const taskLinks = [
             { title: "Watch Video", icon: "fa-youtube", url: "https://youtu.be/bTTMOMniVkw?si=vkQLUufpIba4xVOu" },
             { title: "Sponsored Ad", icon: "fa-play", url: "https://youtu.be/wOPsEtX3V3I?si=0bfQ2F_XTwsMTs_x" },
@@ -242,7 +251,7 @@
             if (!localStorage.getItem("guideSeen")) setTimeout(() => document.getElementById('guideModal').style.display = 'flex', 1500);
         };
 
-        // --- TASK RENDER ---
+        // --- TASKS ---
         function renderTasks(inviteCount, currentPlan) {
             const lockedView = document.getElementById('planLockedView');
             const taskView = document.getElementById('taskListView');
@@ -294,14 +303,11 @@
             container.innerHTML = htmlContent;
         }
 
-        // --- NEW CLAIM LOGIC ---
+        // --- CLAIM ---
         function doTask(index, rate, url) {
             window.open(url, '_blank');
             pendingClaim = { index, rate };
-            // Simulate 5 seconds wait
-            setTimeout(() => {
-                document.getElementById('claimModal').style.display = 'flex';
-            }, 5000);
+            setTimeout(() => { document.getElementById('claimModal').style.display = 'flex'; }, 5000);
         }
 
         function confirmClaim() {
@@ -428,4 +434,3 @@
     </script>
 </body>
 </html>
-
