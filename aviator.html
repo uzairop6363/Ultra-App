@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AVIATOR - PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <style>
+        body { 
+            background: #000; 
+            font-family: 'Chakra Petch', sans-serif; 
+            color: white; 
+            overflow: hidden; 
+            touch-action: manipulation;
+        }
+
+        /* BACKGROUND & CANVAS */
+        .stage {
+            position: relative;
+            width: 100%; height: 60vh;
+            background: radial-gradient(circle at bottom left, #1a0b0b, #000);
+            overflow: hidden;
+            border-bottom: 2px solid #333;
+        }
+        
+        #graphCanvas {
+            position: absolute; bottom: 0; left: 0;
+            width: 100%; height: 100%;
+        }
+
+        /* PLANE ANIMATION ELEMENT (Icon overlay) */
+        .plane-obj {
+            position: absolute; bottom: 10px; left: 10px;
+            font-size: 40px; color: #ff0040;
+            filter: drop-shadow(0 0 10px red);
+            transform: rotate(0deg);
+            transition: bottom 0.1s linear, left 0.1s linear;
+            z-index: 10;
+        }
+        .plane-trail {
+            position: absolute; bottom: 25px; left: 10px;
+            height: 2px; background: rgba(255, 0, 64, 0.5);
+            transform-origin: left center;
+            width: 0; z-index: 5;
+        }
+
+        /* BIG MULTIPLIER */
+        .mult-display {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 80px; font-weight: 900;
+            color: white; text-shadow: 0 0 20px rgba(255,255,255,0.2);
+            z-index: 5;
+        }
+        .crashed-text { color: #ff0040; text-shadow: 0 0 30px red; }
+
+        /* HEADER */
+        .game-header {
+            position: absolute; top: 0; width: 100%; padding: 20px;
+            display: flex; justify-content: space-between; z-index: 20;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.9), transparent);
+        }
+        .back-btn { font-size: 24px; cursor: pointer; color: white; }
+
+        /* CONTROLS */
+        .controls-area {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            height: 40vh;
+            background: #111;
+            border-top: 1px solid #333;
+            padding: 20px;
+            display: flex; flex-direction: column; justify-content: flex-start;
+        }
+
+        /* CHIPS */
+        .chip-rack { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; margin-top: 10px; }
+        .chip {
+            width: 55px; height: 55px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 13px; cursor: pointer;
+            border: 3px dashed rgba(255,255,255,0.5);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            transition: 0.2s;
+        }
+        .chip.selected { transform: translateY(-10px) scale(1.1); box-shadow: 0 10px 20px rgba(0,0,0,0.8); border-style: solid; color: white; border-width: 3px; }
+        
+        .c-20 { background: #0088ff; border-color: #0055aa; }
+        .c-50 { background: #00cc44; border-color: #008822; }
+        .c-100 { background: #ff3333; border-color: #aa0000; }
+        .c-500 { background: #222; color: #ffd700; border-color: #ffd700; }
+
+        /* MAIN BUTTON */
+        .action-btn {
+            width: 100%; padding: 20px; border-radius: 12px;
+            font-size: 24px; font-weight: 900; text-transform: uppercase; letter-spacing: 2px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5); transition: 0.2s;
+        }
+        .btn-bet { background: #00cc00; color: #003300; border: 2px solid #00ff00; box-shadow: 0 0 30px rgba(0, 255, 0, 0.2); }
+        .btn-cashout { background: #ffaa00; color: #331100; border: 2px solid #ffd700; box-shadow: 0 0 30px rgba(255, 170, 0, 0.4); animation: pulse 1s infinite; }
+        .btn-wait { background: #333; color: #777; cursor: not-allowed; }
+
+        @keyframes pulse { 0% {transform: scale(1);} 50% {transform: scale(1.02);} 100% {transform: scale(1);} }
+
+        /* LOG */
+        .history-pills {
+            position: absolute; top: 60px; right: 10px; width: 100%;
+            display: flex; justify-content: flex-end; gap: 5px; padding-right: 10px;
+            z-index: 15;
+        }
+        .pill { padding: 2px 8px; border-radius: 4px; font-size: 10px; font-weight: bold; background: #222; border: 1px solid #333; }
+        .p-bad { color: #00aaff; } /* Blue for low (Stake style) */
+        .p-good { color: #aa00ff; } /* Purple for mid */
+        .p-hot { color: #ff0055; } /* Pink for high */
+
+    </style>
+</head>
+<body onclick="initAudio()">
+
+    <div class="stage">
+        <canvas id="graphCanvas"></canvas>
+        <div class="plane-trail" id="trailLine"></div>
+        <i class="fa-solid fa-plane plane-obj" id="thePlane"></i>
+        
+        <div class="mult-display" id="mainNumber">1.00x</div>
+        
+        <div class="history-pills" id="historyBar"></div>
+
+        <div class="game-header">
+            <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+            <div class="text-right">
+                <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Balance</p>
+                <h2 class="text-2xl font-mono font-bold text-[#00f3ff]">Rs. <span id="balance">...</span></h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls-area">
+        <div class="text-center text-gray-500 text-xs mb-2 font-bold tracking-widest">SELECT BET AMOUNT</div>
+        
+        <div class="chip-rack">
+            <div onclick="selectChip(20, this)" class="chip c-20 selected">20</div>
+            <div onclick="selectChip(50, this)" class="chip c-50">50</div>
+            <div onclick="selectChip(100, this)" class="chip c-100">100</div>
+            <div onclick="selectChip(500, this)" class="chip c-500">500</div>
+        </div>
+
+        <button onclick="handleAction()" id="mainBtn" class="action-btn btn-bet">BET Rs. 20</button>
+        <p class="text-center text-xs text-gray-600 mt-2">Next round in: <span id="countDown">--</span></p>
+    </div>
+
+    <script>
+        // === FIREBASE ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
+            authDomain: "ultra-earn-a636a.firebaseapp.com",
+            projectId: "ultra-earn-a636a",
+            storageBucket: "ultra-earn-a636a.firebasestorage.app",
+            messagingSenderId: "185942357584",
+            appId: "1:185942357584:web:1052b94cfecc6576944355"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let currentUser = null;
+        let myBalance = 0;
+        let myStreak = 0;
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                db.ref('users/' + user.uid).on('value', snap => {
+                    const data = snap.val();
+                    myBalance = data.balance || 0;
+                    myStreak = data.streak || 0;
+                    document.getElementById('balance').innerText = myBalance.toFixed(2);
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // === GAME STATE ===
+        let currentBet = 20;
+        let gameState = 'IDLE'; // IDLE, BET_PLACED, FLYING, CRASHED
+        let hasBet = false;
+        let cashedOut = false;
+        let multiplier = 1.00;
+        let crashPoint = 1.00;
+        
+        let flyInterval = null;
+        
+        // Canvas Setup
+        const canvas = document.getElementById('graphCanvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        function resize() { width = canvas.width = canvas.offsetWidth; height = canvas.height = canvas.offsetHeight; }
+        window.addEventListener('resize', resize); resize();
+
+        // === AUDIO ===
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioInit = false;
+        let engineOsc = null;
+
+        function initAudio() { if(!audioInit) { audioCtx.resume(); audioInit = true; } }
+
+        function playSound(type) {
+            initAudio();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            if (type === 'click') {
+                osc.frequency.setValueAtTime(800, t); gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.1);
+                osc.start(t); osc.stop(t+0.1);
+            } else if (type === 'crash') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, t); osc.frequency.exponentialRampToValueAtTime(10, t+0.5);
+                gain.gain.setValueAtTime(0.5, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.5);
+                osc.start(t); osc.stop(t+0.5);
+            } else if (type === 'cash') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(600, t); gain.gain.setValueAtTime(0.2, t); gain.gain.linearRampToValueAtTime(0, t+0.3);
+                osc.start(t); osc.stop(t+0.3);
+            }
+        }
+
+        function startEngine() {
+            engineOsc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            engineOsc.type = 'sawtooth';
+            engineOsc.frequency.value = 50;
+            g.gain.value = 0.05;
+            engineOsc.connect(g); g.connect(audioCtx.destination);
+            engineOsc.start();
+        }
+        function stopEngine() { if(engineOsc) { engineOsc.stop(); engineOsc = null; } }
+
+        // === CONTROLS ===
+        function selectChip(val, el) {
+            if(hasBet && gameState !== 'IDLE') return; // Locked if bet placed
+            currentBet = val;
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            updateBtn();
+            playSound('click');
+        }
+
+        function handleAction() {
+            if (gameState === 'IDLE' || gameState === 'WAITING') {
+                // PLACE BET
+                if (hasBet) {
+                    // Cancel
+                    hasBet = false;
+                    updateBtn();
+                } else {
+                    // Place
+                    if(myBalance < currentBet) return alert("Low Balance");
+                    hasBet = true;
+                    updateBtn();
+                    playSound('click');
+                }
+            } else if (gameState === 'FLYING') {
+                // CASHOUT
+                if (hasBet && !cashedOut) {
+                    doCashout();
+                }
+            }
+        }
+
+        function updateBtn() {
+            const btn = document.getElementById('mainBtn');
+            if(gameState === 'FLYING') {
+                if(hasBet && !cashedOut) {
+                    const win = (currentBet * multiplier).toFixed(0);
+                    btn.className = "action-btn btn-cashout";
+                    btn.innerText = `CASHOUT Rs. ${win}`;
+                } else if(cashedOut) {
+                    btn.className = "action-btn btn-wait";
+                    btn.innerText = "WAIT FOR ROUND";
+                } else {
+                    btn.className = "action-btn btn-wait";
+                    btn.innerText = "WAITING...";
+                }
+            } else {
+                if(hasBet) {
+                    btn.className = "action-btn btn-wait";
+                    btn.innerText = `BET PLACED (${currentBet})`;
+                    btn.style.background = "red";
+                    btn.style.borderColor = "red";
+                } else {
+                    btn.className = "action-btn btn-bet";
+                    btn.innerText = `BET Rs. ${currentBet}`;
+                    btn.style.background = "";
+                    btn.style.borderColor = "";
+                }
+            }
+        }
+
+        // === GAME LOOP ===
+        function startRoundCycle() {
+            // 5 seconds Countdown
+            gameState = 'WAITING';
+            let cd = 5;
+            const cdInt = setInterval(() => {
+                document.getElementById('countDown').innerText = cd + "s";
+                if(cd <= 0) {
+                    clearInterval(cdInt);
+                    launchPlane();
+                }
+                cd--;
+            }, 1000);
+        }
+
+        function launchPlane() {
+            // 1. DEDUCT
+            if (hasBet) {
+                const newBal = myBalance - currentBet;
+                db.ref('users/' + currentUser.uid).update({ balance: newBal });
+            }
+
+            // 2. CALCULATE CRASH POINT (RISK MANAGEMENT)
+            // Rule 1: High Bet (> 500) = Crash Early (1.00x - 1.20x)
+            // Rule 2: Streak > 3 = Crash Early
+            // Rule 3: Small Bet = Let it fly (1.5x - 4.0x)
+            
+            let isRigged = false;
+            if(currentBet >= 500 || myStreak >= 3) isRigged = true;
+            if(Math.random() > 0.7) isRigged = true; // Random trap
+
+            if(isRigged) {
+                // Crash between 1.00 and 1.20
+                crashPoint = 1.00 + Math.random() * 0.20;
+            } else {
+                // Good flight between 1.50 and 4.00
+                crashPoint = 1.50 + Math.random() * 2.50;
+            }
+            
+            // Allow occasional instant crash 1.00x if rigged
+            if(isRigged && Math.random() > 0.8) crashPoint = 1.00;
+
+            gameState = 'FLYING';
+            multiplier = 1.00;
+            cashedOut = false;
+            
+            startEngine();
+            updateBtn();
+            
+            const plane = document.getElementById('thePlane');
+            const num = document.getElementById('mainNumber');
+            num.classList.remove('crashed-text');
+            num.style.color = "white";
+
+            // Loop
+            const startTime = Date.now();
+            flyInterval = setInterval(() => {
+                const elapsed = (Date.now() - startTime) / 1000;
+                
+                // Exponential Growth
+                multiplier = 1.00 + (elapsed * elapsed * 0.1);
+                
+                // Update UI
+                num.innerText = multiplier.toFixed(2) + "x";
+                
+                // Audio Pitch
+                if(engineOsc) engineOsc.frequency.value = 50 + (multiplier * 50);
+
+                // Move Plane (CSS)
+                const progress = Math.min(elapsed / 5, 1); // 5 sec to reach corner
+                const x = progress * (width - 60);
+                const y = progress * (height - 60);
+                
+                plane.style.left = 10 + x + 'px';
+                plane.style.bottom = 10 + y + 'px';
+                plane.style.transform = `rotate(${-10 + (progress*30)}deg)`; // Tilt up
+
+                // Update Cashout Button Value
+                if(hasBet && !cashedOut) updateBtn();
+
+                // CHECK CRASH
+                if (multiplier >= crashPoint) {
+                    doCrash();
+                }
+
+            }, 50); // 20 FPS Update
+        }
+
+        function doCrash() {
+            clearInterval(flyInterval);
+            stopEngine();
+            playSound('crash');
+            
+            gameState = 'CRASHED';
+            document.getElementById('mainNumber').innerText = "CRASHED @ " + crashPoint.toFixed(2) + "x";
+            document.getElementById('mainNumber').classList.add('crashed-text');
+            
+            // Logic
+            if(hasBet && !cashedOut) {
+                // User lost
+                db.ref('users/' + currentUser.uid).update({ streak: 0 });
+            }
+            
+            hasBet = false;
+            updateBtn();
+            addHistory(crashPoint);
+            
+            // Reset Pos
+            setTimeout(() => {
+                document.getElementById('thePlane').style.left = '10px';
+                document.getElementById('thePlane').style.bottom = '10px';
+                document.getElementById('thePlane').style.transform = 'rotate(0deg)';
+                startRoundCycle();
+            }, 3000);
+        }
+
+        function doCashout() {
+            cashedOut = true;
+            const profit = currentBet * multiplier;
+            
+            // Credit
+            // Note: Balance was deducted at start. So we add back (Bet * Mult)
+            const newBal = myBalance + profit;
+            const newStreak = myStreak + 1;
+            
+            db.ref('users/' + currentUser.uid).update({ 
+                balance: newBal, 
+                streak: newStreak 
+            });
+            
+            playSound('cash');
+            if(navigator.vibrate) navigator.vibrate(200);
+            updateBtn();
+        }
+
+        function addHistory(val) {
+            const bar = document.getElementById('historyBar');
+            const p = document.createElement('div');
+            // Style based on val
+            let cls = 'p-bad';
+            if(val >= 2.0) cls = 'p-good';
+            if(val >= 10.0) cls = 'p-hot';
+            
+            p.className = `pill ${cls}`;
+            p.innerText = val.toFixed(2) + "x";
+            
+            bar.prepend(p);
+            if(bar.children.length > 5) bar.lastChild.remove();
+        }
+
+        // Start Loop
+        startRoundCycle();
+
+    </script>
+</body>
+</html>
