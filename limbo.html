@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>LIMBO - DOOMSDAY</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Chakra+Petch:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <style>
+        :root {
+            --toxic: #ccff00;
+            --danger: #ff3300;
+            --dark-metal: #1a1a1a;
+        }
+
+        body {
+            background: #000;
+            color: white;
+            font-family: 'Chakra Petch', sans-serif;
+            overflow: hidden;
+            user-select: none;
+            height: 100vh;
+            touch-action: manipulation;
+        }
+
+        /* BG */
+        .hazard-bg {
+            position: fixed; inset: 0; pointer-events: none; z-index: -1;
+            background: repeating-linear-gradient(45deg, #050505, #050505 10px, #0a0a0a 10px, #0a0a0a 20px);
+        }
+        .back-btn { position: absolute; top: 20px; left: 20px; z-index: 60; font-size: 24px; cursor: pointer; color: white; }
+
+        /* HEADER */
+        .game-header {
+            padding: 20px; padding-top: 80px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 40; position: relative;
+            background: linear-gradient(to bottom, black, transparent);
+        }
+
+        /* MAIN MONITOR */
+        .monitor-stage {
+            position: relative; height: 40vh; margin-top: 20px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        
+        .limbo-counter {
+            font-family: 'Black Ops One', cursive;
+            font-size: 80px; color: #555;
+            text-shadow: 0 0 10px rgba(0,0,0,0.5);
+            transition: color 0.1s; z-index: 10;
+        }
+        .counter-win { color: var(--toxic); text-shadow: 0 0 40px var(--toxic); }
+        .counter-loss { color: var(--danger); text-shadow: 0 0 40px var(--danger); }
+
+        .shockwave {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 10px; height: 10px; border-radius: 50%; border: 2px solid white; opacity: 0;
+        }
+        .fire-wave { animation: shock 0.5s linear infinite; border-color: var(--toxic); }
+        @keyframes shock { 0% {width: 10px; height: 10px; opacity: 1; border-width: 5px;} 100% {width: 300px; height: 300px; opacity: 0; border-width: 0px;} }
+
+        /* CONTROLS */
+        .controls-area {
+            position: fixed; bottom: 0; width: 100%;
+            background: rgba(10,10,10,0.95); border-top: 1px solid #333;
+            padding: 20px; z-index: 50; border-radius: 20px 20px 0 0;
+        }
+
+        /* Chips */
+        .chip-rack { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; }
+        .chip {
+            width: 55px; height: 55px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 13px; cursor: pointer;
+            border: 3px dashed rgba(255,255,255,0.5);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            transition: 0.2s;
+        }
+        .chip.selected { transform: translateY(-10px) scale(1.1); box-shadow: 0 10px 20px rgba(204, 255, 0, 0.4); border-style: solid; color: var(--toxic); border-color: var(--toxic); }
+        
+        .c-20 { background: #111; color: #aaa; }
+        .c-50 { background: #111; color: #aaa; }
+        .c-100 { background: #111; color: #aaa; }
+        .c-500 { background: #111; color: #aaa; }
+
+        /* Target Input */
+        .target-box {
+            display: flex; align-items: center; justify-content: space-between;
+            background: #000; border: 1px solid #333; padding: 10px 20px;
+            margin-bottom: 15px; border-radius: 8px;
+        }
+        .target-input {
+            background: transparent; border: none; outline: none;
+            color: var(--toxic); font-size: 24px; font-weight: bold; width: 100px; text-align: right;
+        }
+
+        /* Launch Button */
+        .launch-btn {
+            width: 100%; padding: 18px;
+            background: repeating-linear-gradient(45deg, #111, #111 10px, #222 10px, #222 20px);
+            color: #fff; font-size: 24px; font-weight: 900;
+            border: 2px solid #444; border-radius: 8px;
+            font-family: 'Black Ops One'; letter-spacing: 2px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transition: 0.1s;
+        }
+        .launch-btn:active { transform: scale(0.98); border-color: var(--toxic); color: var(--toxic); }
+
+    </style>
+</head>
+<body onclick="initAudio()">
+
+    <div class="hazard-bg"></div>
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+
+    <div class="game-header">
+        <div>
+            <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">WAR CHEST</p>
+            <h2 class="text-3xl font-bold font-mono text-white">Rs. <span id="balance">...</span></h2>
+        </div>
+        <div class="text-right">
+            <p class="text-xs text-gray-500 font-bold uppercase tracking-widest">LAST PROFIT</p>
+            <h2 class="text-xl font-bold text-gray-400" id="lastWin">--</h2>
+        </div>
+    </div>
+
+    <div class="monitor-stage">
+        <div class="shockwave" id="shockwave"></div>
+        <h1 class="limbo-counter" id="counter">1.00x</h1>
+        <p class="text-xs text-gray-600 tracking-widest font-bold mt-4" id="statusText">SYSTEM READY</p>
+    </div>
+
+    <div class="controls-area">
+        
+        <div class="target-box">
+            <span class="text-gray-500 font-bold">TARGET MULTIPLIER</span>
+            <div class="flex items-center">
+                <input type="number" id="targetInput" value="2.00" step="0.01" class="target-input">
+                <span class="text-gray-500 ml-1 font-bold">x</span>
+            </div>
+        </div>
+
+        <div class="chip-rack">
+            <div onclick="selectChip(20, this)" class="chip c-20 selected">20</div>
+            <div onclick="selectChip(50, this)" class="chip c-50">50</div>
+            <div onclick="selectChip(100, this)" class="chip c-100">100</div>
+            <div onclick="selectChip(500, this)" class="chip c-500">500</div>
+        </div>
+
+        <button onclick="launch()" id="launchBtn" class="launch-btn">LAUNCH</button>
+    </div>
+
+    <script>
+        // === FIREBASE ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
+            authDomain: "ultra-earn-a636a.firebaseapp.com",
+            projectId: "ultra-earn-a636a",
+            storageBucket: "ultra-earn-a636a.firebasestorage.app",
+            messagingSenderId: "185942357584",
+            appId: "1:185942357584:web:1052b94cfecc6576944355"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let currentUser = null;
+        let myBalance = 0;
+        let myStreak = 0;
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                db.ref('users/' + user.uid).on('value', snap => {
+                    const data = snap.val();
+                    myBalance = data.balance || 0;
+                    myStreak = data.streak || 0;
+                    document.getElementById('balance').innerText = myBalance.toFixed(2);
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // === GAME STATE ===
+        let currentBet = 20;
+        let isRunning = false;
+
+        // === AUDIO ===
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioInit = false;
+        function initAudio() { if(!audioInit) { audioCtx.resume(); audioInit = true; } }
+
+        function playSound(type) {
+            initAudio();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            if (type === 'chip') {
+                osc.frequency.setValueAtTime(800, t); gain.gain.setValueAtTime(0.05, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.1);
+                osc.start(t); osc.stop(t+0.1);
+            } else if (type === 'charge') {
+                osc.type='sawtooth'; osc.frequency.setValueAtTime(100, t); osc.frequency.exponentialRampToValueAtTime(800, t+0.5);
+                gain.gain.setValueAtTime(0.1, t); gain.gain.linearRampToValueAtTime(0, t+0.5);
+                osc.start(t); osc.stop(t+0.5);
+            } else if (type === 'win') {
+                osc.type='square'; osc.frequency.setValueAtTime(400, t); gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.5);
+                osc.start(t); osc.stop(t+0.5);
+            } else if (type === 'crash') {
+                osc.type='sawtooth'; osc.frequency.setValueAtTime(100, t); gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.4);
+                osc.start(t); osc.stop(t+0.4);
+            }
+        }
+
+        // === LOGIC ===
+        function selectChip(val, el) {
+            if(isRunning) return;
+            currentBet = val;
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            playSound('chip');
+        }
+
+        function launch() {
+            if(isRunning) return;
+            const target = parseFloat(document.getElementById('targetInput').value);
+            if(myBalance < currentBet) return alert("Low Balance");
+            if(target < 1.01) return alert("Min Target 1.01");
+
+            // 1. DEDUCT
+            const newBal = myBalance - currentBet;
+            db.ref('users/' + currentUser.uid).update({ balance: newBal });
+
+            // 2. RISK ENGINE
+            // Rule 1: Bet > 500 = Crash
+            // Rule 2: Streak > 3 = Crash
+            // Rule 3: Small Bet = Win
+            
+            let winChance = 0.7;
+            if(currentBet >= 500) winChance = 0.1;
+            if(myStreak >= 3) winChance = 0;
+
+            const isWin = Math.random() < winChance;
+            
+            // Calculate Result
+            // If Win: Result > Target. If Loss: Result < Target.
+            let result;
+            if(isWin) {
+                // Generate a random number between Target and Target * 2
+                result = (target + (Math.random() * target)).toFixed(2);
+            } else {
+                // Crash just before target to induce rage (e.g. Target 2.0 -> Crash 1.89)
+                // Or random low crash
+                if(Math.random() > 0.5) result = (target * 0.9).toFixed(2); // Near miss
+                else result = (1.00 + Math.random()).toFixed(2); // Early crash
+                
+                if(parseFloat(result) < 1.00) result = "1.00";
+            }
+
+            // SETUP ANIMATION
+            isRunning = true;
+            document.getElementById('launchBtn').disabled = true;
+            document.getElementById('launchBtn').style.opacity = 0.5;
+            document.getElementById('statusText').innerText = "ACCELERATING...";
+            
+            const counter = document.getElementById('counter');
+            const wave = document.getElementById('shockwave');
+            
+            counter.classList.remove('counter-win', 'counter-loss');
+            counter.style.color = "white";
+            counter.innerText = "1.00x";
+            
+            sfx('charge');
+            wave.classList.add('fire-wave');
+
+            // Count Up
+            let current = 1.00;
+            const max = parseFloat(result);
+            const duration = 2000; // 2s max animation
+            const start = performance.now();
+
+            function animate(time) {
+                const elapsed = time - start;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // Exponential visual curve
+                current = 1.00 + (max - 1.00) * progress;
+                counter.innerText = current.toFixed(2) + "x";
+
+                if(progress < 1) {
+                    requestAnimationFrame(animate);
+                } else {
+                    finish(result, target, isWin);
+                }
+            }
+            requestAnimationFrame(animate);
+        }
+
+        function finish(result, target, win) {
+            const counter = document.getElementById('counter');
+            const wave = document.getElementById('shockwave');
+            wave.classList.remove('fire-wave');
+            counter.innerText = result + "x";
+
+            if(win) {
+                counter.classList.add('counter-win');
+                const profit = currentBet * target;
+                
+                db.ref('users/' + currentUser.uid).update({ 
+                    balance: myBalance + profit, // Balance already deducted, add win
+                    streak: myStreak + 1
+                });
+                
+                document.getElementById('lastWin').innerText = "+ Rs. " + (profit - currentBet).toFixed(0);
+                document.getElementById('statusText').innerText = "TARGET HIT";
+                playSound('win');
+            } else {
+                counter.classList.add('counter-loss');
+                db.ref('users/' + currentUser.uid).update({ streak: 0 });
+                document.getElementById('lastWin').innerText = "0";
+                document.getElementById('statusText').innerText = "DETONATED";
+                playSound('crash');
+                if(navigator.vibrate) navigator.vibrate(200);
+            }
+
+            isRunning = false;
+            document.getElementById('launchBtn').disabled = false;
+            document.getElementById('launchBtn').style.opacity = 1;
+        }
+
+    </script>
+</body>
+</html>
