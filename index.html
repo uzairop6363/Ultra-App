@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#000000">
-    <title>Ultra Earn - CASINO GOD</title>
+    <title>Ultra Earn - PRO CASINO</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Exo+2:wght@300;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -15,839 +15,483 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
 
     <style>
-        :root { --neon: #00f3ff; --gold: #ffd700; --danger: #ff0040; --dark: #050505; }
-        body { background-color: var(--dark); color: #fff; font-family: 'Rajdhani', sans-serif; min-height: 100vh; overflow-x: hidden; padding-bottom: 80px; -webkit-tap-highlight-color: transparent; }
-        h1, h2, h3, .brand-font { font-family: 'Orbitron', sans-serif; letter-spacing: 1px; }
+        body { background-color: #000; color: #fff; font-family: 'Exo 2', sans-serif; min-height: 100vh; overflow-x: hidden; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
+        h1, h2, h3, .god-font { font-family: 'Syncopate', sans-serif; letter-spacing: 1px; }
+        .game-font { font-family: 'Orbitron', sans-serif; }
 
-        /* --- GLOBAL UI --- */
-        .glass-panel { background: rgba(20, 20, 20, 0.9); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; }
-        .neon-text { text-shadow: 0 0 10px var(--neon); color: var(--neon); }
-        .gold-text { text-shadow: 0 0 10px var(--gold); color: var(--gold); }
-        
-        .nav-item { transition: 0.3s; color: #666; }
-        .nav-item.active { color: var(--neon); transform: scale(1.1); text-shadow: 0 0 15px var(--neon); }
+        /* GOD BACKGROUND */
+        .god-bg { position: fixed; inset: 0; z-index: -2; background: #000; }
+        .god-bg::before { content: ''; position: absolute; inset: -50%; background: conic-gradient(from 0deg, #ff0000, #0000ff, #ffa500, #ffffff, #ff0000, #0000ff, #ffa500, #ffffff); filter: blur(80px); opacity: 0.4; animation: slowSpin 20s linear infinite; }
+        @keyframes slowSpin { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
 
-        /* GAME CARD GRID */
-        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
-        .game-card {
-            background: linear-gradient(145deg, #111, #0a0a0a);
-            border: 1px solid #333; border-radius: 12px; overflow: hidden;
-            position: relative; height: 140px; cursor: pointer;
-            transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
-        }
-        .game-card:active { transform: scale(0.95); }
-        .game-card img { width: 100%; height: 100%; object-fit: cover; opacity: 0.6; transition: 0.3s; }
-        .game-card:hover img { opacity: 1; transform: scale(1.1); }
-        .game-title {
-            position: absolute; bottom: 0; width: 100%; padding: 10px;
-            background: linear-gradient(to top, black, transparent);
-            font-weight: 900; font-family: 'Orbitron'; text-align: center;
-            text-shadow: 0 2px 5px black;
-        }
+        /* CARDS */
+        .gf-card { position: relative; background: rgba(10, 10, 10, 0.9); border-radius: 20px; z-index: 1; overflow: hidden; margin-bottom: 15px; }
+        .gf-card::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: conic-gradient(transparent, transparent, transparent, var(--color1), var(--color2), var(--color1)); animation: rotate 4s linear infinite; z-index: -2; }
+        .gf-card::after { content: ''; position: absolute; inset: 2px; background: rgba(5, 5, 5, 0.95); border-radius: 18px; z-index: -1; }
+        @keyframes rotate { 0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);} }
 
-        /* FULLSCREEN GAME MODAL */
-        #gameModal {
-            position: fixed; inset: 0; z-index: 100; background: #000;
-            display: none; flex-direction: column;
-        }
-        #gameCanvasArea { flex: 1; position: relative; overflow: hidden; }
-        
-        /* COMMON GAME UI ELEMENTS */
-        .game-hud { position: absolute; top: 0; width: 100%; padding: 15px; display: flex; justify-content: space-between; z-index: 50; background: linear-gradient(to bottom, black, transparent); }
-        .game-controls { position: absolute; bottom: 0; width: 100%; padding: 20px; background: #111; border-top: 1px solid #333; z-index: 50; }
-        
-        .action-btn {
-            width: 100%; padding: 15px; border-radius: 8px; font-weight: 900; font-family: 'Orbitron';
-            background: linear-gradient(90deg, var(--neon), #0066ff); color: black; border: none;
-            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3); transition: 0.2s;
-        }
-        .action-btn:active { transform: scale(0.98); filter: brightness(0.8); }
+        .tier-border { --color1: #00ff00; --color2: #a200ff; }
+        .profit-border { --color1: #00ffff; --color2: #ff00de; }
+        .gold-border { --color1: #ffd700; --color2: #ff8c00; }
+        .starter-border { --color1: #007bff; --color2: #ffffff; }
+        .vip-border { --color1: #ff0000; --color2: #ffff00; }
+        .balance-border { --color1: #ffffff; --color2: #00ffea; }
+        .locked-border { --color1: #ff0000; --color2: #550000; }
+        .unlocked-border { --color1: #00ff00; --color2: #00ffff; }
 
-        /* LOADER */
+        /* BUTTONS */
+        .god-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; font-weight: 800; box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); transition: 0.3s; position: relative; overflow: hidden; }
+        .god-btn:active { transform: scale(0.95); box-shadow: 0 0 50px rgba(255, 0, 85, 1); }
+        .god-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-family: 'Exo 2', sans-serif; transition: 0.3s; }
+        .god-input:focus { border-color: #00ffff; box-shadow: 0 0 15px rgba(0, 255, 255, 0.3); outline: none; background: rgba(0,0,0,0.8); }
+        select.god-input option { background: #000; }
+
+        /* UTILS */
+        .tab-content { display: none; animation: blastIn 0.5s; } .active-tab { display: block; }
+        @keyframes blastIn { from { opacity: 0; transform: scale(0.8); filter: blur(10px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
         #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 200; justify-content: center; align-items: center; }
-        .pulse-ring { width: 60px; height: 60px; border-radius: 50%; border: 4px solid var(--neon); animation: spin 1s infinite linear; }
-        @keyframes spin { to {transform: rotate(360deg);} }
+        .pulse-ring { width: 80px; height: 80px; border-radius: 50%; border: 4px solid #fff; animation: ring 1.5s infinite; }
+        @keyframes ring { 0% {transform: scale(0.5); opacity: 1;} 100% {transform: scale(1.5); opacity: 0;} }
+
+        /* --- GAME SPECIFIC STYLES --- */
+        .game-thumb {
+            height: 120px; background-size: cover; background-position: center; border-radius: 12px;
+            position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;
+            transition: 0.2s;
+        }
+        .game-thumb:active { transform: scale(0.95); }
+        .game-overlay {
+            position: absolute; bottom: 0; width: 100%; padding: 8px;
+            background: linear-gradient(to top, black, transparent);
+            font-family: 'Orbitron'; font-weight: bold; font-size: 12px; text-align: center;
+        }
+        
+        #gameModal { position: fixed; inset: 0; background: #000; z-index: 150; display: none; flex-direction: column; }
+        .game-header { padding: 15px; background: #111; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; }
+        .game-area { flex: 1; position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; background: #050505; }
+        .game-controls { padding: 20px; background: #111; border-top: 1px solid #333; }
 
     </style>
 </head>
 <body>
 
-    <div id="loader"><div class="pulse-ring"></div></div>
+    <div class="god-bg"></div>
+    <div id="loader"><div class="pulse-ring"></div><p class="absolute mt-24 font-bold text-white tracking-widest text-xs">SYSTEM LOADING...</p></div>
 
-    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 bg-black/95">
-        <div class="glass-panel p-8 text-center border-neon">
-            <h1 class="text-4xl mb-6 font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 brand-font">ULTRA CASINO</h1>
-            <div id="loginForm" class="space-y-4">
-                <input type="email" id="loginEmail" placeholder="EMAIL" class="w-full p-4 bg-black/50 border border-gray-700 rounded text-center text-white outline-none focus:border-cyan-400">
-                <input type="password" id="loginPass" placeholder="PASSWORD" class="w-full p-4 bg-black/50 border border-gray-700 rounded text-center text-white outline-none focus:border-cyan-400">
-                <button onclick="login()" class="action-btn">ENTER SYSTEM</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-500 mt-4 cursor-pointer hover:text-white">CREATE ACCOUNT</p>
+    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto bg-black/80 backdrop-blur-md">
+        <div class="gf-card balance-border p-8 w-full max-w-sm mx-auto text-center">
+            <h1 class="text-4xl mb-2 font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 god-font">ULTRA</h1>
+            <div id="loginForm" class="space-y-6">
+                <input type="email" id="loginEmail" placeholder="USER EMAIL" class="god-input w-full p-4 rounded-lg text-center">
+                <input type="password" id="loginPass" placeholder="PASSWORD" class="god-input w-full p-4 rounded-lg text-center">
+                <button onclick="login()" class="god-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase">LOGIN</button>
+                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-4 cursor-pointer hover:text-white border-b border-gray-600 inline-block">CREATE ACCOUNT</p>
             </div>
-            <div id="registerForm" class="hidden space-y-4">
-                <input type="text" id="regName" placeholder="NAME" class="w-full p-4 bg-black/50 border border-gray-700 rounded text-center text-white outline-none">
-                <input type="email" id="regEmail" placeholder="EMAIL" class="w-full p-4 bg-black/50 border border-gray-700 rounded text-center text-white outline-none">
-                <input type="password" id="regPass" placeholder="PASSWORD" class="w-full p-4 bg-black/50 border border-gray-700 rounded text-center text-white outline-none">
-                <button onclick="register()" class="action-btn bg-gradient-to-r from-purple-600 to-pink-600">REGISTER</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-500 mt-4 cursor-pointer hover:text-white">BACK TO LOGIN</p>
+            <div id="registerForm" class="hidden space-y-6">
+                <div id="autoRefBadge" class="hidden border border-white/50 p-2 text-white text-xs uppercase tracking-widest rounded mb-4">Referred By: <span id="inviterId" class="text-yellow-400">...</span></div>
+                <input type="text" id="regName" placeholder="YOUR NAME" class="god-input w-full p-4 rounded-lg text-center">
+                <input type="email" id="regEmail" placeholder="EMAIL" class="god-input w-full p-4 rounded-lg text-center">
+                <input type="password" id="regPass" placeholder="PASSWORD" class="god-input w-full p-4 rounded-lg text-center">
+                <button onclick="register()" class="god-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase bg-gradient-to-r from-blue-600 to-cyan-500">JOIN NOW</button>
+                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-4 cursor-pointer hover:text-white">BACK TO LOGIN</p>
             </div>
-            <p id="authMsg" class="text-red-500 text-xs mt-4 font-bold"></p>
+            <p id="authMsg" class="text-red-500 text-xs mt-4 font-bold uppercase"></p>
         </div>
     </div>
 
-    <div id="mainApp" style="display:none;">
+    <div id="mainApp" style="display:none;" class="max-w-md mx-auto">
         
-        <div class="flex justify-between items-center p-6 border-b border-gray-800">
+        <div class="flex justify-between items-center p-6">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-600 rounded-full flex items-center justify-center shadow-[0_0_15px_gold]"><i class="fa-solid fa-crown text-black"></i></div>
-                <div>
-                    <h2 class="text-lg font-bold brand-font" id="userNameDisplay">PLAYER</h2>
-                    <p class="text-[10px] text-gray-400">ID: <span id="userIdDisplay">---</span></p>
-                </div>
+                <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_0_20px_white]"><i class="fa-solid fa-crown text-black text-xl"></i></div>
+                <div><h2 class="text-lg font-bold text-white god-font" id="userNameDisplay">USER</h2><p class="text-[10px] text-gray-400 uppercase tracking-widest">Online</p></div>
             </div>
             <div class="text-right">
-                <p class="text-[10px] text-gray-400 font-bold uppercase">Balance</p>
-                <h2 class="text-xl font-mono font-bold text-green-400">Rs. <span id="mainBalance">0</span></h2>
+                <p class="text-[10px] text-gray-400">BALANCE</p>
+                <p class="text-xl font-bold text-green-400 font-mono">PKR <span id="liveBalance">0</span></p>
             </div>
         </div>
 
-        <div id="tab-home" class="tab-content block">
-            <div class="m-4 p-6 rounded-2xl bg-gradient-to-r from-blue-900 to-black border border-blue-500/30 relative overflow-hidden">
-                <div class="relative z-10">
-                    <h2 class="text-2xl font-bold brand-font italic">PROVABLY FAIR</h2>
-                    <p class="text-xs text-gray-300 mt-1">High Stakes. Big Wins. No Mercy.</p>
-                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="mt-4 bg-white text-black px-6 py-2 rounded-full font-bold text-xs hover:scale-105 transition">DEPOSIT NOW</button>
+        <div id="tab-home" class="tab-content px-4 pt-4">
+            <div class="gf-card balance-border p-8 mb-8 text-center relative">
+                <p class="text-gray-400 text-xs tracking-[0.4em] uppercase mb-4">Total Assets</p>
+                <h1 class="text-5xl font-black mb-8 text-white"><span class="text-2xl text-gray-500">PKR</span> <span id="bigBalance">0</span></h1>
+                <div class="flex gap-4 justify-center">
+                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="bg-white text-black px-8 py-3 rounded-full font-bold uppercase">Deposit</button>
+                    <button onclick="openWithdrawModal()" class="bg-transparent border border-white text-white px-8 py-3 rounded-full font-bold uppercase">Withdraw</button>
                 </div>
-                <i class="fa-solid fa-dice absolute -right-5 -bottom-5 text-9xl text-white/5"></i>
             </div>
-
-            <h3 class="ml-4 text-gray-400 text-xs font-bold tracking-widest uppercase mb-2">Casino Floor</h3>
             
-            <div class="game-grid">
-                <div class="game-card" onclick="launchGame('headtail')">
-                    <div class="absolute inset-0 bg-gradient-to-t from-yellow-900 to-transparent"></div>
-                    <i class="fa-solid fa-coins absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-yellow-500"></i>
-                    <div class="game-title text-yellow-400">HEAD TAIL</div>
-                </div>
-                <div class="game-card" onclick="launchGame('roulette')">
-                    <div class="absolute inset-0 bg-gradient-to-t from-red-900 to-transparent"></div>
-                    <i class="fa-solid fa-dharmachakra absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-red-500"></i>
-                    <div class="game-title text-red-400">ROULETTE</div>
-                </div>
-                <div class="game-card" onclick="launchGame('mines')">
-                    <div class="absolute inset-0 bg-gradient-to-t from-gray-900 to-transparent"></div>
-                    <i class="fa-solid fa-bomb absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-gray-400"></i>
-                    <div class="game-title text-gray-200">MINES</div>
-                </div>
-                <div class="game-card" onclick="launchGame('aviator')">
-                    <div class="absolute inset-0 bg-gradient-to-t from-red-900 to-transparent"></div>
-                    <i class="fa-solid fa-plane-departure absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-red-500"></i>
-                    <div class="game-title text-red-500">AVIATOR</div>
-                </div>
-                <div class="game-card" onclick="launchGame('plinko')">
-                    <div class="absolute inset-0 bg-gradient-to-t from-pink-900 to-transparent"></div>
-                    <i class="fa-solid fa-bowling-ball absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-pink-500"></i>
-                    <div class="game-title text-pink-400">PLINKO</div>
-                </div>
-                <div class="game-card" onclick="launchGame('dragontiger')">
-                    <div class="absolute inset-0 bg-gradient-to-t from-orange-900 to-transparent"></div>
-                    <i class="fa-solid fa-dragon absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-orange-500"></i>
-                    <div class="game-title text-orange-400">DRAGON TIGER</div>
-                </div>
-                <div class="game-card" onclick="launchGame('tower')">
-                    <div class="absolute inset-0 bg-gradient-to-t from-green-900 to-transparent"></div>
-                    <i class="fa-solid fa-dungeon absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-green-500"></i>
-                    <div class="game-title text-green-400">CYBER TOWER</div>
-                </div>
-                <div class="game-card" onclick="launchGame('limbo')">
-                    <div class="absolute inset-0 bg-gradient-to-t from-purple-900 to-transparent"></div>
-                    <i class="fa-solid fa-rocket absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-purple-500"></i>
-                    <div class="game-title text-purple-400">LIMBO</div>
-                </div>
-                <div class="game-card" onclick="launchGame('thimbles')">
-                    <div class="absolute inset-0 bg-gradient-to-t from-blue-900 to-transparent"></div>
-                    <i class="fa-solid fa-hat-wizard absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-blue-500"></i>
-                    <div class="game-title text-blue-400">STREET HUSTLE</div>
-                </div>
+            <h2 class="text-white god-font mb-4 text-center">FEATURED GAMES</h2>
+            <div class="grid grid-cols-2 gap-4 mb-20">
+                <div onclick="openGame('headtail')" class="game-thumb bg-gradient-to-t from-yellow-900 to-black"><i class="fa-solid fa-coins absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl text-yellow-500"></i><div class="game-overlay text-yellow-400">HEAD TAIL</div></div>
+                <div onclick="openGame('roulette')" class="game-thumb bg-gradient-to-t from-red-900 to-black"><i class="fa-solid fa-dharmachakra absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl text-red-500"></i><div class="game-overlay text-red-400">ROULETTE</div></div>
+                <div onclick="openGame('mines')" class="game-thumb bg-gradient-to-t from-gray-800 to-black"><i class="fa-solid fa-bomb absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl text-gray-400"></i><div class="game-overlay text-white">MINES</div></div>
+                <div onclick="openGame('aviator')" class="game-thumb bg-gradient-to-t from-red-800 to-black"><i class="fa-solid fa-plane-departure absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-4xl text-red-600"></i><div class="game-overlay text-red-500">AVIATOR</div></div>
             </div>
         </div>
 
-        <div id="tab-wallet" class="tab-content hidden px-4 pt-4">
-            <h2 class="text-2xl font-bold mb-4">WALLET</h2>
-            <div class="glass-panel p-6 text-center">
-                <p class="text-gray-400">Total Assets</p>
-                <h1 class="text-4xl font-bold text-green-400 mb-6">Rs. <span id="walletBal">0</span></h1>
-                <button onclick="document.getElementById('depositModal').style.display='flex'" class="w-full bg-white text-black py-3 rounded font-bold mb-2">DEPOSIT</button>
-                <button onclick="openWithdrawModal()" class="w-full border border-white py-3 rounded font-bold">WITHDRAW</button>
+        <div id="tab-games" class="tab-content px-4 pt-4">
+            <h2 class="text-2xl font-bold mb-6 text-white god-font text-center">CASINO FLOOR</h2>
+            <div class="grid grid-cols-2 gap-4 pb-20">
+                <div onclick="openGame('headtail')" class="game-thumb bg-gray-900"><i class="fa-solid fa-coins absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl text-yellow-500"></i><div class="game-overlay">HEAD TAIL</div></div>
+                <div onclick="openGame('roulette')" class="game-thumb bg-gray-900"><i class="fa-solid fa-compact-disc absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl text-red-500"></i><div class="game-overlay">ROULETTE</div></div>
+                <div onclick="openGame('mines')" class="game-thumb bg-gray-900"><i class="fa-solid fa-land-mine-on absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl text-green-500"></i><div class="game-overlay">MINES</div></div>
+                <div onclick="openGame('aviator')" class="game-thumb bg-gray-900"><i class="fa-solid fa-jet-fighter absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl text-red-600"></i><div class="game-overlay">AVIATOR</div></div>
+                <div onclick="openGame('plinko')" class="game-thumb bg-gray-900"><i class="fa-solid fa-bowling-ball absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl text-pink-500"></i><div class="game-overlay">PLINKO</div></div>
+                <div onclick="openGame('dragontiger')" class="game-thumb bg-gray-900"><i class="fa-solid fa-dragon absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl text-orange-500"></i><div class="game-overlay">DRAGON TIGER</div></div>
+                <div onclick="openGame('tower')" class="game-thumb bg-gray-900"><i class="fa-solid fa-building absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl text-cyan-500"></i><div class="game-overlay">CYBER TOWER</div></div>
+                <div onclick="openGame('limbo')" class="game-thumb bg-gray-900"><i class="fa-solid fa-rocket absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl text-purple-500"></i><div class="game-overlay">LIMBO</div></div>
+                <div onclick="openGame('thimbles')" class="game-thumb bg-gray-900"><i class="fa-solid fa-hat-wizard absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl text-blue-500"></i><div class="game-overlay">THIMBLES</div></div>
             </div>
         </div>
 
-        <div class="fixed bottom-0 left-0 w-full bg-black/95 border-t border-white/10 p-3 flex justify-around z-40 backdrop-blur-md">
-            <div onclick="switchTab('home')" class="text-center cursor-pointer nav-item active" id="nav-home">
-                <i class="fa-solid fa-gamepad text-xl mb-1"></i><p class="text-[10px]">GAMES</p>
-            </div>
-            <div onclick="switchTab('wallet')" class="text-center cursor-pointer nav-item" id="nav-wallet">
-                <i class="fa-solid fa-wallet text-xl mb-1"></i><p class="text-[10px]">WALLET</p>
-            </div>
-            <div onclick="logout()" class="text-center cursor-pointer nav-item">
-                <i class="fa-solid fa-power-off text-xl mb-1"></i><p class="text-[10px]">EXIT</p>
-            </div>
-        </div>
+        <div id="tab-tasks" class="tab-content px-4 pt-4"><div class="text-center mt-20"><i class="fa-solid fa-lock text-4xl text-gray-600"></i><p class="mt-4 text-gray-500">Upgrade Plan to Unlock</p></div></div>
+        <div id="tab-plans" class="tab-content px-4 pt-4"><h2 class="text-center god-font mb-4">VIP PLANS</h2><div class="gf-card gold-border p-4"><h3 class="text-yellow-400 font-bold">GOLD PRO</h3><p>2000 PKR</p><button class="god-btn w-full mt-2" onclick="buyPlan(2000)">BUY</button></div></div>
+        <div id="tab-me" class="tab-content px-4 pt-4"><div class="text-center"><h2 class="god-font">MY TEAM</h2><p class="text-xs text-gray-500">Refer & Earn</p><code id="myLinkDisplay" class="block mt-4 p-2 bg-gray-900 rounded text-cyan-400">LOADING...</code></div></div>
+
     </div>
 
     <div id="gameModal">
-        <div class="game-hud">
-            <div>
-                <p class="text-[10px] text-gray-400 font-bold uppercase">Balance</p>
-                <h2 class="text-xl font-mono text-green-400">Rs. <span id="gameBalance">0</span></h2>
-            </div>
-            <button onclick="closeGame()" class="text-white text-2xl"><i class="fa-solid fa-times"></i></button>
+        <div class="game-header">
+            <div><span class="text-xs text-gray-400">BALANCE</span><br><span class="text-green-400 font-mono font-bold">PKR <span id="gameBalDisplay">0</span></span></div>
+            <button onclick="closeGame()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark text-2xl"></i></button>
         </div>
-        
-        <div id="gameCanvasArea">
-            </div>
+        <div id="gameStage" class="game-area"></div> </div>
+
+    <div class="fixed bottom-0 left-0 w-full bg-black/95 border-t border-white/10 p-3 flex justify-around z-40 backdrop-blur-md">
+        <div onclick="switchTab('home')" class="text-center cursor-pointer nav-item text-white"><i class="fa-solid fa-house text-xl mb-1"></i><p class="text-[10px]">HOME</p></div>
+        <div onclick="switchTab('games')" class="text-center cursor-pointer nav-item text-gray-500"><i class="fa-solid fa-gamepad text-xl mb-1"></i><p class="text-[10px]">CASINO</p></div>
+        <div onclick="switchTab('plans')" class="text-center cursor-pointer nav-item text-gray-500"><i class="fa-solid fa-cube text-xl mb-1"></i><p class="text-[10px]">PLANS</p></div>
+        <div onclick="switchTab('me')" class="text-center cursor-pointer nav-item text-gray-500"><i class="fa-solid fa-user text-xl mb-1"></i><p class="text-[10px]">TEAM</p></div>
     </div>
 
-    <div id="depositModal" class="hidden fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-4">
-        <div class="glass-panel w-full max-w-sm p-6">
-            <h3 class="text-xl font-bold text-white mb-4">DEPOSIT (PKR)</h3>
-            <p class="text-xs text-gray-400 mb-2">Send Money To:</p>
-            <div class="bg-gray-800 p-3 rounded mb-4 text-center border border-gray-600">
-                <p class="text-lg font-mono font-bold text-yellow-400">03111813896</p>
-                <p class="text-xs uppercase">OBAID ALI (EasyPaisa/JazzCash)</p>
-            </div>
-            <input type="number" id="depAmt" placeholder="Amount (e.g 500)" class="w-full p-3 bg-black border border-gray-600 rounded mb-2 text-white">
-            <input type="text" id="senderNum" placeholder="Sender Number" class="w-full p-3 bg-black border border-gray-600 rounded mb-4 text-white">
-            <button onclick="submitDeposit()" class="action-btn">CONFIRM</button>
+    <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
+        <div class="gf-card gold-border w-full max-w-sm p-6 bg-[#050505]">
+            <h3 class="text-xl font-bold text-white mb-4">DEPOSIT PKR</h3>
+            <p class="text-xs text-gray-400 mb-1">EasyPaisa / JazzCash</p>
+            <div class="bg-gray-800 p-3 rounded mb-4 text-center"><p class="text-lg font-mono font-bold text-yellow-400">03111813896</p><p class="text-[10px]">OBAID ALI</p></div>
+            <input type="number" id="depAmt" placeholder="Amount" class="god-input w-full p-3 rounded mb-2">
+            <input type="text" id="senderNum" placeholder="Sender No" class="god-input w-full p-3 rounded mb-4">
+            <button onclick="submitDeposit()" class="god-btn w-full py-3 rounded">SUBMIT</button>
             <button onclick="document.getElementById('depositModal').style.display='none'" class="w-full text-gray-500 text-xs mt-2">CANCEL</button>
         </div>
     </div>
 
     <script>
-        // === FIREBASE & USER STATE ===
-        const firebaseConfig = {
-            apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
-            authDomain: "ultra-earn-a636a.firebaseapp.com",
-            projectId: "ultra-earn-a636a",
-            storageBucket: "ultra-earn-a636a.firebasestorage.app",
-            messagingSenderId: "185942357584",
-            appId: "1:185942357584:web:1052b94cfecc6576944355"
-        };
+        // === CONFIG ===
+        const firebaseConfig = { apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54", authDomain: "ultra-earn-a636a.firebaseapp.com", projectId: "ultra-earn-a636a", storageBucket: "ultra-earn-a636a.firebasestorage.app", messagingSenderId: "185942357584", appId: "1:185942357584:web:1052b94cfecc6576944355" };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.database();
-        
-        let currentUser = null;
-        let userData = { balance: 0, wins: 0, losses: 0 };
+        const auth = firebase.auth(); const db = firebase.database();
+        let currentUser, myData = { balance: 0, streak: 0 };
 
-        // === RISK MANAGEMENT ENGINE (THE TRAP) ===
-        const RISK = {
-            threshold: 500, // Bets above this are "High Risk" for the user
-            winRateSmall: 0.7, // 70% Win rate for small bets
-            winRateBig: 0.15,  // 15% Win rate for big bets
-            streakLimit: 3     // Max consecutive wins allowed
-        };
-
-        function decideOutcome(betAmount) {
-            // Logic: Force loss if bet is high OR streak is too long
-            const isHighBet = betAmount > RISK.threshold;
-            const streakPenalty = userData.streak > RISK.streakLimit;
-            
-            let winChance = isHighBet ? RISK.winRateBig : RISK.winRateSmall;
-            if(streakPenalty) winChance = 0.1; // Crush them if they are on a streak
-
-            // The Decision
-            const isWin = Math.random() < winChance;
-            
-            // Log for debugging (remove in prod)
-            console.log(`Bet: ${betAmount}, High: ${isHighBet}, WinChance: ${winChance}, Result: ${isWin ? 'WIN' : 'LOSE'}`);
-            
-            return isWin;
+        // === RISK ENGINE (GREED LOGIC) ===
+        function decideWin(betAmt) {
+            const streak = myData.streak || 0;
+            // 1. High Bet Trap: > 500 PKR = 90% Loss
+            if (betAmt >= 500) return Math.random() > 0.9;
+            // 2. Streak Trap: Wins > 3 = Force Loss
+            if (streak >= 3) return false;
+            // 3. Lure: Small bets = 70% Win
+            return Math.random() < 0.7;
         }
 
-        // === AUTH LOGIC ===
+        // === AUTH ===
         auth.onAuthStateChanged(user => {
+            document.getElementById('loader').style.display = 'none';
             if(user) {
                 currentUser = user;
                 document.getElementById('authScreen').style.display = 'none';
                 document.getElementById('mainApp').style.display = 'block';
-                // Listen to Balance
                 db.ref('users/' + user.uid).on('value', snap => {
                     const val = snap.val();
                     if(val) {
-                        userData = val;
-                        if(!userData.balance) userData.balance = 0;
-                        if(!userData.streak) userData.streak = 0;
-                        updateBalanceUI();
+                        myData = val;
+                        if(!myData.balance) myData.balance = 0;
+                        updateBalUI();
                     }
                 });
             } else {
                 document.getElementById('authScreen').style.display = 'flex';
                 document.getElementById('mainApp').style.display = 'none';
             }
-            document.getElementById('loader').style.display = 'none';
         });
 
-        function updateBalanceUI() {
-            document.getElementById('mainBalance').innerText = userData.balance.toFixed(2);
-            document.getElementById('gameBalance').innerText = userData.balance.toFixed(2);
-            document.getElementById('walletBal').innerText = userData.balance.toFixed(2);
-            document.getElementById('userNameDisplay').innerText = userData.name || "User";
-            document.getElementById('userIdDisplay').innerText = currentUser.uid.substring(0,6);
+        function updateBalUI() {
+            const b = myData.balance.toFixed(2);
+            document.getElementById('bigBalance').innerText = b;
+            document.getElementById('liveBalance').innerText = b;
+            document.getElementById('gameBalDisplay').innerText = b;
+            document.getElementById('userNameDisplay').innerText = myData.name || "User";
+            document.getElementById('myLinkDisplay').innerText = window.location.origin + "?ref=" + currentUser.uid;
         }
 
-        async function updateServerBalance(newBal, isWin) {
-            // Update Streak logic
-            let newStreak = isWin ? (userData.streak || 0) + 1 : 0;
-            await db.ref('users/' + currentUser.uid).update({ 
-                balance: newBal,
-                streak: newStreak
-            });
+        async function updateServer(newBal, win) {
+            const newStreak = win ? (myData.streak || 0) + 1 : 0;
+            await db.ref('users/' + currentUser.uid).update({ balance: newBal, streak: newStreak });
         }
 
-        function login() {
-            const e = document.getElementById('loginEmail').value;
-            const p = document.getElementById('loginPass').value;
-            document.getElementById('loader').style.display = 'flex';
-            auth.signInWithEmailAndPassword(e, p).catch(err => {
-                document.getElementById('loader').style.display = 'none';
-                alert(err.message);
-            });
+        function login() { 
+            document.getElementById('loader').style.display='flex';
+            auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPass').value).catch(e => { document.getElementById('loader').style.display='none'; alert(e.message); });
         }
-
         function register() {
-            const e = document.getElementById('regEmail').value;
-            const p = document.getElementById('regPass').value;
-            const n = document.getElementById('regName').value;
-            document.getElementById('loader').style.display = 'flex';
-            auth.createUserWithEmailAndPassword(e, p).then(cred => {
-                db.ref('users/' + cred.user.uid).set({
-                    name: n, email: e, balance: 0, streak: 0
-                });
-            }).catch(err => {
-                document.getElementById('loader').style.display = 'none';
-                alert(err.message);
-            });
+            document.getElementById('loader').style.display='flex';
+            const e=document.getElementById('regEmail').value, p=document.getElementById('regPass').value, n=document.getElementById('regName').value;
+            auth.createUserWithEmailAndPassword(e, p).then(c => {
+                db.ref('users/'+c.user.uid).set({name:n, email:e, balance:0});
+            }).catch(e => { document.getElementById('loader').style.display='none'; alert(e.message); });
         }
-        
-        function toggleAuth() {
-            document.getElementById('loginForm').classList.toggle('hidden');
-            document.getElementById('registerForm').classList.toggle('hidden');
-        }
+        function toggleAuth() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('registerForm').classList.toggle('hidden'); }
         function logout() { auth.signOut(); location.reload(); }
 
-        // === GAME ENGINES ===
-        let currentGame = null;
-
-        function launchGame(gameType) {
-            const modal = document.getElementById('gameModal');
-            const area = document.getElementById('gameCanvasArea');
-            modal.style.display = 'flex';
-            area.innerHTML = ''; // Clear previous
+        // === GAME LOGIC INJECTION ===
+        function openGame(type) {
+            document.getElementById('gameModal').style.display = 'flex';
+            const stage = document.getElementById('gameStage');
+            stage.innerHTML = '';
             
-            // Inject Game Logic
-            switch(gameType) {
-                case 'headtail': initHeadTail(area); break;
-                case 'roulette': initRoulette(area); break;
-                case 'mines': initMines(area); break;
-                case 'aviator': initAviator(area); break;
-                case 'plinko': initPlinko(area); break;
-                case 'dragontiger': initDragonTiger(area); break;
-                case 'tower': initTower(area); break;
-                case 'limbo': initLimbo(area); break;
-                case 'thimbles': initThimbles(area); break;
-            }
+            if(type === 'headtail') renderHeadTail(stage);
+            else if(type === 'roulette') renderRoulette(stage);
+            else if(type === 'mines') renderMines(stage);
+            else if(type === 'aviator') renderAviator(stage);
+            else if(type === 'plinko') renderPlinko(stage);
+            else if(type === 'dragontiger') renderDT(stage);
+            else if(type === 'tower') renderTower(stage);
+            else if(type === 'limbo') renderLimbo(stage);
+            else if(type === 'thimbles') renderThimbles(stage);
         }
+        function closeGame() { document.getElementById('gameModal').style.display = 'none'; }
 
-        function closeGame() {
-            document.getElementById('gameModal').style.display = 'none';
-            document.getElementById('gameCanvasArea').innerHTML = '';
-            currentGame = null;
+        // --- 1. HEAD TAIL ---
+        function renderHeadTail(root) {
+            root.innerHTML = `<div class="text-center w-full"><div id="coin" class="w-32 h-32 mx-auto bg-yellow-500 rounded-full border-4 border-yellow-300 flex items-center justify-center text-4xl font-bold text-black mb-10 transition-transform duration-1000">H</div><div class="flex gap-4 justify-center"><input type="number" id="gBet" value="100" class="god-input w-24 p-2 text-center rounded"><button onclick="playHT('H')" class="god-btn px-6 py-2 rounded">HEADS</button><button onclick="playHT('T')" class="god-btn px-6 py-2 rounded bg-gray-600">TAILS</button></div></div>`;
         }
-
-        // --- 1. HEAD TAIL (Coin Toss) ---
-        function initHeadTail(root) {
-            root.innerHTML = `
-                <div class="flex flex-col items-center justify-center h-full">
-                    <div id="coin" style="width:150px;height:150px;transform-style:preserve-3d;transition:transform 1s;position:relative;">
-                        <div style="position:absolute;inset:0;backface-visibility:hidden;background:gold;border-radius:50%;border:5px solid orange;display:flex;align-items:center;justify-content:center;font-size:50px;color:black;">H</div>
-                        <div style="position:absolute;inset:0;backface-visibility:hidden;background:silver;border-radius:50%;border:5px solid gray;transform:rotateY(180deg);display:flex;align-items:center;justify-content:center;font-size:50px;color:black;">T</div>
-                    </div>
-                    <p id="htResult" class="mt-10 text-xl font-bold text-gray-400">SELECT SIDE</p>
-                    <div class="absolute bottom-0 w-full p-4 bg-[#111]">
-                        <input type="number" id="htBet" value="100" class="w-full bg-black border border-gray-600 p-2 text-white mb-2 text-center">
-                        <div class="flex gap-2">
-                            <button onclick="playHT('head')" class="action-btn bg-yellow-500">HEADS</button>
-                            <button onclick="playHT('tail')" class="action-btn bg-gray-500">TAILS</button>
-                        </div>
-                    </div>
-                </div>`;
-        }
-        window.playHT = function(choice) {
-            const bet = parseFloat(document.getElementById('htBet').value);
-            if(userData.balance < bet) return alert("Low Balance");
-            
-            // RISK LOGIC
-            const willWin = decideOutcome(bet);
-            const result = willWin ? choice : (choice === 'head' ? 'tail' : 'head');
-            
-            // Animation
+        window.playHT = (pick) => {
+            const bet = parseFloat(document.getElementById('gBet').value);
+            if(myData.balance < bet) return alert("Low Balance");
+            const win = decideWin(bet);
             const coin = document.getElementById('coin');
-            const spins = 5; 
-            const deg = result === 'head' ? (spins * 360) : (spins * 360 + 180);
-            coin.style.transform = `rotateY(${deg}deg)`;
-            
+            coin.style.transform = "rotateY(720deg)";
             setTimeout(() => {
-                let newBal = userData.balance - bet;
-                if(willWin) {
-                    newBal += (bet * 2);
-                    document.getElementById('htResult').innerText = "YOU WON!";
-                    document.getElementById('htResult').className = "mt-10 text-3xl font-black text-green-500";
-                } else {
-                    document.getElementById('htResult').innerText = "YOU LOST";
-                    document.getElementById('htResult').className = "mt-10 text-3xl font-black text-red-500";
-                }
-                updateServerBalance(newBal, willWin);
-                coin.style.transition = 'none';
-                coin.style.transform = result === 'head' ? 'rotateY(0deg)' : 'rotateY(180deg)';
-                setTimeout(()=> coin.style.transition = 'transform 1s', 50);
+                coin.style.transform = "rotateY(0deg)";
+                coin.innerText = win ? pick : (pick==='H'?'T':'H');
+                const newBal = myData.balance - bet + (win ? bet*2 : 0);
+                updateServer(newBal, win);
+                alert(win ? "YOU WON!" : "LOST");
             }, 1000);
         };
 
         // --- 2. ROULETTE ---
-        function initRoulette(root) {
-            root.innerHTML = `
-                <div class="flex flex-col items-center justify-center h-full relative overflow-hidden">
-                    <div id="wheel" style="width:300px;height:300px;border-radius:50%;border:10px solid #333;background:conic-gradient(red 0deg 18deg, black 18deg 36deg, red 36deg 54deg, black 54deg 72deg, green 72deg 90deg, black 90deg 360deg);transition:transform 3s cubic-bezier(0.2,0.8,0.2,1);"></div>
-                    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:10px;height:10px;background:white;border-radius:50%;z-index:10;"></div>
-                    <div style="position:absolute;top:calc(50% - 160px);left:50%;transform:translateX(-50%);width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-top:20px solid yellow;z-index:20;"></div>
-                    
-                    <div class="absolute bottom-0 w-full p-4 bg-[#111]">
-                        <input type="number" id="roulBet" value="100" class="w-full bg-black border border-gray-600 p-2 text-white mb-2 text-center">
-                        <div class="flex gap-2">
-                            <button onclick="playRoul('red')" class="flex-1 bg-red-600 py-3 rounded font-bold">RED (2x)</button>
-                            <button onclick="playRoul('black')" class="flex-1 bg-gray-800 py-3 rounded font-bold">BLACK (2x)</button>
-                            <button onclick="playRoul('green')" class="flex-1 bg-green-600 py-3 rounded font-bold">GREEN (14x)</button>
-                        </div>
-                    </div>
-                </div>`;
+        function renderRoulette(root) {
+            root.innerHTML = `<div class="text-center w-full"><div id="wheel" class="w-48 h-48 mx-auto rounded-full border-4 border-white mb-10 transition-transform duration-3000 ease-out" style="background:conic-gradient(red 0deg 120deg, black 120deg 240deg, green 240deg 360deg);"></div><input type="number" id="gBet" value="100" class="god-input w-24 p-2 text-center rounded mb-2"><div class="flex gap-2 justify-center"><button onclick="playRoul('red')" class="bg-red-600 px-4 py-2 rounded">RED</button><button onclick="playRoul('black')" class="bg-gray-800 px-4 py-2 rounded">BLACK</button><button onclick="playRoul('green')" class="bg-green-600 px-4 py-2 rounded">GREEN</button></div></div>`;
         }
-        window.playRoul = function(choice) {
-            const bet = parseFloat(document.getElementById('roulBet').value);
-            if(userData.balance < bet) return alert("Low Balance");
-
-            const willWin = decideOutcome(bet);
-            // Spin Logic (Simplified visual)
+        window.playRoul = (pick) => {
+            const bet = parseFloat(document.getElementById('gBet').value);
+            if(myData.balance < bet) return alert("Low Balance");
+            const win = decideWin(bet);
             const wheel = document.getElementById('wheel');
-            const rot = 1080 + Math.random() * 360; // Random Spin
-            wheel.style.transform = `rotate(${rot}deg)`;
-            
+            wheel.style.transform = `rotate(${1000 + Math.random()*360}deg)`;
             setTimeout(() => {
-                let newBal = userData.balance - bet;
-                let won = willWin; // Force logic override for simplicity in demo
-                
-                // In a real wheel, calculate angle. Here we trust the Risk Engine.
-                if(won) {
-                    const mult = choice === 'green' ? 14 : 2;
-                    newBal += (bet * mult);
-                    alert("WIN!");
-                } else {
-                    alert("LOSS!");
-                }
-                updateServerBalance(newBal, won);
-                wheel.style.transition = 'none';
-                wheel.style.transform = 'rotate(0deg)';
-                setTimeout(()=> wheel.style.transition = 'transform 3s cubic-bezier(0.2,0.8,0.2,1)', 50);
+                wheel.style.transform = `rotate(0deg)`;
+                updateServer(myData.balance - bet + (win ? (pick==='green'?bet*14:bet*2) : 0), win);
+                alert(win ? "WIN" : "LOSS");
             }, 3000);
         };
 
         // --- 3. MINES ---
-        function initMines(root) {
-            let gridHTML = '<div class="grid grid-cols-5 gap-2 max-w-[300px] mx-auto mt-10">';
-            for(let i=0; i<25; i++) gridHTML += `<div onclick="clickMine(${i})" id="tile${i}" class="w-12 h-12 bg-gray-800 rounded cursor-pointer hover:bg-gray-700 flex items-center justify-center text-2xl"></div>`;
-            gridHTML += '</div>';
-            
-            root.innerHTML = `
-                <div class="h-full flex flex-col">
-                    <div id="minesGrid">${gridHTML}</div>
-                    <div class="absolute bottom-0 w-full p-4 bg-[#111]">
-                        <p class="text-center text-green-400 mb-2 font-bold" id="mineStatus">START GAME</p>
-                        <input type="number" id="mineBet" value="100" class="w-full bg-black border border-gray-600 p-2 text-white mb-2 text-center">
-                        <button onclick="startMines()" id="mineBtn" class="action-btn">BET</button>
-                        <button onclick="cashoutMines()" id="mineCash" class="action-btn bg-green-600 hidden mt-2">CASHOUT</button>
-                    </div>
-                </div>`;
+        function renderMines(root) {
+            let html = '<div class="grid grid-cols-5 gap-2 max-w-xs mx-auto mb-4">';
+            for(let i=0; i<25; i++) html += `<div onclick="hitMine(${i}, this)" class="w-10 h-10 bg-gray-800 rounded cursor-pointer flex items-center justify-center"></div>`;
+            html += '</div><div class="text-center"><input type="number" id="gBet" value="100" class="god-input w-24 p-2 text-center mb-2"><button onclick="startMines()" id="mStart" class="god-btn px-6 py-2 rounded">START</button><button onclick="cashMines()" id="mCash" class="bg-green-500 px-6 py-2 rounded hidden">CASHOUT</button></div>';
+            root.innerHTML = html;
         }
-        let mineGameActive = false;
-        let mineBetAmount = 0;
-        let mineProfit = 0;
-        let mineNextIsBomb = false; // Logic trap
-
-        window.startMines = function() {
-            mineBetAmount = parseFloat(document.getElementById('mineBet').value);
-            if(userData.balance < mineBetAmount) return alert("Low Balance");
-            
-            updateServerBalance(userData.balance - mineBetAmount, false); // Deduct bet
-            
-            mineGameActive = true;
-            mineProfit = mineBetAmount;
-            
-            // Risk Logic
-            mineNextIsBomb = !decideOutcome(mineBetAmount); // If decide to lose, next click bombs
-            
-            document.getElementById('mineBtn').classList.add('hidden');
-            document.getElementById('mineCash').classList.remove('hidden');
-            document.getElementById('mineStatus').innerText = "HUNTING...";
-            
-            // Reset Grid
-            for(let i=0; i<25; i++) {
-                const t = document.getElementById(`tile${i}`);
-                t.className = "w-12 h-12 bg-gray-800 rounded cursor-pointer flex items-center justify-center text-2xl";
-                t.innerHTML = "";
+        let mActive=false, mProfit=0, mBet=0;
+        window.startMines = () => {
+            mBet = parseFloat(document.getElementById('gBet').value);
+            if(myData.balance < mBet) return alert("Low Balance");
+            updateServer(myData.balance - mBet, false);
+            mActive=true; mProfit=mBet;
+            document.getElementById('mStart').classList.add('hidden');
+            document.getElementById('mCash').classList.remove('hidden');
+        };
+        window.hitMine = (i, el) => {
+            if(!mActive || el.innerText) return;
+            const loose = !decideWin(mBet); // Decides if NEXT click is bomb
+            if(loose) {
+                el.innerText = "💣"; el.style.background="red";
+                mActive=false; 
+                document.getElementById('mStart').classList.remove('hidden');
+                document.getElementById('mCash').classList.add('hidden');
+                alert("BOOM!");
+            } else {
+                el.innerText = "💎"; el.style.background="green";
+                mProfit *= 1.2;
             }
         };
-
-        window.clickMine = function(idx) {
-            if(!mineGameActive) return;
-            const tile = document.getElementById(`tile${idx}`);
-            if(tile.classList.contains('bg-gray-800')) {
-                // Trap Logic
-                if(mineNextIsBomb) {
-                    // BOOM
-                    tile.innerHTML = "💣";
-                    tile.className = "w-12 h-12 bg-red-600 rounded flex items-center justify-center text-2xl";
-                    document.getElementById('mineStatus').innerText = "EXPLODED!";
-                    endMineGame(0);
-                } else {
-                    // GEM
-                    tile.innerHTML = "💎";
-                    tile.className = "w-12 h-12 bg-green-900 rounded flex items-center justify-center text-2xl";
-                    mineProfit *= 1.2; // Multiplier
-                    document.getElementById('mineStatus').innerText = `Profit: ${mineProfit.toFixed(2)}`;
-                    
-                    // Re-roll risk for next click (Deepening the trap)
-                    mineNextIsBomb = !decideOutcome(mineBetAmount); 
-                }
-            }
+        window.cashMines = () => {
+            if(!mActive) return;
+            updateServer(myData.balance + mProfit, true);
+            alert("Won: " + mProfit.toFixed(0));
+            mActive=false;
+            document.getElementById('mStart').classList.remove('hidden');
+            document.getElementById('mCash').classList.add('hidden');
         };
 
-        window.cashoutMines = function() {
-            if(!mineGameActive) return;
-            updateServerBalance(userData.balance + mineProfit, true);
-            alert(`Cashed out: ${mineProfit.toFixed(2)}`);
-            endMineGame(0);
-        };
-
-        function endMineGame() {
-            mineGameActive = false;
-            document.getElementById('mineBtn').classList.remove('hidden');
-            document.getElementById('mineCash').classList.add('hidden');
+        // --- 4. AVIATOR (Simple CSS) ---
+        function renderAviator(root) {
+            root.innerHTML = `<div class="relative w-full h-64 bg-gray-900 mb-4 overflow-hidden border-b border-red-500"><div id="plane" class="absolute bottom-2 left-2 text-4xl transition-all duration-100 ease-linear">✈️</div><div id="flyMult" class="absolute top-10 left-10 text-4xl font-bold">1.00x</div></div><div class="text-center"><input id="gBet" value="100" class="god-input w-24 p-2 text-center"><button onclick="flyPlane()" id="flyBtn" class="god-btn px-6 py-2 ml-2 rounded">FLY</button></div>`;
         }
-
-        // --- 4. AVIATOR (Canvas) ---
-        function initAviator(root) {
-            root.innerHTML = `
-                <div class="relative w-full h-full bg-black">
-                    <canvas id="aviatorCanvas" style="width:100%;height:60%"></canvas>
-                    <div class="absolute top-10 left-1/2 transform -translate-x-1/2 text-6xl font-bold text-white" id="flyVal">1.00x</div>
-                    <div class="absolute bottom-0 w-full p-4 bg-[#111]">
-                        <input type="number" id="flyBet" value="100" class="w-full bg-black border border-gray-600 p-2 text-white mb-2 text-center">
-                        <button onclick="startAviator()" id="flyBtn" class="action-btn">BET</button>
-                    </div>
-                </div>`;
-        }
-        let avLoop;
-        window.startAviator = function() {
-            const bet = parseFloat(document.getElementById('flyBet').value);
-            if(userData.balance < bet) return alert("Low Balance");
-            updateServerBalance(userData.balance - bet, false);
-
-            const willWin = decideOutcome(bet);
-            const crashPoint = willWin ? (Math.random() * 2 + 1.2).toFixed(2) : 1.05; // Low crash if lose
-            
-            let curr = 1.00;
+        window.flyPlane = () => {
+            const bet = parseFloat(document.getElementById('gBet').value);
+            if(myData.balance < bet) return alert("Low Balance");
+            updateServer(myData.balance - bet, false);
+            const win = decideWin(bet);
+            const crash = win ? (1.5 + Math.random()*2) : 1.1;
+            let n = 1.00;
             const btn = document.getElementById('flyBtn');
-            const disp = document.getElementById('flyVal');
-            let cashed = false;
-
-            btn.innerText = "CASHOUT";
+            btn.innerText = "CASH";
+            const int = setInterval(() => {
+                n += 0.05;
+                document.getElementById('flyMult').innerText = n.toFixed(2)+"x";
+                document.getElementById('plane').style.bottom = (n*10) + "px";
+                document.getElementById('plane').style.left = (n*20) + "px";
+                if(n >= crash) {
+                    clearInterval(int);
+                    btn.innerText = "FLY";
+                    btn.onclick = window.flyPlane;
+                    alert("CRASHED @ " + crash.toFixed(2));
+                }
+            }, 100);
             btn.onclick = () => {
-                if(!cashed && curr < crashPoint) {
-                    cashed = true;
-                    const win = bet * curr;
-                    updateServerBalance(userData.balance + win, true);
-                    btn.innerText = `WON ${win.toFixed(0)}`;
-                    btn.disabled = true;
+                if(n < crash) {
+                    clearInterval(int);
+                    updateServer(myData.balance + (bet*n), true);
+                    alert("WON " + (bet*n).toFixed(0));
+                    btn.innerText = "FLY";
+                    btn.onclick = window.flyPlane;
                 }
             };
-
-            const cvs = document.getElementById('aviatorCanvas');
-            const ctx = cvs.getContext('2d');
-            cvs.width = cvs.offsetWidth; cvs.height = cvs.offsetHeight;
-            let x = 0, y = cvs.height;
-
-            avLoop = setInterval(() => {
-                curr += 0.01;
-                disp.innerText = curr.toFixed(2) + "x";
-                
-                // Draw
-                x += 1; y -= 0.5;
-                ctx.fillStyle = "red";
-                ctx.fillRect(x, y, 5, 5);
-
-                if(curr >= crashPoint) {
-                    clearInterval(avLoop);
-                    disp.innerText = "FLEW AWAY";
-                    disp.style.color = "red";
-                    btn.innerText = "BET";
-                    btn.disabled = false;
-                    btn.onclick = startAviator;
-                }
-            }, 50);
         };
 
-        // --- 5. PLINKO (Simplified Physics) ---
-        function initPlinko(root) {
-            root.innerHTML = `
-                <div class="relative w-full h-full bg-[#050505] flex flex-col items-center">
-                    <div id="plinkoBoard" style="position:relative;width:300px;height:300px;margin-top:20px;"></div>
-                    <div class="absolute bottom-0 w-full p-4 bg-[#111]">
-                        <input type="number" id="plinkoBet" value="100" class="w-full bg-black border border-gray-600 p-2 text-white mb-2 text-center">
-                        <button onclick="dropPlinko()" class="action-btn">DROP BALL</button>
-                    </div>
-                </div>`;
+        // --- 5. PLINKO (Simple) ---
+        function renderPlinko(root) {
+            root.innerHTML = `<div class="relative w-64 h-64 bg-gray-800 mx-auto mb-4 border border-pink-500"><div id="pBall" class="w-4 h-4 bg-white rounded-full absolute top-0 left-1/2 -translate-x-1/2"></div><div class="absolute bottom-0 w-full flex"><div class="flex-1 bg-red-900 h-8 text-xs text-center pt-2">0x</div><div class="flex-1 bg-green-900 h-8 text-xs text-center pt-2">2x</div><div class="flex-1 bg-red-900 h-8 text-xs text-center pt-2">0x</div></div></div><div class="text-center"><input id="gBet" value="100" class="god-input w-24 p-2 text-center"><button onclick="dropBall()" class="god-btn px-6 py-2 ml-2 rounded">DROP</button></div>`;
         }
-        window.dropPlinko = function() {
-            const bet = parseFloat(document.getElementById('plinkoBet').value);
-            if(userData.balance < bet) return alert("Low Balance");
-            updateServerBalance(userData.balance - bet, false);
-
-            const board = document.getElementById('plinkoBoard');
-            const ball = document.createElement('div');
-            ball.style.cssText = "width:10px;height:10px;background:white;border-radius:50%;position:absolute;top:0;left:50%;transition:top 2s ease-in, left 2s linear;";
-            board.appendChild(ball);
-
-            // Risk Logic -> Pre-determine slot
-            const willWin = decideOutcome(bet);
-            // Slot 0 (Left/Loss), Slot 1 (Middle/Refund), Slot 2 (Right/Win)
-            const targetSlot = willWin ? 2 : 0; 
-            const targetLeft = targetSlot === 0 ? '10%' : (targetSlot === 1 ? '50%' : '90%');
-            const mult = targetSlot === 2 ? 5 : (targetSlot === 1 ? 0.5 : 0);
-
+        window.dropBall = () => {
+            const bet = parseFloat(document.getElementById('gBet').value);
+            if(myData.balance < bet) return alert("Low Balance");
+            updateServer(myData.balance - bet, false);
+            const win = decideWin(bet);
+            const ball = document.getElementById('pBall');
+            ball.style.transition = "top 1s ease-in, left 1s linear";
+            ball.style.top = "90%";
+            ball.style.left = win ? "50%" : (Math.random()>0.5?"10%":"90%");
             setTimeout(() => {
-                ball.style.top = '90%';
-                ball.style.left = targetLeft;
-            }, 100);
-
-            setTimeout(() => {
-                if(mult > 0) updateServerBalance(userData.balance + (bet*mult), true);
-                ball.remove();
-                alert(`Multiplier: ${mult}x`);
-            }, 2100);
+                if(win) { updateServer(myData.balance + (bet*2), true); alert("WIN 2x"); }
+                else alert("LOSS");
+                ball.style.transition = "none"; ball.style.top="0"; ball.style.left="50%";
+            }, 1100);
         };
 
         // --- 6. DRAGON TIGER ---
-        function initDragonTiger(root) {
-            root.innerHTML = `
-                <div class="flex flex-col items-center justify-center h-full bg-green-900/20">
-                    <div class="flex gap-10 mb-10">
-                        <div id="cardD" class="w-24 h-36 bg-gray-800 border-2 border-red-500 flex items-center justify-center text-4xl">?</div>
-                        <div id="cardT" class="w-24 h-36 bg-gray-800 border-2 border-blue-500 flex items-center justify-center text-4xl">?</div>
-                    </div>
-                    <div class="absolute bottom-0 w-full p-4 bg-[#111]">
-                        <input type="number" id="dtBet" value="100" class="w-full bg-black border border-gray-600 p-2 text-white mb-2 text-center">
-                        <div class="flex gap-2">
-                            <button onclick="playDT('dragon')" class="flex-1 bg-red-700 py-3 rounded font-bold">DRAGON</button>
-                            <button onclick="playDT('tiger')" class="flex-1 bg-blue-700 py-3 rounded font-bold">TIGER</button>
-                        </div>
-                    </div>
-                </div>`;
+        function renderDT(root) {
+            root.innerHTML = `<div class="flex justify-center gap-8 mb-8"><div id="dc" class="w-20 h-32 bg-gray-700 border-red-500 border-2 flex items-center justify-center text-2xl">D</div><div id="tc" class="w-20 h-32 bg-gray-700 border-blue-500 border-2 flex items-center justify-center text-2xl">T</div></div><div class="text-center"><input id="gBet" value="100" class="god-input w-24 p-2 text-center mb-2"><br><button onclick="playDT('D')" class="bg-red-600 px-4 py-2 rounded mr-2">DRAGON</button><button onclick="playDT('T')" class="bg-blue-600 px-4 py-2 rounded">TIGER</button></div>`;
         }
-        window.playDT = function(side) {
-            const bet = parseFloat(document.getElementById('dtBet').value);
-            if(userData.balance < bet) return alert("Low Balance");
-            
-            const willWin = decideOutcome(bet);
-            
-            // Generate Cards to match outcome
-            let dVal = Math.floor(Math.random()*13)+1;
-            let tVal = Math.floor(Math.random()*13)+1;
-            
-            if(willWin) {
-                if(side === 'dragon') dVal = tVal + 1;
-                else tVal = dVal + 1;
-            } else {
-                if(side === 'dragon') tVal = dVal + 1;
-                else dVal = tVal + 1;
-            }
-
-            document.getElementById('cardD').innerText = dVal;
-            document.getElementById('cardT').innerText = tVal;
-
-            if(willWin) {
-                updateServerBalance(userData.balance - bet + (bet*2), true);
-                alert("WIN!");
-            } else {
-                updateServerBalance(userData.balance - bet, false);
-                alert("LOSE");
-            }
+        window.playDT = (side) => {
+            const bet = parseFloat(document.getElementById('gBet').value);
+            if(myData.balance < bet) return alert("Low Balance");
+            const win = decideWin(bet);
+            let d = Math.floor(Math.random()*10), t = Math.floor(Math.random()*10);
+            if(win) { if(side==='D') d=t+1; else t=d+1; }
+            else { if(side==='D') t=d+1; else d=t+1; }
+            document.getElementById('dc').innerText = d; document.getElementById('tc').innerText = t;
+            const won = (side==='D' && d>t) || (side==='T' && t>d);
+            if(won) updateServer(myData.balance - bet + (bet*2), true);
+            else updateServer(myData.balance - bet, false);
+            alert(won ? "WIN" : "LOSS");
         };
 
         // --- 7. TOWER ---
-        function initTower(root) {
-            // Simplified stack
-            let html = '<div class="flex flex-col gap-2 items-center mt-10">';
-            for(let i=4; i>=0; i--) {
-                html += `<div class="flex gap-2">
-                    <button onclick="climb(${i}, 0)" class="w-20 h-10 bg-gray-800 rounded border border-gray-600"></button>
-                    <button onclick="climb(${i}, 1)" class="w-20 h-10 bg-gray-800 rounded border border-gray-600"></button>
-                    <button onclick="climb(${i}, 2)" class="w-20 h-10 bg-gray-800 rounded border border-gray-600"></button>
-                </div>`;
-            }
-            html += '</div><div class="absolute bottom-0 w-full p-4 bg-[#111]"><button onclick="startTower()" class="action-btn">START (100 PKR)</button></div>';
-            root.innerHTML = html;
+        function renderTower(root) {
+            let h = '<div class="flex flex-col gap-1 items-center mb-4">';
+            for(let r=4; r>=0; r--) h+=`<div class="flex gap-1"><button onclick="climb(${r})" class="w-16 h-8 bg-gray-700 border border-cyan-500"></button><button onclick="climb(${r})" class="w-16 h-8 bg-gray-700 border border-cyan-500"></button></div>`;
+            h+='</div><div class="text-center"><button onclick="startTower()" class="god-btn px-6 py-2 rounded">START (100)</button></div>';
+            root.innerHTML = h;
         }
-        let towerLvl = 0;
-        window.startTower = function() {
-            if(userData.balance < 100) return alert("Low Bal");
-            updateServerBalance(userData.balance - 100, false);
-            towerLvl = 0;
-            alert("Game Started! Pick a tile on bottom row.");
+        window.startTower = () => {
+            if(myData.balance<100) return alert("Low Bal");
+            updateServer(myData.balance-100, false);
+            alert("Game Started! Click any tile.");
         };
-        window.climb = function(row, col) {
-            // Logic: row 4 is bottom. 
-            // Simplified: 2/3 chance safe usually, but we use Risk Engine.
-            const willWin = decideOutcome(100); 
-            if(willWin) {
-                alert("Safe! +50 PKR");
-                updateServerBalance(userData.balance + 50, true); // Incremental win
-            } else {
-                alert("CRASH! Game Over");
-            }
+        window.climb = () => {
+            const win = decideWin(100);
+            if(win) { updateServer(myData.balance+150, true); alert("SAFE! +50"); }
+            else alert("BOMB! Lost");
         };
 
         // --- 8. LIMBO ---
-        function initLimbo(root) {
-            root.innerHTML = `
-                <div class="flex flex-col items-center justify-center h-full">
-                    <h1 id="limboNum" class="text-6xl font-black text-white">1.00x</h1>
-                    <div class="absolute bottom-0 w-full p-4 bg-[#111]">
-                        <input type="number" id="limboTarget" placeholder="Target (e.g 2.0)" class="w-full bg-black border border-gray-600 p-2 text-white mb-2 text-center">
-                        <input type="number" id="limboBet" value="100" class="w-full bg-black border border-gray-600 p-2 text-white mb-2 text-center">
-                        <button onclick="playLimbo()" class="action-btn">LAUNCH</button>
-                    </div>
-                </div>`;
+        function renderLimbo(root) {
+            root.innerHTML = `<div class="text-center mb-10"><h1 id="lNum" class="text-5xl font-mono text-purple-500">1.00x</h1></div><div class="text-center"><input id="gBet" value="100" class="god-input w-24 p-2 text-center mb-2"><br><button onclick="playLimbo()" class="god-btn px-6 py-2 rounded">LAUNCH</button></div>`;
         }
-        window.playLimbo = function() {
-            const bet = parseFloat(document.getElementById('limboBet').value);
-            const target = parseFloat(document.getElementById('limboTarget').value);
-            if(userData.balance < bet) return alert("Low Balance");
-            if(!target || target < 1.01) return alert("Invalid Target");
-
-            const willWin = decideOutcome(bet);
-            // If win, result > target. If lose, result < target.
-            const result = willWin ? (target + Math.random()).toFixed(2) : (target - 0.1).toFixed(2);
-            
-            let n = 1.00;
-            const int = setInterval(() => {
-                n += 0.1;
-                document.getElementById('limboNum').innerText = n.toFixed(2) + "x";
-                if(n >= result) {
-                    clearInterval(int);
-                    if(willWin) {
-                        document.getElementById('limboNum').style.color = "#00ff00";
-                        updateServerBalance(userData.balance - bet + (bet*target), true);
-                    } else {
-                        document.getElementById('limboNum').style.color = "red";
-                        updateServerBalance(userData.balance - bet, false);
-                    }
-                }
-            }, 50);
+        window.playLimbo = () => {
+            const bet = parseFloat(document.getElementById('gBet').value);
+            if(myData.balance < bet) return alert("Low Balance");
+            updateServer(myData.balance - bet, false);
+            const win = decideWin(bet);
+            const target = 2.0;
+            const res = win ? 2.5 : 1.1;
+            let n = 1.0;
+            const i = setInterval(()=>{
+                n+=0.1; document.getElementById('lNum').innerText = n.toFixed(2)+"x";
+                if(n>=res) { clearInterval(i); if(win) {updateServer(myData.balance + bet*target, true); alert("WIN");} else alert("CRASH"); }
+            },50);
         };
 
-        // --- 9. THIMBLES (Street Hustle) ---
-        function initThimbles(root) {
-            root.innerHTML = `
-                <div class="flex items-center justify-center h-full gap-4 relative">
-                    <div id="cup0" onclick="pickCup(0)" class="w-20 h-24 bg-gray-700 rounded-t-full border-b-4 border-gray-500 cursor-pointer transition-all duration-300"></div>
-                    <div id="cup1" onclick="pickCup(1)" class="w-20 h-24 bg-gray-700 rounded-t-full border-b-4 border-gray-500 cursor-pointer transition-all duration-300"></div>
-                    <div id="cup2" onclick="pickCup(2)" class="w-20 h-24 bg-gray-700 rounded-t-full border-b-4 border-gray-500 cursor-pointer transition-all duration-300"></div>
-                    
-                    <div id="ball" class="absolute w-6 h-6 bg-red-500 rounded-full hidden"></div>
-
-                    <div class="absolute bottom-0 w-full p-4 bg-[#111]">
-                        <input type="number" id="thimbleBet" value="100" class="w-full bg-black border border-gray-600 p-2 text-white mb-2 text-center">
-                        <button onclick="playThimbles()" class="action-btn">SHUFFLE</button>
-                    </div>
-                </div>`;
+        // --- 9. THIMBLES ---
+        function renderThimbles(root) {
+            root.innerHTML = `<div class="flex justify-center gap-4 mb-10 pt-10"><div onclick="pickCup(0)" id="c0" class="w-16 h-20 bg-blue-900 rounded-t-lg border-b-4 border-blue-500 cursor-pointer transition-transform"></div><div onclick="pickCup(1)" id="c1" class="w-16 h-20 bg-blue-900 rounded-t-lg border-b-4 border-blue-500 cursor-pointer transition-transform"></div><div onclick="pickCup(2)" id="c2" class="w-16 h-20 bg-blue-900 rounded-t-lg border-b-4 border-blue-500 cursor-pointer transition-transform"></div></div><div class="text-center"><input id="gBet" value="100" class="god-input w-24 p-2 text-center mb-2"><br><button onclick="shuffleCups()" class="god-btn px-6 py-2 rounded">SHUFFLE</button></div>`;
         }
-        let thimbleActive = false;
-        window.playThimbles = function() {
-            const bet = parseFloat(document.getElementById('thimbleBet').value);
-            if(userData.balance < bet) return alert("Low Balance");
-            updateServerBalance(userData.balance - bet, false);
-            
-            thimbleActive = true;
-            alert("Shuffling... Pick a cup!");
+        let tActive = false;
+        window.shuffleCups = () => {
+            const bet = parseFloat(document.getElementById('gBet').value);
+            if(myData.balance < bet) return alert("Low Balance");
+            updateServer(myData.balance - bet, false);
+            tActive = true; alert("Pick a cup!");
         };
-        window.pickCup = function(idx) {
-            if(!thimbleActive) return;
-            const willWin = decideOutcome(100); // Check risk
-            
-            // Visual Reveal
-            const cup = document.getElementById(`cup${idx}`);
-            cup.style.transform = "translateY(-50px)";
-            
-            if(willWin) {
-                // Ball is here
-                const ball = document.getElementById('ball');
-                ball.style.display = 'block';
-                ball.style.left = cup.offsetLeft + 30 + 'px'; // Center ball under cup
-                ball.style.top = cup.offsetTop + 80 + 'px';
-                updateServerBalance(userData.balance + (parseFloat(document.getElementById('thimbleBet').value) * 2.9), true);
-                setTimeout(()=> alert("FOUND IT!"), 500);
-            } else {
-                setTimeout(()=> alert("EMPTY!"), 500);
-            }
-            thimbleActive = false;
-            setTimeout(()=> {
-                cup.style.transform = "translateY(0)";
-                document.getElementById('ball').style.display = 'none';
-            }, 2000);
+        window.pickCup = (i) => {
+            if(!tActive) return;
+            const win = decideWin(100);
+            document.getElementById(`c${i}`).style.transform = "translateY(-30px)";
+            if(win) { updateServer(myData.balance + 300, true); alert("FOUND! Win 3x"); }
+            else alert("EMPTY");
+            tActive = false;
+            setTimeout(() => document.getElementById(`c${i}`).style.transform = "translateY(0)", 1000);
         };
 
-        // --- WITHDRAW LOGIC ---
-        function submitWithdraw() {
-            const amt = parseFloat(document.getElementById('withAmt').value);
-            if(amt > userData.balance) return alert("Insufficient Funds");
-            updateServerBalance(userData.balance - amt, false);
-            db.ref('withdrawals').push({
-                uid: currentUser.uid, amount: amt, method: document.getElementById('withMethod').value,
-                details: `${document.getElementById('withName').value} - ${document.getElementById('withNum').value}`,
-                status: 'pending'
-            });
-            alert("Withdrawal Requested!");
-            document.getElementById('withdrawModal').style.display='none';
-        }
-        function openWithdrawModal() { document.getElementById('withdrawModal').style.display='flex'; }
-        
-        // --- DEPOSIT LOGIC ---
+        // --- DEPOSIT / WITHDRAW / TABS ---
         function submitDeposit() {
-            const amt = document.getElementById('depAmt').value;
-            const sender = document.getElementById('senderNum').value;
-            db.ref('deposits').push({
-                uid: currentUser.uid, amount: amt, sender: sender, status: 'pending'
-            });
-            alert("Deposit Request Sent!");
-            document.getElementById('depositModal').style.display='none';
+            const a = document.getElementById('depAmt').value;
+            db.ref('deposits').push({uid:currentUser.uid, amount:a, status:'pending'});
+            alert("Request Sent!"); document.getElementById('depositModal').style.display='none';
         }
-
-        function switchTab(tab) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
-            document.getElementById('tab-' + tab).classList.remove('hidden');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById('nav-' + tab).classList.add('active');
+        function openWithdrawModal() {
+            if(myData.balance < 500) return alert("Min Withdraw 500");
+            const amt = prompt("Enter Amount");
+            if(amt && amt <= myData.balance) {
+                updateServer(myData.balance - amt, false);
+                db.ref('withdrawals').push({uid:currentUser.uid, amount:amt, status:'pending'});
+                alert("Withdrawal Pending");
+            }
         }
-
+        function switchTab(t) {
+            document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active-tab'));
+            document.getElementById('tab-'+t).classList.add('active-tab');
+            document.querySelectorAll('.tab-content').forEach(e => e.style.display = 'none');
+            document.getElementById('tab-'+t).style.display = 'block';
+            document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('text-white'));
+            event.currentTarget.classList.add('text-white');
+        }
     </script>
 </body>
 </html>
