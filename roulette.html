@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ROULETTE - PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <style>
+        body { 
+            background: #000; 
+            font-family: 'Montserrat', sans-serif; 
+            color: white; 
+            overflow: hidden; 
+            touch-action: manipulation;
+        }
+        
+        /* BACKGROUND */
+        .cyber-grid {
+            position: fixed; inset: 0; z-index: -1;
+            background-image: 
+                linear-gradient(rgba(0, 255, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 0, 255, 0.1) 1px, transparent 1px);
+            background-size: 40px 40px;
+            perspective: 500px;
+            transform: scale(1.2);
+            animation: gridMove 20s linear infinite;
+        }
+        @keyframes gridMove { 0% {transform: translateY(0) scale(1.2);} 100% {transform: translateY(40px) scale(1.2);} }
+
+        .back-btn { position: absolute; top: 20px; left: 20px; z-index: 50; color: white; font-size: 24px; cursor: pointer; }
+
+        /* WHEEL */
+        .wheel-stage {
+            position: relative;
+            width: 300px; height: 300px;
+            margin: 20px auto;
+            border-radius: 50%;
+            border: 5px solid #333;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
+        }
+
+        .pointer {
+            position: absolute; top: -25px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; 
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #fff;
+            z-index: 20;
+            filter: drop-shadow(0 0 5px #ff0055);
+        }
+
+        #wheelCanvas {
+            border-radius: 50%;
+            transform: rotate(0deg);
+            transition: transform 4s cubic-bezier(0.1, 0.9, 0.2, 1);
+        }
+
+        /* CHIPS UI */
+        .controls-area {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: rgba(20, 20, 20, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px; padding-bottom: 40px;
+            z-index: 50;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .chip-rack {
+            display: flex; gap: 15px; justify-content: center; margin-bottom: 20px;
+        }
+        .chip {
+            width: 55px; height: 55px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 13px; cursor: pointer;
+            border: 3px dashed rgba(255,255,255,0.5);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            transition: 0.2s; position: relative;
+        }
+        .chip:active { transform: scale(0.9); }
+        .chip.selected { transform: translateY(-10px) scale(1.1); box-shadow: 0 10px 20px rgba(0,0,0,0.8); border-style: solid; color: white; border-width: 3px; }
+        
+        .c-20 { background: #0088ff; color: #cceeff; border-color: #0055aa; }
+        .c-50 { background: #00cc44; color: #ccffdd; border-color: #008822; }
+        .c-100 { background: #ff3333; color: #ffcccc; border-color: #aa0000; }
+        .c-500 { background: #222; color: #ffd700; border-color: #ffd700; }
+
+        /* BET BUTTONS */
+        .bet-grid { display: flex; gap: 10px; }
+        .bet-btn {
+            flex: 1; padding: 15px; border-radius: 8px; font-weight: 900; text-transform: uppercase;
+            box-shadow: 0 5px 0 rgba(0,0,0,0.5); transition: 0.1s; position: relative; overflow: hidden;
+        }
+        .bet-btn:active { transform: translateY(5px); box-shadow: none; }
+        .btn-red { background: #ff0040; color: white; }
+        .btn-black { background: #222; color: white; border: 1px solid #444; }
+        .btn-green { background: #00cc00; color: black; }
+
+        /* RESULT OVERLAY */
+        #resultOverlay {
+            position: fixed; inset: 0; z-index: 100;
+            background: rgba(0,0,0,0.8);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.3s;
+        }
+        #resultOverlay.active { opacity: 1; pointer-events: auto; }
+        .win-title { font-size: 60px; color: #00ff00; text-shadow: 0 0 30px #00ff00; font-family: 'Russo One'; }
+        .loss-title { font-size: 50px; color: #ff0040; text-shadow: 0 0 30px #ff0040; font-family: 'Russo One'; }
+
+    </style>
+</head>
+<body onclick="initAudio()">
+
+    <div class="cyber-grid"></div>
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+
+    <div class="flex justify-between items-center p-6 z-10 bg-black/40 backdrop-blur-md border-b border-white/10 mt-10">
+        <div>
+            <p class="text-[10px] text-cyan-400 uppercase tracking-widest">Balance</p>
+            <h1 class="text-2xl text-white font-mono drop-shadow-[0_0_10px_cyan]">Rs. <span id="balance">...</span></h1>
+        </div>
+        <div class="text-right">
+            <p class="text-[10px] text-purple-400 uppercase tracking-widest">Last Win</p>
+            <h1 id="lastWin" class="text-xl text-white">-</h1>
+        </div>
+    </div>
+
+    <div class="flex-1 flex flex-col items-center justify-center relative mb-40">
+        
+        <div class="wheel-stage">
+            <div class="pointer"></div>
+            <canvas id="wheelCanvas" width="300" height="300"></canvas>
+            
+            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-black rounded-full border-2 border-white flex items-center justify-center shadow-[0_0_20px_white] z-10">
+                <div class="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="controls-area">
+        <div class="chip-rack">
+            <div onclick="selectChip(20, this)" class="chip c-20 selected">20</div>
+            <div onclick="selectChip(50, this)" class="chip c-50">50</div>
+            <div onclick="selectChip(100, this)" class="chip c-100">100</div>
+            <div onclick="selectChip(500, this)" class="chip c-500">500</div>
+        </div>
+
+        <div class="bet-grid">
+            <button onclick="spinWheel('red')" class="bet-btn btn-red">RED<br><span class="text-[10px]">2x</span></button>
+            <button onclick="spinWheel('green')" class="bet-btn btn-green">GREEN<br><span class="text-[10px]">14x</span></button>
+            <button onclick="spinWheel('black')" class="bet-btn btn-black">BLACK<br><span class="text-[10px]">2x</span></button>
+        </div>
+    </div>
+
+    <div id="resultOverlay">
+        <h1 id="resTitle" class="win-title">WIN</h1>
+        <p id="resSub" class="text-xl text-white mt-2 font-bold">Rs. 0</p>
+    </div>
+
+    <script>
+        // === FIREBASE ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
+            authDomain: "ultra-earn-a636a.firebaseapp.com",
+            projectId: "ultra-earn-a636a",
+            storageBucket: "ultra-earn-a636a.firebasestorage.app",
+            messagingSenderId: "185942357584",
+            appId: "1:185942357584:web:1052b94cfecc6576944355"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let currentUser = null;
+        let myBalance = 0;
+        let myStreak = 0;
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                db.ref('users/' + user.uid).on('value', snap => {
+                    const data = snap.val();
+                    myBalance = data.balance || 0;
+                    myStreak = data.streak || 0;
+                    document.getElementById('balance').innerText = myBalance.toFixed(2);
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // === GAME CONFIG ===
+        const canvas = document.getElementById('wheelCanvas');
+        const ctx = canvas.getContext('2d');
+        const segments = [
+            { color: '#00cc00', type: 'green', label: '0' },
+            { color: '#ff0040', type: 'red', label: '1' },
+            { color: '#111', type: 'black', label: '2' },
+            { color: '#ff0040', type: 'red', label: '3' },
+            { color: '#111', type: 'black', label: '4' },
+            { color: '#ff0040', type: 'red', label: '5' },
+            { color: '#111', type: 'black', label: '6' },
+            { color: '#ff0040', type: 'red', label: '7' },
+            { color: '#111', type: 'black', label: '8' }
+        ];
+        
+        let currentBet = 20;
+        let isSpinning = false;
+        
+        // Draw Wheel
+        const segAngle = (2 * Math.PI) / segments.length;
+        
+        function drawWheel() {
+            ctx.clearRect(0, 0, 300, 300);
+            const cx = 150, cy = 150, r = 145;
+
+            segments.forEach((seg, i) => {
+                const start = i * segAngle;
+                const end = start + segAngle;
+
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.arc(cx, cy, r, start, end);
+                ctx.fillStyle = seg.color;
+                ctx.fill();
+                ctx.lineWidth = 1;
+                ctx.strokeStyle = '#333';
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(start + segAngle / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "white";
+                ctx.font = "bold 20px Arial";
+                ctx.fillText(seg.label, r - 15, 6);
+                ctx.restore();
+            });
+        }
+        drawWheel();
+
+        // === SOUND ===
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioInit = false;
+        function initAudio() { if(!audioInit) { audioCtx.resume(); audioInit = true; } }
+
+        function playSound(type) {
+            initAudio();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            if (type === 'chip') {
+                osc.frequency.setValueAtTime(1500, t);
+                gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+                osc.start(t); osc.stop(t + 0.1);
+            } else if (type === 'tick') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(800, t);
+                gain.gain.setValueAtTime(0.05, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.05);
+                osc.start(t); osc.stop(t + 0.05);
+            } else if (type === 'win') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(400, t); 
+                gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+                osc.start(t); osc.stop(t + 0.5);
+            }
+        }
+
+        // === LOGIC ===
+        function selectChip(val, el) {
+            if(isSpinning) return;
+            currentBet = val;
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            playSound('chip');
+        }
+
+        function spinWheel(betType) {
+            if(isSpinning) return;
+            if(myBalance < currentBet) return alert("Low Balance");
+            if(!currentUser) return alert("Login First");
+
+            isSpinning = true;
+            initAudio();
+
+            // 1. Deduct
+            const newBal = myBalance - currentBet;
+            db.ref('users/' + currentUser.uid).update({ balance: newBal });
+
+            // 2. Risk Engine
+            let shouldWin = true;
+            if(currentBet >= 500) shouldWin = false;
+            if(myStreak >= 3) shouldWin = false;
+            if(Math.random() > 0.7) shouldWin = false; // 70% Base chance
+
+            // 3. Select Target
+            let targetIndices = [];
+            // Find indices matching betType
+            segments.forEach((seg, i) => {
+                if(seg.type === betType) targetIndices.push(i);
+            });
+            // Find indices NOT matching betType
+            let loseIndices = [];
+            segments.forEach((seg, i) => {
+                if(seg.type !== betType) loseIndices.push(i);
+            });
+
+            let finalIndex;
+            if(shouldWin && targetIndices.length > 0) {
+                finalIndex = targetIndices[Math.floor(Math.random() * targetIndices.length)];
+            } else {
+                finalIndex = loseIndices[Math.floor(Math.random() * loseIndices.length)];
+            }
+
+            // 4. Calculate Rotation
+            // Pointer at top (-90deg or 270deg). Canvas rotates positive.
+            // Segment 0 starts at 0deg. 
+            // To bring Index I to top:
+            // Rotate = 360 - (I * segAngle) - 90. 
+            // Add spins.
+            
+            const degPerSeg = 360 / segments.length;
+            const targetRot = (360 - (finalIndex * degPerSeg)) - 90; 
+            const spins = 360 * 5;
+            const finalRot = spins + targetRot + (Math.random() * 20 - 10); // Jitter
+
+            // 5. Animate
+            const wheel = document.getElementById('wheelCanvas');
+            wheel.style.transform = `rotate(${finalRot}deg)`;
+            
+            // Simulating ticks
+            let count = 0;
+            const tickInt = setInterval(() => {
+                count++;
+                if(count < 20) playSound('tick');
+                else clearInterval(tickInt);
+            }, 100);
+
+            setTimeout(() => {
+                const isWin = segments[finalIndex].type === betType;
+                
+                if(isWin) {
+                    let mult = betType === 'green' ? 14 : 2;
+                    let profit = currentBet * mult;
+                    
+                    db.ref('users/' + currentUser.uid).update({ 
+                        balance: myBalance + profit, // Add profit to deducted balance
+                        streak: myStreak + 1 
+                    });
+                    
+                    showResult("YOU WON", profit, true);
+                } else {
+                    db.ref('users/' + currentUser.uid).update({ streak: 0 });
+                    showResult("YOU LOST", currentBet, false);
+                }
+
+                isSpinning = false;
+                setTimeout(() => {
+                    wheel.style.transition = 'none';
+                    wheel.style.transform = 'rotate(0deg)';
+                    setTimeout(() => wheel.style.transition = 'transform 4s cubic-bezier(0.1, 0.9, 0.2, 1)', 50);
+                }, 2000);
+
+            }, 4000);
+        }
+
+        function showResult(title, amount, win) {
+            const el = document.getElementById('resultOverlay');
+            document.getElementById('resTitle').innerText = title;
+            document.getElementById('resTitle').className = win ? "win-title" : "loss-title";
+            document.getElementById('resSub').innerText = (win ? "+ Rs. " : "- Rs. ") + amount;
+            
+            el.classList.add('active');
+            if(win) playSound('win');
+            
+            setTimeout(() => el.classList.remove('active'), 2000);
+        }
+
+    </script>
+</body>
+</html>
