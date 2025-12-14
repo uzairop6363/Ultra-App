@@ -21,7 +21,6 @@
             touch-action: manipulation;
         }
         
-        /* BACKGROUND */
         .cyber-grid {
             position: fixed; inset: 0; z-index: -1;
             background-image: 
@@ -36,7 +35,6 @@
 
         .back-btn { position: absolute; top: 20px; left: 20px; z-index: 50; color: white; font-size: 24px; cursor: pointer; }
 
-        /* WHEEL */
         .wheel-stage {
             position: relative;
             width: 300px; height: 300px;
@@ -62,7 +60,6 @@
             transition: transform 4s cubic-bezier(0.1, 0.9, 0.2, 1);
         }
 
-        /* CHIPS UI */
         .controls-area {
             position: absolute; bottom: 0; left: 0; width: 100%;
             background: rgba(20, 20, 20, 0.95);
@@ -91,7 +88,6 @@
         .c-100 { background: #ff3333; color: #ffcccc; border-color: #aa0000; }
         .c-500 { background: #222; color: #ffd700; border-color: #ffd700; }
 
-        /* BET BUTTONS */
         .bet-grid { display: flex; gap: 10px; }
         .bet-btn {
             flex: 1; padding: 15px; border-radius: 8px; font-weight: 900; text-transform: uppercase;
@@ -102,7 +98,6 @@
         .btn-black { background: #222; color: white; border: 1px solid #444; }
         .btn-green { background: #00cc00; color: black; }
 
-        /* RESULT OVERLAY */
         #resultOverlay {
             position: fixed; inset: 0; z-index: 100;
             background: rgba(0,0,0,0.8);
@@ -165,7 +160,6 @@
     </div>
 
     <script>
-        // === FIREBASE ===
         const firebaseConfig = {
             apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
             authDomain: "ultra-earn-a636a.firebaseapp.com",
@@ -196,7 +190,6 @@
             }
         });
 
-        // === GAME CONFIG ===
         const canvas = document.getElementById('wheelCanvas');
         const ctx = canvas.getContext('2d');
         const segments = [
@@ -214,7 +207,6 @@
         let currentBet = 20;
         let isSpinning = false;
         
-        // Draw Wheel
         const segAngle = (2 * Math.PI) / segments.length;
         
         function drawWheel() {
@@ -246,7 +238,6 @@
         }
         drawWheel();
 
-        // === SOUND ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         let audioInit = false;
         function initAudio() { if(!audioInit) { audioCtx.resume(); audioInit = true; } }
@@ -273,7 +264,6 @@
             }
         }
 
-        // === LOGIC ===
         function selectChip(val, el) {
             if(isSpinning) return;
             currentBet = val;
@@ -290,17 +280,21 @@
             isSpinning = true;
             initAudio();
 
-            // 1. Deduct
+            // 1. DEDUCT
             const newBal = myBalance - currentBet;
             db.ref('users/' + currentUser.uid).update({ balance: newBal });
 
-            // 2. Risk Engine
-            let shouldWin = true;
-            if(currentBet >= 500) shouldWin = false;
-            if(myStreak >= 3) shouldWin = false;
-            if(Math.random() > 0.7) shouldWin = false; // 70% Base chance
+            // 2. RISK ENGINE (30% Win / 70% Lose)
+            let winChance = 0.3; // 30% Chance to Win
+            
+            // Extra penalties
+            if(currentBet >= 500) winChance = 0.05; // 5% Win
+            if(myStreak >= 3) winChance = 0; // 0% Win
 
-            // 3. Select Target
+            // Determine if the user SHOULD win
+            let shouldWin = Math.random() < winChance;
+
+            // 3. SELECT TARGET
             let targetIndices = [];
             // Find indices matching betType
             segments.forEach((seg, i) => {
@@ -319,23 +313,15 @@
                 finalIndex = loseIndices[Math.floor(Math.random() * loseIndices.length)];
             }
 
-            // 4. Calculate Rotation
-            // Pointer at top (-90deg or 270deg). Canvas rotates positive.
-            // Segment 0 starts at 0deg. 
-            // To bring Index I to top:
-            // Rotate = 360 - (I * segAngle) - 90. 
-            // Add spins.
-            
             const degPerSeg = 360 / segments.length;
             const targetRot = (360 - (finalIndex * degPerSeg)) - 90; 
             const spins = 360 * 5;
-            const finalRot = spins + targetRot + (Math.random() * 20 - 10); // Jitter
+            const finalRot = spins + targetRot + (Math.random() * 20 - 10); 
 
-            // 5. Animate
+            // 4. ANIMATE
             const wheel = document.getElementById('wheelCanvas');
             wheel.style.transform = `rotate(${finalRot}deg)`;
             
-            // Simulating ticks
             let count = 0;
             const tickInt = setInterval(() => {
                 count++;
@@ -351,7 +337,7 @@
                     let profit = currentBet * mult;
                     
                     db.ref('users/' + currentUser.uid).update({ 
-                        balance: myBalance + profit, // Add profit to deducted balance
+                        balance: myBalance + profit, 
                         streak: myStreak + 1 
                     });
                     
