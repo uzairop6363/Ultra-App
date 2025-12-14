@@ -3,74 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ULTRA ADMIN - CONTROL</title>
+    <title>ADMIN GOD MODE</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
-<body class="bg-gray-900 text-white p-4 font-[Rajdhani]">
+<body class="bg-gray-900 text-white p-6 font-[Rajdhani]">
 
-    <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
-        <h1 class="text-3xl font-bold text-yellow-400">ADMIN GOD MODE</h1>
-        <div class="bg-gray-800 px-4 py-2 rounded">
-            <span class="text-gray-400 text-sm">TOTAL USERS</span>
-            <h2 id="totalUsers" class="text-xl font-bold">0</h2>
-        </div>
+    <h1 class="text-3xl font-bold mb-6 text-yellow-400 text-center">ADMIN CONTROL</h1>
+
+    <div class="grid grid-cols-2 gap-4 mb-6 text-center">
+        <div class="bg-gray-800 p-4 rounded"><h3 class="text-gray-400">Total Users</h3><h2 id="totalUsers" class="text-2xl font-bold">0</h2></div>
+        <div class="bg-gray-800 p-4 rounded"><h3 class="text-gray-400">Requests</h3><h2 id="totalReq" class="text-2xl font-bold">0</h2></div>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div class="bg-gray-800 p-4 rounded border border-gray-600 h-[400px] flex flex-col">
-            <h2 class="text-green-400 font-bold mb-3 border-b border-gray-600 pb-2 flex justify-between">
-                DEPOSIT REQUESTS <span id="depCount" class="bg-green-900 text-xs px-2 py-1 rounded">0</span>
-            </h2>
-            <div id="depositList" class="space-y-3 overflow-y-auto flex-1"></div>
+        <div class="bg-gray-800 p-4 rounded h-[400px] flex flex-col">
+            <h2 class="text-green-400 font-bold mb-2">PENDING DEPOSITS</h2>
+            <div id="depList" class="overflow-y-auto space-y-2 flex-1"></div>
         </div>
-
-        <div class="bg-gray-800 p-4 rounded border border-gray-600 h-[400px] flex flex-col">
-            <h2 class="text-red-400 font-bold mb-3 border-b border-gray-600 pb-2 flex justify-between">
-                WITHDRAW REQUESTS <span id="withCount" class="bg-red-900 text-xs px-2 py-1 rounded">0</span>
-            </h2>
-            <div id="withdrawList" class="space-y-3 overflow-y-auto flex-1"></div>
+        <div class="bg-gray-800 p-4 rounded h-[400px] flex flex-col">
+            <h2 class="text-red-400 font-bold mb-2">PENDING WITHDRAWALS</h2>
+            <div id="withList" class="overflow-y-auto space-y-2 flex-1"></div>
         </div>
     </div>
 
-    <div class="bg-gray-800 p-4 rounded border border-gray-600">
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-blue-400 font-bold text-xl">ALL USERS</h2>
-            <input type="text" id="searchUser" onkeyup="search()" placeholder="Search..." class="bg-black border border-gray-600 px-3 py-1 rounded text-sm">
-        </div>
+    <div class="bg-gray-800 p-4 rounded">
+        <h2 class="text-blue-400 font-bold mb-4">USER MANAGEMENT</h2>
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
-                <thead class="bg-black text-gray-400">
-                    <tr>
-                        <th class="p-3">Name</th>
-                        <th class="p-3">Email</th>
-                        <th class="p-3">Plan</th>
-                        <th class="p-3">Balance</th>
-                        <th class="p-3">Wager</th>
-                        <th class="p-3 text-right">Action</th>
-                    </tr>
-                </thead>
+            <table class="w-full text-sm text-left">
+                <thead class="bg-black text-gray-400"><tr><th class="p-2">Name</th><th class="p-2">Plan</th><th class="p-2">Balance</th><th class="p-2">Wager</th><th class="p-2">Action</th></tr></thead>
                 <tbody id="userTable"></tbody>
             </table>
         </div>
     </div>
 
     <div id="editModal" class="hidden fixed inset-0 bg-black/90 z-50 flex items-center justify-center">
-        <div class="bg-gray-800 p-6 rounded w-80 border border-gray-600">
+        <div class="bg-gray-800 p-6 rounded w-80">
             <h3 class="text-xl font-bold mb-4">EDIT USER</h3>
             <input type="hidden" id="editUid">
-            <label class="text-xs text-gray-400">Balance</label>
-            <input type="number" id="editBal" class="w-full bg-black p-2 rounded mb-3 border border-gray-600">
-            <label class="text-xs text-gray-400">Wager</label>
-            <input type="number" id="editWager" class="w-full bg-black p-2 rounded mb-4 border border-gray-600">
-            <div class="flex gap-2">
-                <button onclick="saveUser()" class="bg-blue-600 flex-1 py-2 rounded font-bold">SAVE</button>
-                <button onclick="document.getElementById('editModal').style.display='none'" class="bg-gray-600 flex-1 py-2 rounded">CANCEL</button>
-            </div>
+            <input type="number" id="editBal" class="w-full bg-black p-2 rounded mb-2 border border-gray-600" placeholder="Balance">
+            <input type="number" id="editWager" class="w-full bg-black p-2 rounded mb-4 border border-gray-600" placeholder="Wager">
+            <button onclick="saveUser()" class="bg-blue-600 w-full py-2 rounded font-bold mb-2">SAVE</button>
+            <button onclick="document.getElementById('editModal').style.display='none'" class="bg-gray-600 w-full py-2 rounded">CANCEL</button>
         </div>
     </div>
 
@@ -79,156 +55,108 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // 1. LOAD DEPOSITS
+        // 1. DEPOSITS
         db.ref('deposits').on('value', snap => {
-            const list = document.getElementById('depositList');
+            const list = document.getElementById('depList');
             list.innerHTML = "";
-            let count = 0;
-            snap.forEach(child => {
-                const data = child.val();
-                if(data.status === 'Pending') {
-                    count++;
-                    const d = document.createElement('div');
-                    d.className = "bg-black p-3 rounded border-l-4 border-green-500";
-                    d.innerHTML = `
-                        <div class="flex justify-between font-bold"><span>${data.method}</span><span class="text-green-400">Rs. ${data.amount}</span></div>
-                        <p class="text-xs text-gray-400">Sender: ${data.senderNum}</p>
-                        <p class="text-xs text-gray-400 mb-2">UID: ${data.uid.substring(0,8)}... | Ref: ${data.invitedBy || 'None'}</p>
-                        <div class="flex gap-2">
-                            <button onclick="approveDep('${child.key}', '${data.uid}', ${data.amount}, '${data.invitedBy}')" class="bg-green-600 flex-1 py-1 rounded text-xs font-bold">APPROVE</button>
-                            <button onclick="rejectDep('${child.key}')" class="bg-red-600 flex-1 py-1 rounded text-xs font-bold">REJECT</button>
-                        </div>
-                    `;
-                    list.prepend(d);
+            let reqs = 0;
+            snap.forEach(c => {
+                const d = c.val();
+                if(d.status === 'Pending') {
+                    reqs++;
+                    const el = document.createElement('div');
+                    el.className = "bg-black p-3 rounded border-l-4 border-green-500";
+                    el.innerHTML = `<div class="flex justify-between font-bold"><span>${d.method}</span><span class="text-green-400">${d.amount}</span></div>
+                    <div class="text-xs text-gray-400 mb-2">Sender: ${d.senderNum}<br>User: ${d.uid.substring(0,6)}...<br>Ref: ${d.invitedBy||'-'}</div>
+                    <div class="flex gap-1"><button onclick="appDep('${c.key}','${d.uid}',${d.amount},'${d.invitedBy}')" class="bg-green-600 flex-1 rounded py-1 text-xs">ACCEPT</button><button onclick="rejDep('${c.key}')" class="bg-red-600 flex-1 rounded py-1 text-xs">REJECT</button></div>`;
+                    list.prepend(el);
                 }
             });
-            document.getElementById('depCount').innerText = count;
-            if(count===0) list.innerHTML = "<p class='text-center text-gray-600'>No Pending Requests</p>";
+            document.getElementById('totalReq').innerText = reqs;
         });
 
-        // 2. APPROVE DEPOSIT LOGIC
-        async function approveDep(key, uid, amount, inviter) {
-            if(!confirm("Approve Rs. "+amount+"?")) return;
-            const amt = parseInt(amount);
+        // 2. WITHDRAWALS
+        db.ref('withdrawals').on('value', snap => {
+            const list = document.getElementById('withList');
+            list.innerHTML = "";
+            let reqs = parseInt(document.getElementById('totalReq').innerText);
+            snap.forEach(c => {
+                const d = c.val();
+                if(d.status === 'Pending') {
+                    reqs++;
+                    const el = document.createElement('div');
+                    el.className = "bg-black p-3 rounded border-l-4 border-red-500";
+                    el.innerHTML = `<div class="flex justify-between font-bold"><span>${d.method}</span><span class="text-red-400">${d.amount}</span></div>
+                    <div class="text-xs text-gray-400 mb-2">Acc: ${d.accNum}<br>User: ${d.uid.substring(0,6)}...</div>
+                    <div class="flex gap-1"><button onclick="appWith('${c.key}')" class="bg-green-600 flex-1 rounded py-1 text-xs">PAID</button><button onclick="rejWith('${c.key}','${d.uid}',${d.amount})" class="bg-red-600 flex-1 rounded py-1 text-xs">REFUND</button></div>`;
+                    list.prepend(el);
+                }
+            });
+            document.getElementById('totalReq').innerText = reqs;
+        });
 
-            // A. Credit User + Wager
+        // 3. USERS
+        db.ref('users').on('value', snap => {
+            const tb = document.getElementById('userTable');
+            tb.innerHTML = "";
+            let uCount = 0;
+            snap.forEach(c => {
+                uCount++;
+                const u = c.val();
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-gray-700";
+                tr.innerHTML = `<td class="p-2 font-bold">${u.name}</td><td class="p-2 text-yellow-400 text-xs">${u.plan||'FREE'}</td>
+                <td class="p-2 text-green-400 font-mono">${u.balance||0}</td><td class="p-2 text-red-400 text-xs">${u.wager||0}</td>
+                <td class="p-2 text-right"><button onclick="editUser('${c.key}',${u.balance||0},${u.wager||0})" class="bg-blue-600 px-2 py-1 rounded text-xs">EDIT</button></td>`;
+                tb.appendChild(tr);
+            });
+            document.getElementById('totalUsers').innerText = uCount;
+        });
+
+        // LOGIC
+        async function appDep(key, uid, amt, inv) {
+            if(!confirm("Approve? User gets Wager. Inviter gets Task.")) return;
             const uSnap = await db.ref('users/'+uid).once('value');
             if(uSnap.exists()) {
-                const curB = parseInt(uSnap.val().balance || 0);
-                const curW = parseInt(uSnap.val().wager || 0);
-                await db.ref('users/'+uid).update({ balance: curB + amt, wager: curW + amt });
+                const bal = parseInt(uSnap.val().balance||0);
+                const wag = parseInt(uSnap.val().wager||0);
+                await db.ref('users/'+uid).update({ balance: bal+amt, wager: wag+amt });
             }
-
-            // B. Reward Inviter (Tasks Only)
-            if(inviter && inviter !== 'Admin') {
-                const iSnap = await db.ref('users').orderByChild('myCode').equalTo(inviter).once('value');
-                iSnap.forEach(async (child) => {
-                    const iData = child.val();
-                    if(iData.plan === "GOLD PRO") {
-                        let box = 0;
-                        if(amt >= 2000) box = 5;
-                        else if(amt >= 1500) box = 4;
-                        else if(amt >= 1000) box = 3;
-                        else if(amt >= 800) box = 2;
-                        else if(amt >= 400) box = 1;
-                        
-                        if(box > 0) {
-                            const curU = parseInt(iData.unlockedTasks || 0);
-                            await db.ref('users/'+child.key).update({ unlockedTasks: curU + box });
-                        }
+            if(inv && inv !== 'Admin') {
+                const iSnap = await db.ref('users').orderByChild('myCode').equalTo(inv).once('value');
+                iSnap.forEach(async c => {
+                    if(c.val().plan === "GOLD PRO") {
+                        let b=0; if(amt>=2000)b=5; else if(amt>=1000)b=3; else if(amt>=400)b=1;
+                        if(b>0) await db.ref('users/'+c.key).update({ unlockedTasks: (c.val().unlockedTasks||0)+b });
                     }
                 });
             }
-            await db.ref('deposits/'+key).update({ status: 'Approved' });
+            db.ref('deposits/'+key).update({ status: 'Approved' });
         }
 
-        function rejectDep(key) { if(confirm("Reject?")) db.ref('deposits/'+key).update({ status: 'Rejected' }); }
-
-        // 3. WITHDRAWALS
-        db.ref('withdrawals').on('value', snap => {
-            const list = document.getElementById('withdrawList');
-            list.innerHTML = "";
-            let count = 0;
-            snap.forEach(child => {
-                const data = child.val();
-                if(data.status === 'Pending') {
-                    count++;
-                    const d = document.createElement('div');
-                    d.className = "bg-black p-3 rounded border-l-4 border-red-500";
-                    d.innerHTML = `
-                        <div class="flex justify-between font-bold"><span>${data.method}</span><span class="text-red-400">Rs. ${data.amount}</span></div>
-                        <p class="text-xs text-gray-400">Acc: ${data.accNum}</p>
-                        <p class="text-xs text-gray-400 mb-2">UID: ${data.uid.substring(0,8)}...</p>
-                        <div class="flex gap-2">
-                            <button onclick="approveWith('${child.key}')" class="bg-green-600 flex-1 py-1 rounded text-xs font-bold">PAID</button>
-                            <button onclick="rejectWith('${child.key}', '${data.uid}', ${data.amount})" class="bg-red-600 flex-1 py-1 rounded text-xs font-bold">REFUND</button>
-                        </div>
-                    `;
-                    list.prepend(d);
-                }
-            });
-            document.getElementById('withCount').innerText = count;
-            if(count===0) list.innerHTML = "<p class='text-center text-gray-600'>No Pending Requests</p>";
-        });
-
-        function approveWith(key) { if(confirm("Paid?")) db.ref('withdrawals/'+key).update({ status: 'Approved' }); }
+        function rejDep(key) { if(confirm("Reject?")) db.ref('deposits/'+key).update({ status: 'Rejected' }); }
+        function appWith(key) { if(confirm("Mark Paid?")) db.ref('withdrawals/'+key).update({ status: 'Approved' }); }
         
-        async function rejectWith(key, uid, amt) {
-            if(confirm("Refund Rs. "+amt+"?")) {
+        async function rejWith(key, uid, amt) {
+            if(confirm("Refund?")) {
                 const uSnap = await db.ref('users/'+uid).once('value');
-                if(uSnap.exists()) {
-                    const cur = parseInt(uSnap.val().balance || 0);
-                    await db.ref('users/'+uid).update({ balance: cur + parseInt(amt) });
-                }
+                if(uSnap.exists()) await db.ref('users/'+uid).update({ balance: (uSnap.val().balance||0)+amt });
                 db.ref('withdrawals/'+key).update({ status: 'Rejected' });
             }
         }
 
-        // 4. USERS
-        db.ref('users').on('value', snap => {
-            const tb = document.getElementById('userTable');
-            tb.innerHTML = "";
-            let count = 0;
-            snap.forEach(child => {
-                count++;
-                const u = child.val();
-                const tr = document.createElement('tr');
-                tr.className = "border-b border-gray-700 hover:bg-gray-700";
-                tr.innerHTML = `
-                    <td class="p-3 font-bold">${u.name}</td>
-                    <td class="p-3 text-gray-400 text-xs">${u.email}</td>
-                    <td class="p-3"><span class="bg-black px-2 py-1 rounded text-xs text-yellow-400">${u.plan||'FREE'}</span></td>
-                    <td class="p-3 font-mono text-green-400 font-bold">${u.balance||0}</td>
-                    <td class="p-3 font-mono text-red-400">${u.wager||0}</td>
-                    <td class="p-3 text-right"><button onclick="editUser('${child.key}', ${u.balance||0}, ${u.wager||0})" class="bg-blue-600 px-3 py-1 rounded text-xs font-bold">EDIT</button></td>
-                `;
-                tb.appendChild(tr);
-            });
-            document.getElementById('totalUsers').innerText = count;
-        });
-
         function editUser(uid, bal, wag) {
-            document.getElementById('editModal').style.display = 'flex';
+            document.getElementById('editModal').style.display='flex';
             document.getElementById('editUid').value = uid;
             document.getElementById('editBal').value = bal;
             document.getElementById('editWager').value = wag;
         }
-
         function saveUser() {
             const uid = document.getElementById('editUid').value;
             const b = parseInt(document.getElementById('editBal').value);
             const w = parseInt(document.getElementById('editWager').value);
             db.ref('users/'+uid).update({ balance: b, wager: w });
-            document.getElementById('editModal').style.display = 'none';
-        }
-
-        function search() {
-            const q = document.getElementById('searchUser').value.toLowerCase();
-            const rows = document.getElementById('userTable').getElementsByTagName('tr');
-            for(let r of rows) {
-                const txt = r.innerText.toLowerCase();
-                r.style.display = txt.includes(q) ? "" : "none";
-            }
+            document.getElementById('editModal').style.display='none';
         }
     </script>
 </body>
