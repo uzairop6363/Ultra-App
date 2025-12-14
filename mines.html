@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MINES - PRO</title>
+    <title>MINES - PRO FIXED</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -21,7 +21,6 @@
             touch-action: manipulation;
         }
 
-        /* BACKGROUND */
         .cyber-grid {
             position: fixed; inset: 0; z-index: -1;
             background-image: 
@@ -31,14 +30,12 @@
         }
         .back-btn { position: absolute; top: 20px; left: 20px; z-index: 50; color: white; font-size: 24px; cursor: pointer; }
 
-        /* HEADER */
         .game-header {
             padding: 20px; padding-top: 80px;
             display: flex; justify-content: space-between; align-items: center;
             z-index: 10;
         }
 
-        /* MINES GRID */
         .mines-stage {
             display: flex; justify-content: center; align-items: center;
             flex: 1; margin-bottom: 100px;
@@ -60,14 +57,12 @@
         .tile:active { transform: translateY(2px); border-bottom-width: 2px; }
         .tile.revealed { background: #0a0a0a; border: 1px solid #333; pointer-events: none; }
         
-        /* ICONS */
         .gem { color: #00ff41; filter: drop-shadow(0 0 5px #00ff41); animation: pop 0.3s; }
         .bomb { color: #ff0040; filter: drop-shadow(0 0 10px red); animation: shake 0.5s; }
 
         @keyframes pop { 0% {transform: scale(0);} 80% {transform: scale(1.2);} 100% {transform: scale(1);} }
         @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
 
-        /* CONTROLS */
         .controls-area {
             position: absolute; bottom: 0; left: 0; width: 100%;
             background: rgba(20, 20, 20, 0.95);
@@ -76,7 +71,6 @@
             z-index: 50; border-radius: 20px 20px 0 0;
         }
 
-        /* Chips */
         .chip-rack { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; }
         .chip {
             width: 55px; height: 55px; border-radius: 50%;
@@ -93,7 +87,6 @@
         .c-100 { background: #ff3333; border-color: #aa0000; }
         .c-500 { background: #222; color: #ffd700; border-color: #ffd700; }
 
-        /* Action Button */
         .action-btn {
             width: 100%; padding: 18px; border-radius: 12px;
             font-weight: 900; font-size: 22px; letter-spacing: 2px;
@@ -102,7 +95,6 @@
         .btn-bet { background: linear-gradient(to right, #00f3ff, #0066ff); color: black; box-shadow: 0 0 20px rgba(0, 243, 255, 0.3); }
         .btn-cashout { background: linear-gradient(to right, #00ff41, #008f24); color: black; box-shadow: 0 0 20px rgba(0, 255, 65, 0.3); }
         
-        /* Profit Display */
         .profit-bar { text-align: center; margin-bottom: 10px; font-size: 14px; color: gray; }
         .profit-val { color: #00ff41; font-weight: bold; font-size: 18px; }
 
@@ -125,12 +117,10 @@
     </div>
 
     <div class="mines-stage">
-        <div class="grid-box" id="grid">
-            </div>
+        <div class="grid-box" id="grid"></div>
     </div>
 
     <div class="controls-area">
-        
         <div id="bettingControls">
             <div class="chip-rack">
                 <div onclick="selectChip(20, this)" class="chip c-20 selected">20</div>
@@ -145,7 +135,6 @@
             <div class="profit-bar">CURRENT PROFIT: <span id="profitDisplay" class="profit-val">Rs. 0</span></div>
             <button onclick="cashout()" class="action-btn btn-cashout" id="cashBtn">CASHOUT</button>
         </div>
-
     </div>
 
     <script>
@@ -185,7 +174,7 @@
         let isPlaying = false;
         let currentProfit = 0;
         let gemsFound = 0;
-        let isRigged = false; // The Trap Flag
+        let isDoomed = false; // If true, user is destined to lose
 
         // === AUDIO ===
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -200,8 +189,7 @@
             osc.connect(gain); gain.connect(audioCtx.destination);
 
             if (type === 'chip') {
-                osc.frequency.setValueAtTime(1200, t);
-                gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.1);
+                osc.frequency.setValueAtTime(1200, t); gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.1);
                 osc.start(t); osc.stop(t+0.1);
             } else if (type === 'gem') {
                 osc.type = 'sine'; osc.frequency.setValueAtTime(800, t); osc.frequency.exponentialRampToValueAtTime(1200, t+0.2);
@@ -249,14 +237,15 @@
             const newBal = myBalance - currentBet;
             db.ref('users/' + currentUser.uid).update({ balance: newBal });
 
-            // 2. RISK MANAGEMENT (The Trap)
-            // If Bet >= 500 OR Streak >= 3 => RIGGED (Will explode randomly)
-            if (currentBet >= 500 || myStreak >= 3) {
-                isRigged = true;
-            } else {
-                // Small bet: 20% chance to be rigged anyway
-                isRigged = Math.random() < 0.2;
-            }
+            // 2. RISK ENGINE (30% Win / 70% Lose)
+            let winChance = 0.3; // 30% Chance user will have a good run
+            
+            // Extra penalties
+            if (currentBet >= 500) winChance = 0.05; // 5%
+            if (myStreak >= 3) winChance = 0; // 0%
+
+            // Decide fate at start
+            isDoomed = Math.random() > winChance; // If true, user will hit a bomb very soon
 
             // UI
             document.getElementById('bettingControls').classList.add('hidden');
@@ -273,19 +262,19 @@
             const tile = document.getElementById(`tile-${idx}`);
             if(tile.classList.contains('revealed')) return;
 
-            // DECIDE RESULT ON CLICK
+            // DYNAMIC OUTCOME GENERATION
             let outcome = 'gem';
             
-            if (isRigged) {
-                // High chance of bomb
-                if (Math.random() > 0.3) outcome = 'bomb'; 
+            if (isDoomed) {
+                // If user is doomed, high chance of bomb on every click
+                // Chance increases as they find more gems
+                // 1st click: 30% bomb, 2nd: 50%, 3rd: 80%...
+                let bombChance = 0.3 + (gemsFound * 0.2);
+                if (Math.random() < bombChance) outcome = 'bomb';
             } else {
-                // Low chance of bomb (Standard Mines ~15%)
-                if (Math.random() < 0.1) outcome = 'bomb';
+                // If user is winning (30% scenario), very low bomb chance
+                if (Math.random() < 0.05) outcome = 'bomb'; // 5% accidental bomb
             }
-
-            // Force bomb if profit gets too high (> 2x) in a rigged game
-            if(isRigged && currentProfit > currentBet * 2) outcome = 'bomb';
 
             tile.classList.add('revealed');
 
@@ -300,6 +289,7 @@
                 gameOver(false);
             } else {
                 // GEM
+                gemsFound++;
                 tile.style.background = '#002200';
                 tile.style.borderColor = '#00ff41';
                 tile.innerHTML = '<i class="fa-solid fa-gem gem"></i>';
@@ -317,7 +307,7 @@
             
             // Credit Balance
             const newBal = myBalance + currentProfit;
-            const newStreak = myStreak + 1; // Increase streak
+            const newStreak = myStreak + 1;
             db.ref('users/' + currentUser.uid).update({ 
                 balance: newBal,
                 streak: newStreak
@@ -342,7 +332,7 @@
                 document.getElementById('playingControls').classList.add('hidden');
                 document.getElementById('profitDisplay').style.color = "#00ff41";
                 
-                // Show all bombs (Fake reveal)
+                // Reveal Rest
                 document.querySelectorAll('.tile').forEach(t => {
                     if(!t.classList.contains('revealed')) {
                         t.innerHTML = '<i class="fa-solid fa-gem text-gray-600 opacity-20"></i>';
