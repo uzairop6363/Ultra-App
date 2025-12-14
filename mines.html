@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MINES - PRO</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+
+    <style>
+        body { 
+            background: #050505; 
+            font-family: 'Rajdhani', sans-serif; 
+            color: white; 
+            overflow: hidden; 
+            touch-action: manipulation;
+        }
+
+        /* BACKGROUND */
+        .cyber-grid {
+            position: fixed; inset: 0; z-index: -1;
+            background-image: 
+                linear-gradient(rgba(0, 255, 0, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.05) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        .back-btn { position: absolute; top: 20px; left: 20px; z-index: 50; color: white; font-size: 24px; cursor: pointer; }
+
+        /* HEADER */
+        .game-header {
+            padding: 20px; padding-top: 80px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 10;
+        }
+
+        /* MINES GRID */
+        .mines-stage {
+            display: flex; justify-content: center; align-items: center;
+            flex: 1; margin-bottom: 100px;
+        }
+        .grid-box {
+            display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px;
+            width: 320px; height: 320px;
+        }
+        .tile {
+            background: #1a1a1a;
+            border-radius: 8px;
+            border-bottom: 4px solid #333;
+            cursor: pointer; position: relative;
+            transition: 0.1s;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+        }
+        .tile:active { transform: translateY(2px); border-bottom-width: 2px; }
+        .tile.revealed { background: #0a0a0a; border: 1px solid #333; pointer-events: none; }
+        
+        /* ICONS */
+        .gem { color: #00ff41; filter: drop-shadow(0 0 5px #00ff41); animation: pop 0.3s; }
+        .bomb { color: #ff0040; filter: drop-shadow(0 0 10px red); animation: shake 0.5s; }
+
+        @keyframes pop { 0% {transform: scale(0);} 80% {transform: scale(1.2);} 100% {transform: scale(1);} }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+
+        /* CONTROLS */
+        .controls-area {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: rgba(20, 20, 20, 0.95);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px; padding-bottom: 40px;
+            z-index: 50; border-radius: 20px 20px 0 0;
+        }
+
+        /* Chips */
+        .chip-rack { display: flex; gap: 15px; justify-content: center; margin-bottom: 20px; }
+        .chip {
+            width: 55px; height: 55px; border-radius: 50%;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 13px; cursor: pointer;
+            border: 3px dashed rgba(255,255,255,0.5);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.5);
+            transition: 0.2s;
+        }
+        .chip.selected { transform: translateY(-10px) scale(1.1); box-shadow: 0 10px 20px rgba(0,0,0,0.8); border-style: solid; color: white; border-width: 3px; }
+        
+        .c-20 { background: #0088ff; border-color: #0055aa; }
+        .c-50 { background: #00cc44; border-color: #008822; }
+        .c-100 { background: #ff3333; border-color: #aa0000; }
+        .c-500 { background: #222; color: #ffd700; border-color: #ffd700; }
+
+        /* Action Button */
+        .action-btn {
+            width: 100%; padding: 18px; border-radius: 12px;
+            font-weight: 900; font-size: 22px; letter-spacing: 2px;
+            transition: 0.2s; text-transform: uppercase;
+        }
+        .btn-bet { background: linear-gradient(to right, #00f3ff, #0066ff); color: black; box-shadow: 0 0 20px rgba(0, 243, 255, 0.3); }
+        .btn-cashout { background: linear-gradient(to right, #00ff41, #008f24); color: black; box-shadow: 0 0 20px rgba(0, 255, 65, 0.3); }
+        
+        /* Profit Display */
+        .profit-bar { text-align: center; margin-bottom: 10px; font-size: 14px; color: gray; }
+        .profit-val { color: #00ff41; font-weight: bold; font-size: 18px; }
+
+    </style>
+</head>
+<body class="flex flex-col min-h-screen" onclick="initAudio()">
+
+    <div class="cyber-grid"></div>
+    <a href="index.html" class="back-btn"><i class="fa-solid fa-arrow-left"></i></a>
+
+    <div class="game-header">
+        <div>
+            <p class="text-xs text-gray-400 font-bold tracking-widest uppercase">BALANCE</p>
+            <h2 class="text-3xl font-black text-white drop-shadow-md">Rs. <span id="balance">...</span></h2>
+        </div>
+        <div class="text-right">
+            <p class="text-xs text-gray-400 font-bold tracking-widest uppercase">MINES</p>
+            <h2 class="text-2xl font-bold text-red-500">3</h2>
+        </div>
+    </div>
+
+    <div class="mines-stage">
+        <div class="grid-box" id="grid">
+            </div>
+    </div>
+
+    <div class="controls-area">
+        
+        <div id="bettingControls">
+            <div class="chip-rack">
+                <div onclick="selectChip(20, this)" class="chip c-20 selected">20</div>
+                <div onclick="selectChip(50, this)" class="chip c-50">50</div>
+                <div onclick="selectChip(100, this)" class="chip c-100">100</div>
+                <div onclick="selectChip(500, this)" class="chip c-500">500</div>
+            </div>
+            <button onclick="startGame()" class="action-btn btn-bet">BET</button>
+        </div>
+
+        <div id="playingControls" class="hidden">
+            <div class="profit-bar">CURRENT PROFIT: <span id="profitDisplay" class="profit-val">Rs. 0</span></div>
+            <button onclick="cashout()" class="action-btn btn-cashout" id="cashBtn">CASHOUT</button>
+        </div>
+
+    </div>
+
+    <script>
+        // === FIREBASE ===
+        const firebaseConfig = {
+            apiKey: "AIzaSyCPLmQny1WP7yZXJuh5xjiMvU2ArfC-n54",
+            authDomain: "ultra-earn-a636a.firebaseapp.com",
+            projectId: "ultra-earn-a636a",
+            storageBucket: "ultra-earn-a636a.firebasestorage.app",
+            messagingSenderId: "185942357584",
+            appId: "1:185942357584:web:1052b94cfecc6576944355"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.database();
+
+        let currentUser = null;
+        let myBalance = 0;
+        let myStreak = 0;
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                db.ref('users/' + user.uid).on('value', snap => {
+                    const data = snap.val();
+                    myBalance = data.balance || 0;
+                    myStreak = data.streak || 0;
+                    document.getElementById('balance').innerText = myBalance.toFixed(2);
+                });
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
+        // === GAME STATE ===
+        let currentBet = 20;
+        let isPlaying = false;
+        let currentProfit = 0;
+        let gemsFound = 0;
+        let isRigged = false; // The Trap Flag
+
+        // === AUDIO ===
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioInit = false;
+        function initAudio() { if(!audioInit) { audioCtx.resume(); audioInit = true; } }
+
+        function playSound(type) {
+            initAudio();
+            const t = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+
+            if (type === 'chip') {
+                osc.frequency.setValueAtTime(1200, t);
+                gain.gain.setValueAtTime(0.1, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.1);
+                osc.start(t); osc.stop(t+0.1);
+            } else if (type === 'gem') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(800, t); osc.frequency.exponentialRampToValueAtTime(1200, t+0.2);
+                gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.3);
+                osc.start(t); osc.stop(t+0.3);
+            } else if (type === 'bomb') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(100, t);
+                gain.gain.setValueAtTime(0.3, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.5);
+                osc.start(t); osc.stop(t+0.5);
+            } else if (type === 'cashout') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(600, t);
+                gain.gain.setValueAtTime(0.2, t); gain.gain.exponentialRampToValueAtTime(0.01, t+0.5);
+                osc.start(t); osc.stop(t+0.5);
+            }
+        }
+
+        // === INIT GRID ===
+        function initGrid() {
+            const grid = document.getElementById('grid');
+            grid.innerHTML = '';
+            for(let i=0; i<25; i++) {
+                grid.innerHTML += `<div class="tile" id="tile-${i}" onclick="clickTile(${i})"></div>`;
+            }
+        }
+        initGrid();
+
+        // === LOGIC ===
+        function selectChip(val, el) {
+            if(isPlaying) return;
+            currentBet = val;
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+            playSound('chip');
+        }
+
+        function startGame() {
+            if(myBalance < currentBet) return alert("Low Balance");
+            if(isPlaying) return;
+
+            isPlaying = true;
+            currentProfit = currentBet; // Base
+            gemsFound = 0;
+            
+            // 1. DEDUCT BALANCE
+            const newBal = myBalance - currentBet;
+            db.ref('users/' + currentUser.uid).update({ balance: newBal });
+
+            // 2. RISK MANAGEMENT (The Trap)
+            // If Bet >= 500 OR Streak >= 3 => RIGGED (Will explode randomly)
+            if (currentBet >= 500 || myStreak >= 3) {
+                isRigged = true;
+            } else {
+                // Small bet: 20% chance to be rigged anyway
+                isRigged = Math.random() < 0.2;
+            }
+
+            // UI
+            document.getElementById('bettingControls').classList.add('hidden');
+            document.getElementById('playingControls').classList.remove('hidden');
+            document.getElementById('profitDisplay').innerText = "Rs. " + currentBet;
+            document.getElementById('cashBtn').innerText = "CASHOUT Rs. " + currentBet;
+            
+            initGrid(); // Reset Tiles
+            playSound('chip');
+        }
+
+        function clickTile(idx) {
+            if(!isPlaying) return;
+            const tile = document.getElementById(`tile-${idx}`);
+            if(tile.classList.contains('revealed')) return;
+
+            // DECIDE RESULT ON CLICK
+            let outcome = 'gem';
+            
+            if (isRigged) {
+                // High chance of bomb
+                if (Math.random() > 0.3) outcome = 'bomb'; 
+            } else {
+                // Low chance of bomb (Standard Mines ~15%)
+                if (Math.random() < 0.1) outcome = 'bomb';
+            }
+
+            // Force bomb if profit gets too high (> 2x) in a rigged game
+            if(isRigged && currentProfit > currentBet * 2) outcome = 'bomb';
+
+            tile.classList.add('revealed');
+
+            if (outcome === 'bomb') {
+                // BOOM
+                tile.style.background = '#330000';
+                tile.style.borderColor = 'red';
+                tile.innerHTML = '<i class="fa-solid fa-bomb bomb"></i>';
+                playSound('bomb');
+                if(navigator.vibrate) navigator.vibrate(400);
+                
+                gameOver(false);
+            } else {
+                // GEM
+                tile.style.background = '#002200';
+                tile.style.borderColor = '#00ff41';
+                tile.innerHTML = '<i class="fa-solid fa-gem gem"></i>';
+                playSound('gem');
+                
+                // Increase Profit (1.2x multiplier approx)
+                currentProfit = Math.floor(currentProfit * 1.2);
+                document.getElementById('profitDisplay').innerText = "Rs. " + currentProfit;
+                document.getElementById('cashBtn').innerText = "CASHOUT Rs. " + currentProfit;
+            }
+        }
+
+        function cashout() {
+            if(!isPlaying) return;
+            
+            // Credit Balance
+            const newBal = myBalance + currentProfit;
+            const newStreak = myStreak + 1; // Increase streak
+            db.ref('users/' + currentUser.uid).update({ 
+                balance: newBal,
+                streak: newStreak
+            });
+
+            playSound('cashout');
+            alert("WON Rs. " + currentProfit);
+            gameOver(true);
+        }
+
+        function gameOver(win) {
+            isPlaying = false;
+            
+            if(!win) {
+                db.ref('users/' + currentUser.uid).update({ streak: 0 }); // Reset Streak
+                document.getElementById('profitDisplay').innerText = "LOST";
+                document.getElementById('profitDisplay').style.color = "red";
+            }
+
+            setTimeout(() => {
+                document.getElementById('bettingControls').classList.remove('hidden');
+                document.getElementById('playingControls').classList.add('hidden');
+                document.getElementById('profitDisplay').style.color = "#00ff41";
+                
+                // Show all bombs (Fake reveal)
+                document.querySelectorAll('.tile').forEach(t => {
+                    if(!t.classList.contains('revealed')) {
+                        t.innerHTML = '<i class="fa-solid fa-gem text-gray-600 opacity-20"></i>';
+                    }
+                });
+            }, 1000);
+        }
+
+    </script>
+</body>
+</html>
