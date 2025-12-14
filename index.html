@@ -3,9 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#000000">
     <title>Ultra Earn - PRO</title>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Exo+2:wght@300;600;800&family=Orbitron:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -17,7 +15,7 @@
     <style>
         body { background-color: #000; color: #fff; font-family: 'Exo 2', sans-serif; min-height: 100vh; overflow-x: hidden; padding-bottom: 100px; -webkit-tap-highlight-color: transparent; }
         h1, h2, h3, .god-font { font-family: 'Syncopate', sans-serif; letter-spacing: 1px; }
-
+        
         .god-bg { position: fixed; inset: 0; z-index: -2; background: #000; }
         .god-bg::before { content: ''; position: absolute; inset: -50%; background: conic-gradient(from 0deg, #ff0000, #0000ff, #ffa500, #ffffff, #ff0000, #0000ff, #ffa500, #ffffff); filter: blur(80px); opacity: 0.4; animation: slowSpin 20s linear infinite; }
         @keyframes slowSpin { from {transform: rotate(0deg);} to {transform: rotate(360deg);} }
@@ -32,16 +30,16 @@
         .locked-border { --color1: #ff0000; --color2: #550000; }
         .unlocked-border { --color1: #00ff00; --color2: #00ffff; }
         .game-border { --color1: #ff0055; --color2: #00f3ff; }
+        .done-border { --color1: #555; --color2: #333; }
 
         .god-btn { background: linear-gradient(90deg, #ff0055, #ff00aa); color: white; border: none; font-weight: 800; box-shadow: 0 0 20px rgba(255, 0, 85, 0.5); transition: 0.3s; position: relative; overflow: hidden; }
-        .god-btn:active { transform: scale(0.95); box-shadow: 0 0 50px rgba(255, 0, 85, 1); }
-        .god-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-family: 'Exo 2', sans-serif; transition: 0.3s; }
-        select.god-input option { background: #000; }
-
-        .tab-content { display: none; animation: blastIn 0.5s; } .active-tab { display: block; }
-        @keyframes blastIn { from { opacity: 0; transform: scale(0.8); filter: blur(10px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
+        .god-btn:active { transform: scale(0.95); }
+        .god-input { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-family: 'Exo 2', sans-serif; }
         
-        .game-thumb { height: 100px; background-size: cover; background-position: center; border-radius: 12px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; transition: 0.2s; }
+        .tab-content { display: none; animation: blastIn 0.5s; } .active-tab { display: block; }
+        @keyframes blastIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        
+        .game-thumb { height: 100px; background-size: cover; background-position: center; border-radius: 12px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); cursor: pointer; }
         .game-overlay { position: absolute; bottom: 0; width: 100%; padding: 5px; background: linear-gradient(to top, black, transparent); font-family: 'Orbitron'; font-weight: bold; font-size: 10px; text-align: center; }
         
         #loader { display: none; position: fixed; inset: 0; background: #000; z-index: 200; justify-content: center; align-items: center; }
@@ -54,22 +52,22 @@
     <div class="god-bg"></div>
     <div id="loader"><div class="pulse-ring"></div></div>
 
-    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 overflow-y-auto bg-black/80 backdrop-blur-md">
+    <div id="authScreen" class="fixed inset-0 z-50 flex flex-col justify-center px-6 bg-black/90 backdrop-blur-md">
         <div class="gf-card balance-border p-8 w-full max-w-sm mx-auto text-center">
-            <h1 class="text-4xl mb-2 font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 god-font">ULTRA</h1>
-            <div id="loginForm" class="space-y-6">
-                <input type="email" id="loginEmail" placeholder="USER EMAIL" class="god-input w-full p-4 rounded-lg text-center">
-                <input type="password" id="loginPass" placeholder="PASSWORD" class="god-input w-full p-4 rounded-lg text-center">
-                <button onclick="login()" class="god-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase">LOGIN</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-4 cursor-pointer hover:text-white border-b border-gray-600 inline-block">CREATE ACCOUNT</p>
+            <h1 class="text-4xl mb-4 font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-600 god-font">ULTRA</h1>
+            <div id="loginForm" class="space-y-4">
+                <input type="email" id="loginEmail" placeholder="EMAIL" class="god-input w-full p-3 rounded">
+                <input type="password" id="loginPass" placeholder="PASSWORD" class="god-input w-full p-3 rounded">
+                <button onclick="login()" class="god-btn w-full py-3 rounded tracking-widest">LOGIN</button>
+                <p onclick="toggleAuth()" class="text-xs text-gray-400 cursor-pointer mt-2">CREATE ACCOUNT</p>
             </div>
-            <div id="registerForm" class="hidden space-y-6">
-                <div id="autoRefBadge" class="hidden border border-white/50 p-2 text-white text-xs uppercase tracking-widest rounded mb-4">Referred By: <span id="inviterId" class="text-yellow-400">...</span></div>
-                <input type="text" id="regName" placeholder="YOUR NAME" class="god-input w-full p-4 rounded-lg text-center">
-                <input type="email" id="regEmail" placeholder="EMAIL" class="god-input w-full p-4 rounded-lg text-center">
-                <input type="password" id="regPass" placeholder="PASSWORD" class="god-input w-full p-4 rounded-lg text-center">
-                <button onclick="register()" class="god-btn w-full py-4 rounded-lg text-lg tracking-widest uppercase bg-gradient-to-r from-blue-600 to-cyan-500">JOIN NOW</button>
-                <p onclick="toggleAuth()" class="text-xs text-gray-400 mt-4 cursor-pointer hover:text-white">BACK TO LOGIN</p>
+            <div id="registerForm" class="hidden space-y-4">
+                <div id="autoRefBadge" class="hidden text-yellow-400 text-xs uppercase mb-2">Referred By: <span id="inviterId">...</span></div>
+                <input type="text" id="regName" placeholder="NAME" class="god-input w-full p-3 rounded">
+                <input type="email" id="regEmail" placeholder="EMAIL" class="god-input w-full p-3 rounded">
+                <input type="password" id="regPass" placeholder="PASSWORD" class="god-input w-full p-3 rounded">
+                <button onclick="register()" class="god-btn w-full py-3 rounded tracking-widest">JOIN</button>
+                <p onclick="toggleAuth()" class="text-xs text-gray-400 cursor-pointer mt-2">BACK TO LOGIN</p>
             </div>
         </div>
     </div>
@@ -79,26 +77,26 @@
         <div class="flex justify-between items-center p-6">
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-[0_0_20px_white]"><i class="fa-solid fa-crown text-black text-xl"></i></div>
-                <div><h2 class="text-lg font-bold text-white god-font" id="userNameDisplay">USER</h2><p class="text-[10px] text-gray-400 uppercase tracking-widest">Active</p></div>
+                <div><h2 class="text-lg font-bold text-white god-font" id="userNameDisplay">USER</h2><p class="text-[10px] text-gray-400 uppercase">System Online</p></div>
             </div>
             <button onclick="logout()" class="text-white hover:text-red-500"><i class="fa-solid fa-power-off text-2xl"></i></button>
         </div>
 
         <div id="tab-home" class="tab-content px-4 pt-4">
-            <div class="gf-card balance-border p-8 mb-8 text-center relative">
+            <div class="gf-card balance-border p-8 mb-8 text-center">
                 <p class="text-gray-400 text-xs tracking-[0.4em] uppercase mb-4">Total Balance</p>
                 <h1 class="text-5xl font-black mb-8 text-white"><span class="text-2xl text-gray-500">Rs.</span><span id="bigBalance">0</span></h1>
                 <div class="flex gap-4 justify-center">
-                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="bg-white text-black px-8 py-3 rounded-full font-bold uppercase hover:scale-105 transition shadow-[0_0_20px_white]">Deposit</button>
-                    <button onclick="openWithdrawModal()" class="bg-transparent border border-white text-white px-8 py-3 rounded-full font-bold uppercase hover:bg-white/10 transition">Withdraw</button>
+                    <button onclick="document.getElementById('depositModal').style.display='flex'" class="bg-white text-black px-8 py-3 rounded-full font-bold uppercase">Deposit</button>
+                    <button onclick="openWithdrawModal()" class="border border-white text-white px-8 py-3 rounded-full font-bold uppercase">Withdraw</button>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-4 mb-8">
-                <div class="gf-card gold-border p-5 text-center"><p class="text-gray-400 text-[10px] uppercase">Plan</p><p id="planDisplay" class="text-xl font-bold text-yellow-400 god-font">FREE</p></div>
-                <div class="gf-card game-border p-5 text-center"><p class="text-gray-400 text-[10px] uppercase">Unlocked Tasks</p><p id="taskCountDisplay" class="text-xl font-bold text-cyan-400 god-font">0</p></div>
+                <div class="gf-card gold-border p-5 text-center"><p class="text-gray-400 text-[10px]">PLAN</p><p id="planDisplay" class="text-xl font-bold text-yellow-400 god-font">FREE</p></div>
+                <div class="gf-card game-border p-5 text-center"><p class="text-gray-400 text-[10px]">TASKS</p><p id="taskCountDisplay" class="text-xl font-bold text-cyan-400 god-font">0</p></div>
             </div>
-            <div onclick="switchTab('games')" class="gf-card game-border p-5 flex items-center justify-between cursor-pointer group mb-4">
-                <div class="flex items-center gap-4"><div class="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center text-pink-400 text-2xl"><i class="fa-solid fa-gamepad"></i></div><div><h3 class="text-lg font-bold text-white god-font">PLAY GAMES</h3><p class="text-[10px] text-gray-400">Win Real Money</p></div></div><i class="fa-solid fa-chevron-right text-white"></i>
+            <div onclick="switchTab('games')" class="gf-card game-border p-5 flex items-center justify-between cursor-pointer mb-4">
+                <div class="flex items-center gap-4"><div class="w-10 h-10 bg-pink-500/20 rounded-full flex items-center justify-center text-pink-400"><i class="fa-solid fa-gamepad"></i></div><h3 class="font-bold">PLAY GAMES</h3></div><i class="fa-solid fa-chevron-right"></i>
             </div>
         </div>
 
@@ -120,12 +118,13 @@
         <div id="tab-tasks" class="tab-content px-4 pt-4">
             <div id="planLockedView" class="hidden text-center mt-10">
                 <i class="fa-solid fa-lock text-5xl text-red-500 mb-4"></i>
-                <h2 class="text-2xl font-bold text-white god-font mb-4">LOCKED</h2>
-                <p class="text-gray-400 text-sm mb-8 px-4">Buy <strong>GOLD PRO (2000)</strong> plan to unlock task rewards.</p>
-                <button onclick="switchTab('plans')" class="god-btn w-full py-4 rounded-lg">UPGRADE</button>
+                <h2 class="text-2xl font-bold text-white mb-4">LOCKED</h2>
+                <p class="text-gray-400 text-sm mb-8">Upgrade to <strong>GOLD PRO</strong> (2000) to unlock task rewards.</p>
+                <button onclick="switchTab('plans')" class="god-btn w-full py-4 rounded-lg">UPGRADE PLAN</button>
             </div>
+            
             <div id="taskListView" class="hidden">
-                <h2 class="text-xl font-bold text-white god-font mb-4">AVAILABLE MISSIONS</h2>
+                <h2 class="text-xl font-bold text-white god-font mb-4">MISSIONS</h2>
                 <div id="tasksContainer" class="pb-20 space-y-4"></div>
             </div>
         </div>
@@ -136,7 +135,7 @@
                 <div class="flex justify-between items-center mb-4"><h3 class="text-2xl font-bold text-yellow-400 god-font">GOLD PRO</h3><span class="text-xl font-bold text-white">2000</span></div>
                 <ul class="text-xs text-gray-400 space-y-2 mb-4">
                     <li><i class="fa-solid fa-check text-green-500"></i> Unlock Team Rewards</li>
-                    <li><i class="fa-solid fa-check text-green-500"></i> Withdraw Access</li>
+                    <li><i class="fa-solid fa-check text-green-500"></i> Fast Withdraw</li>
                 </ul>
                 <button onclick="buyPlan(2000, 'GOLD PRO')" class="w-full bg-gradient-to-r from-yellow-600 to-orange-600 text-black py-3 rounded font-bold uppercase shadow-[0_0_20px_orange]">PURCHASE</button>
             </div>
@@ -154,7 +153,8 @@
 
     <div id="depositModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
         <div class="gf-card gold-border w-full max-w-sm p-6 bg-[#050505]">
-            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-white">DEPOSIT</h3><button onclick="document.getElementById('depositModal').style.display='none'" class="text-gray-500 text-xl">✕</button></div>
+            <h3 class="text-xl font-bold text-white mb-4">DEPOSIT</h3>
+            <button onclick="document.getElementById('depositModal').style.display='none'" class="absolute top-4 right-4 text-gray-500">✕</button>
             <div class="flex gap-2 mb-6">
                 <button onclick="selectMethod('ep')" id="btn-ep" class="flex-1 py-3 rounded border border-green-500 bg-green-900/20 text-green-400 font-bold text-xs">EASYPAISA</button>
                 <button onclick="selectMethod('jc')" id="btn-jc" class="flex-1 py-3 rounded border border-gray-700 bg-gray-800 text-gray-500 font-bold text-xs">JAZZCASH</button>
@@ -164,28 +164,25 @@
                 <p class="text-2xl font-mono font-bold text-white tracking-wider">03111813896</p>
                 <p class="text-xs font-bold text-yellow-400 uppercase mt-1">OBAID ALI</p>
             </div>
-            <div class="space-y-4">
-                <div><label class="text-[10px] text-gray-400 block mb-1">Amount Sent (PKR)</label><input type="number" id="depAmt" placeholder="e.g 2000" class="god-input text-center font-bold"></div>
-                <div><label class="text-[10px] text-gray-400 block mb-1">Sender Number</label><input type="number" id="senderNum" placeholder="0300..." class="god-input text-center"></div>
-                <button onclick="submitDeposit()" class="god-btn w-full py-4 rounded font-bold tracking-widest mt-2">VERIFY</button>
-            </div>
+            <input type="number" id="depAmt" placeholder="Amount (e.g 2000)" class="god-input w-full p-3 rounded mb-2 text-center">
+            <input type="text" id="senderNum" placeholder="Sender Number" class="god-input w-full p-3 rounded mb-4 text-center">
+            <button onclick="submitDeposit()" class="god-btn w-full py-3 rounded font-bold tracking-widest">VERIFY PAYMENT</button>
         </div>
     </div>
 
     <div id="withdrawModal" class="hidden fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4">
         <div class="gf-card game-border w-full max-w-sm p-6">
-            <div class="flex justify-between items-center mb-6"><h3 class="text-xl font-bold text-white">WITHDRAW</h3><button onclick="document.getElementById('withdrawModal').style.display='none'" class="text-gray-500 text-xl">✕</button></div>
-            <div class="space-y-4">
-                <select id="withMethod" class="god-input w-full p-4 rounded bg-black"><option>Easypaisa</option><option>JazzCash</option></select>
-                <input type="text" id="withName" placeholder="Account Name" class="god-input w-full p-4 rounded">
-                <input type="number" id="withNum" placeholder="Account Number" class="god-input w-full p-4 rounded">
-                <input type="number" id="withAmt" placeholder="Amount (Min 500)" class="god-input w-full p-4 rounded">
-                <button onclick="submitWithdraw()" class="god-btn w-full py-4 rounded font-bold tracking-widest">SUBMIT</button>
-            </div>
+            <h3 class="text-xl font-bold text-white mb-4">WITHDRAW</h3>
+            <button onclick="document.getElementById('withdrawModal').style.display='none'" class="absolute top-4 right-4 text-gray-500">✕</button>
+            <select id="withMethod" class="god-input w-full p-3 rounded mb-2 bg-black"><option>Easypaisa</option><option>JazzCash</option></select>
+            <input type="text" id="withName" placeholder="Account Name" class="god-input w-full p-3 rounded mb-2">
+            <input type="number" id="withNum" placeholder="Account Number" class="god-input w-full p-3 rounded mb-2">
+            <input type="number" id="withAmt" placeholder="Amount (Min 500)" class="god-input w-full p-3 rounded mb-4">
+            <button onclick="submitWithdraw()" class="god-btn w-full py-3 rounded font-bold">SUBMIT</button>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 w-full bg-black/95 border-t border-white/10 p-4 flex justify-around z-40 backdrop-blur-md">
+    <div class="fixed bottom-0 left-0 w-full bg-black/95 border-t border-white/10 p-3 flex justify-around z-40 backdrop-blur-md">
         <div onclick="switchTab('home')" class="text-center cursor-pointer text-white nav-item"><i class="fa-solid fa-house text-xl mb-1"></i><p class="text-[10px]">HOME</p></div>
         <div onclick="switchTab('games')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-gamepad text-xl mb-1"></i><p class="text-[10px]">GAMES</p></div>
         <div onclick="switchTab('tasks')" class="text-center cursor-pointer text-gray-500 nav-item"><i class="fa-solid fa-list-check text-xl mb-1"></i><p class="text-[10px]">TASKS</p></div>
@@ -217,12 +214,11 @@
             }
         };
 
-        // --- TASK RENDER LOGIC (UPDATED) ---
-        function renderTasks(unlockedCount, currentPlan) {
+        // --- CORE: RENDER & CLAIM TASKS ---
+        function renderTasks(unlockedCount, claimedCount, currentPlan) {
             const lockedView = document.getElementById('planLockedView');
             const taskView = document.getElementById('taskListView');
             
-            // IF PLAN IS NOT GOLD PRO, LOCK
             if(currentPlan !== "GOLD PRO") {
                 lockedView.classList.remove('hidden');
                 taskView.classList.add('hidden');
@@ -234,22 +230,33 @@
 
             const container = document.getElementById('tasksContainer');
             let htmlContent = "";
-            const totalTasksToShow = 50; // Show many placeholders
-
-            for (let i = 0; i < totalTasksToShow; i++) { 
+            
+            // Show up to 50 potential slots, but mostly they are locked
+            for (let i = 0; i < 50; i++) {
                 const taskData = taskLinks[i % 5];
-                const isUnlocked = i < unlockedCount; // Based on DB value
                 
-                let borderClass = isUnlocked ? "unlocked-border" : "locked-border";
-                let btnHtml = isUnlocked 
-                    ? `<button onclick="doTask('${taskData.url}')" class="bg-green-500 text-black px-4 py-1 rounded font-bold text-xs">CLAIM 200</button>`
-                    : `<div class="text-red-500 font-bold text-xs"><i class="fa-solid fa-lock"></i> LOCKED</div>`;
+                const isUnlocked = i < unlockedCount;
+                const isClaimed = i < claimedCount;
+                
+                let borderClass = "locked-border";
+                let btnHtml = "";
+
+                if (isClaimed) {
+                    borderClass = "done-border opacity-50";
+                    btnHtml = `<div class="text-gray-500 font-bold text-xs">COMPLETED</div>`;
+                } else if (isUnlocked) {
+                    borderClass = "unlocked-border";
+                    btnHtml = `<button onclick="claimTask(${i}, '${taskData.url}')" class="bg-green-500 text-black px-4 py-1 rounded font-bold text-xs hover:scale-105">CLAIM 200</button>`;
+                } else {
+                    borderClass = "locked-border";
+                    btnHtml = `<div class="text-red-500 font-bold text-xs"><i class="fa-solid fa-lock"></i> LOCKED</div>`;
+                }
 
                 htmlContent += `
                 <div class="gf-card ${borderClass} p-4 flex items-center justify-between">
                     <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white"><i class="fa-solid fa-list-check"></i></div>
-                        <div><h4 class="font-bold text-sm text-white">Task #${i+1}</h4><span class="text-xs text-gray-400">${taskData.title}</span></div>
+                        <div class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white"><i class="fa-solid fa-check"></i></div>
+                        <div><h4 class="font-bold text-sm text-white">Reward #${i+1}</h4><span class="text-xs text-gray-400">${taskData.title}</span></div>
                     </div>
                     ${btnHtml}
                 </div>`;
@@ -257,9 +264,23 @@
             container.innerHTML = htmlContent;
         }
 
-        function doTask(url) { window.open(url, '_blank'); }
+        // --- CLAIM MONEY LOGIC ---
+        function claimTask(index, url) {
+            window.open(url, '_blank');
+            
+            // Wait 2 seconds then credit
+            setTimeout(() => {
+                const newBal = (myData.balance || 0) + 200;
+                const newClaimed = (myData.claimedTasks || 0) + 1;
+                
+                db.ref('users/' + currentUser.uid).update({
+                    balance: newBal,
+                    claimedTasks: newClaimed
+                });
+                alert("200 PKR Added to Balance!");
+            }, 2000);
+        }
 
-        // --- AUTH & DATA ---
         auth.onAuthStateChanged(user => {
             document.getElementById('loader').style.display='none';
             if(user) {
@@ -273,63 +294,58 @@
                         document.getElementById('bigBalance').innerText = myData.balance;
                         document.getElementById('planDisplay').innerText = myData.plan || "FREE";
                         
-                        // Show Unlocked Task Count based on Invites
                         const unlocked = myData.unlockedTasks || 0;
-                        document.getElementById('taskCountDisplay').innerText = unlocked;
+                        const claimed = myData.claimedTasks || 0;
+                        document.getElementById('taskCountDisplay').innerText = unlocked - claimed; // Shows available
                         
-                        const link = window.location.origin + window.location.pathname + "?ref=" + myData.myCode;
-                        document.getElementById('myLinkDisplay').innerText = link;
+                        document.getElementById('myLinkDisplay').innerText = window.location.origin + window.location.pathname + "?ref=" + myData.myCode;
                         
-                        renderTasks(unlocked, myData.plan || "FREE");
+                        renderTasks(unlocked, claimed, myData.plan || "FREE");
                     }
                 });
             } else { document.getElementById('authScreen').style.display = 'flex'; document.getElementById('mainApp').style.display = 'none'; }
         });
 
-        // --- FUNCTIONS ---
+        // Basic Functions
         function login() { auth.signInWithEmailAndPassword(document.getElementById('loginEmail').value, document.getElementById('loginPass').value).catch(e => alert(e.message)); }
         function register() {
             const e=document.getElementById('regEmail').value, p=document.getElementById('regPass').value, n=document.getElementById('regName').value;
             const code = "U-" + Math.floor(10000 + Math.random() * 90000);
             auth.createUserWithEmailAndPassword(e, p).then(c => {
-                db.ref('users/'+c.user.uid).set({name:n, email:e, myCode:code, invitedBy:detectedReferral, balance:0, plan:"FREE", unlockedTasks:0});
+                db.ref('users/'+c.user.uid).set({name:n, email:e, myCode:code, invitedBy:detectedReferral, balance:0, plan:"FREE", unlockedTasks:0, claimedTasks:0});
             }).catch(e => alert(e.message));
         }
         function logout() { auth.signOut(); location.reload(); }
         function toggleAuth() { document.getElementById('loginForm').classList.toggle('hidden'); document.getElementById('registerForm').classList.toggle('hidden'); }
-
-        function selectMethod(type) {
-            selectedDepMethod = type === 'ep' ? "Easypaisa" : "JazzCash";
-            // Visual toggle logic here if needed
-        }
-
+        function selectMethod(t) { selectedDepMethod = t==='ep'?"Easypaisa":"JazzCash"; document.querySelectorAll('#depositModal button').forEach(b=>b.classList.remove('border-green-500')); event.target.classList.add('border-green-500'); }
+        
         function submitDeposit() {
             const amt = document.getElementById('depAmt').value, sender = document.getElementById('senderNum').value;
+            if(!amt || !sender) return alert("Fill all details");
             db.ref('deposits').push({ uid: currentUser.uid, amount: amt, senderNum: sender, method: selectedDepMethod, invitedBy: myData.invitedBy, status: "Pending", timestamp: Date.now() });
             alert("Request Sent!"); document.getElementById('depositModal').style.display='none';
         }
-
+        
         function submitWithdraw() {
             const amt = parseInt(document.getElementById('withAmt').value);
             if(amt > myData.balance) return alert("Low Balance");
-            if(confirm("Confirm Withdraw?")) {
-                db.ref('users/' + currentUser.uid).update({ balance: myData.balance - amt });
-                db.ref('withdrawals').push({ uid: currentUser.uid, amount: amt, method: document.getElementById('withMethod').value, accNum: document.getElementById('withNum').value, status: "Pending" });
+            if(confirm("Confirm?")) {
+                db.ref('users/'+currentUser.uid).update({balance: myData.balance - amt});
+                db.ref('withdrawals').push({uid:currentUser.uid, amount:amt, method:document.getElementById('withMethod').value, accNum:document.getElementById('withNum').value, status:"Pending"});
                 alert("Sent!"); document.getElementById('withdrawModal').style.display='none';
             }
         }
 
         function buyPlan(price, name) {
             if(myData.balance >= price) {
-                if(confirm("Buy " + name + "?")) {
-                    db.ref('users/' + currentUser.uid).update({ balance: myData.balance - price, plan: name });
-                    alert("Plan Activated!");
+                if(confirm("Buy "+name+"?")) {
+                    db.ref('users/'+currentUser.uid).update({balance: myData.balance - price, plan: name});
+                    alert("Activated!");
                 }
             } else { alert("Insufficient Balance"); document.getElementById('depositModal').style.display='flex'; }
         }
 
         function shareLink() { window.open("https://wa.me/?text=" + encodeURIComponent("🚀 Join: " + document.getElementById('myLinkDisplay').innerText), '_blank'); }
-        
         function switchTab(tab) {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active-tab'));
             document.getElementById('tab-' + tab).classList.add('active-tab');
